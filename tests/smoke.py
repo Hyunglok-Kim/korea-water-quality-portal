@@ -69,7 +69,8 @@ def skill_text(spec, sk):
 def settle(page, ms=700, key_prefix=None):
     """Wait for the layer switch to land (the numbers may come over the internet), then for the map."""
     if key_prefix:
-        page.wait_for_function("p => window.__portal.current().spec.key.startsWith(p) && !!window.__portal.current().vals", arg=key_prefix, timeout=60000)
+        # current() is null until the first layer's numbers have arrived, which over the internet is after the map's load event
+        page.wait_for_function("p => { const c = window.__portal.current(); return !!c && c.spec.key.startsWith(p) && !!c.vals; }", arg=key_prefix, timeout=60000)
     page.wait_for_timeout(ms)
     page.wait_for_function("window.__portal.map.areTilesLoaded()", timeout=60000)
 
@@ -418,10 +419,23 @@ with sync_playwright() as pw:
     lc.goto(url, wait_until="domcontentloaded")
     lc.wait_for_function("window.__portal && window.__portal.ready && window.__portal.ready()", timeout=60000)
     lc.wait_for_function("document.querySelector('#boot') === null", timeout=15000)
+    lc.wait_for_function("(() => { const c = window.__portal.current(); return !!c && !!c.vals; })()", timeout=60000)
+    lc.wait_for_timeout(600)
+    COLOURED = "(() => { const m = window.__portal.map; return ['cells', 'dots'].map((s) => [0, 4000, 8557].filter((id) => (m.getFeatureState({source: s, id}).t ?? -1) >= 0).length); })()"
+    before = lc.evaluate(COLOURED)
     has = lc.evaluate("""() => { const c = window.__portal.map.getCanvas(), gl = c.getContext('webgl2') || c.getContext('webgl');
         const x = gl && gl.getExtension('WEBGL_lose_context'); if (!x) return false; window.__lose = x; x.loseContext(); return true; }""")
     if has:
-        lc.wait_for_timeout(2500)
+        # while the context is lost the map has no style: the layer buttons, the opacity and a pick must still work, without an error
+        lc.wait_for_timeout(400)
+        lc.click("#varSeg button[data-var=wt]")
+        lc.wait_for_function("document.querySelector('#lyTitle').textContent.startsWith('Water temperature')", timeout=60000)
+        lc.evaluate("() => { const o = document.querySelector('#opacity'); o.value = 80; o.dispatchEvent(new Event('input')); window.__portal.pickCell(4000); }")
+        lc.wait_for_function("document.querySelector('#recordBox') && !document.querySelector('#recordBox').hidden", timeout=60000)
+        while_lost = lc.evaluate("[!!window.__portal.map.style, document.querySelector('#lyTitle').textContent, document.querySelector('#srTitle').textContent]")
+        check(not while_lost[0] and while_lost[1].startswith("Water temperature") and "°N" in while_lost[2],
+              f"while the WebGL context is lost (the map has no style) a layer change and a pick still fill the cards: {while_lost[1]} | {while_lost[2]}")
+        lc.wait_for_timeout(2000)
         early = lc.evaluate("document.documentElement.classList.contains('nomap')")      # not at once: a context usually comes back
         try:
             lc.wait_for_function("document.documentElement.classList.contains('nomap')", timeout=12000)
@@ -439,6 +453,13 @@ with sync_playwright() as pw:
               "a WebGL context lost while the page is open: after a few seconds without it the page says the map is gone")
         check(not back["msg"] and back["map"] and back["noMap"] is False and back["loaded"],
               f"when the context comes back the map returns (zoom {back['zoom']:.2f})")
+        try:
+            lc.wait_for_function(COLOURED + ".every((n) => n === 3)", timeout=20000)
+        except Exception:
+            pass
+        after = lc.evaluate("[" + COLOURED + ", window.__portal.current().spec.key, window.__portal.map.getPaintProperty('cells-fill', 'fill-opacity')[6][2], (window.__portal.map.getSource('pick')._data || {}).type || '']")
+        check(before == [3, 3] and after[0] == [3, 3] and after[1].startswith("wt|") and after[2] == 0.8,
+              f"and its cells have their colours again, for the layer chosen meanwhile ({after[1]}), at the opacity set meanwhile ({after[2]})")
         lc.screenshot(path=str(shots / "13_context_restored.png"))
     else:
         notes.append("   (this browser has no WEBGL_lose_context: the lost-context check was skipped)")

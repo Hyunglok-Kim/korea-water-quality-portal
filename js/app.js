@@ -352,8 +352,13 @@ function norm(spec, lo, hi) {
   const d = hi - lo; return (v) => clamp((v - lo) / d, 0, 1);
 }
 let rampKey = "";
+/* While the WebGL context is lost MapLibre has no style at all (it puts the style away and builds it again when the
+   context returns), and any call that reaches for the style throws; so does a change to a rebuilt style
+   that has not finished loading. So nothing here touches the map's layers unless the style is there and loaded;
+   what was missed is done again when the map comes back (restoreMapState). */
+const mapOK = () => mapReady && !!map && !!map.style && map.style._loaded !== false;   // _loaded: a rebuilt style refuses changes until it has loaded
 function paint() {
-  if (!mapReady || !current || !current.vals) return;
+  if (!mapOK() || !current || !current.vals) return;
   const { spec, vals, lo, hi } = current, f = norm(spec, lo, hi), key = spec.isN ? "n" : spec.band === "sigma" ? "sigma" : spec.var;
   if (key !== rampKey) {
     const e = rampExpr(rampOf(spec));
@@ -368,7 +373,7 @@ function paint() {
 }
 function setOpacity(op) {
   state.opacity = op;
-  if (!mapReady) return;
+  if (!mapOK()) return;
   map.setPaintProperty("cells-fill", "fill-opacity", fillOpacity(op));
   map.setPaintProperty("cells-dot", "circle-opacity", dotOpacity(op));
   map.setPaintProperty("cells-dot", "circle-stroke-opacity", dotOpacity(op * 0.6));
@@ -489,7 +494,11 @@ function initMap() {
      the map is gone; if it comes back later after all, the map returns. */
   let lost = 0;
   map.on("webglcontextlost", () => { clearTimeout(lost); lost = setTimeout(() => noMap(true, "the WebGL context was lost and has not come back"), LOST_WAIT); });
-  map.on("webglcontextrestored", () => { clearTimeout(lost); if (document.documentElement.classList.contains("nomap")) { noMap(false); map.resize(); } });
+  map.on("webglcontextrestored", () => {
+    clearTimeout(lost);
+    if (document.documentElement.classList.contains("nomap")) { noMap(false); map.resize(); }
+    restoreMapState();
+  });
   map.on("load", () => {
     mapReady = true; window.__portal.map = map;
     $("#boot").classList.add("out");
@@ -506,6 +515,23 @@ function initMap() {
   map.on("mousemove", onHover);
   map.on("mouseout", () => { $("#roVal").textContent = ""; });
   map.on("click", onClick);
+}
+/* After the WebGL context has come back. MapLibre rebuilds the style it had (sources, layers, paint properties),
+   but the cells' colours are feature state, which is not part of a style and is gone: give every cell its colour
+   again, and whatever was asked for while there was no style (a layer change, the opacity, the picked cell). */
+function restoreMapState() {
+  const again = () => {
+    if (!mapOK()) return;
+    tPrev = null; rampKey = "";
+    paint(); setOpacity(state.opacity);
+    const pick = map.getSource("pick");
+    if (pick) pick.setData(state.pick ? { type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: cellPolygon(state.pick.i) } } : { type: "FeatureCollection", features: [] });
+    if (map.getLayer("stations")) map.setLayoutProperty("stations", "visibility", state.pts ? "visible" : "none");
+    else if (state.pts) showPoints(true);
+  };
+  again();                                   // if the style is already there
+  map.once("style.load", again);             // when the rebuilt style has loaded
+  map.once("idle", again);                   // and once more when the map has settled, whichever of the two came first
 }
 /* On a phone-width map the credits start folded behind the (i): unfolded they cover the legend. */
 function foldCredits() {
@@ -597,9 +623,10 @@ function showPoints(on) {
   const lg = $("#lgPts");
   lg.hidden = !on;
   if (on) lg.replaceChildren(...PT_TYPES.map((t, i) => el("span", {}, [el("i", { style: `background:${PT_COLORS[i]}` }), t])), el("span", {}, "monitoring points"));
-  if (!mapReady) return;
+  if (!mapOK()) return;
   if (!on) { if (map.getLayer("stations")) map.setLayoutProperty("stations", "visibility", "none"); hideTip(); return; }
   if (!pointsLoaded) pointsLoaded = fetch(DATA + "stations.json").then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); }).then((s) => {
+    if (!mapOK()) throw new Error("the map is not there at the moment");
     map.addSource("stations", { type: "geojson", data: { type: "FeatureCollection", features: s.points.map(([id, name, lat, lon, ty, n]) =>
       ({ type: "Feature", geometry: { type: "Point", coordinates: [lon, lat] }, properties: { id, name, ty, n } })) } });
     map.addLayer({ id: "stations", type: "circle", source: "stations", paint: {
@@ -615,7 +642,7 @@ function showPoints(on) {
     map.on("mouseleave", "stations", () => { map.getCanvas().style.cursor = ""; hideTip(); });
     window.__portal.points = s.points.length;
   });
-  pointsLoaded.then(() => map.setLayoutProperty("stations", "visibility", state.pts ? "visible" : "none"))
+  pointsLoaded.then(() => { if (mapOK() && map.getLayer("stations")) map.setLayoutProperty("stations", "visibility", state.pts ? "visible" : "none"); })
     .catch((e) => { console.warn("[monitoring points]", e.message); pointsLoaded = null; btn.setAttribute("aria-pressed", "false"); lg.hidden = true; state.pts = false; });
 }
 
@@ -1153,7 +1180,7 @@ function pointsOf(S, par, band, year) {
 function pickCell(i) {
   const [lng, lat] = cellCentre(i);
   state.pick = { i, row: cellRow[i], col: cellCol[i], lat, lng };
-  if (map && mapReady) {
+  if (mapOK()) {
     map.getSource("pick").setData({ type: "Feature", properties: {}, geometry: { type: "Polygon", coordinates: cellPolygon(i) } });
     if (!pickMarker) pickMarker = new maplibregl.Marker({ color: "#B85434", scale: 0.7 });
     pickMarker.setLngLat([lng, lat]).addTo(map); onZoom();
@@ -1163,7 +1190,7 @@ function pickCell(i) {
 function clearPick() {
   state.pick = null; recordModel = null; $("#recordBox").hidden = true;
   if (pickMarker) pickMarker.remove();
-  if (map && mapReady) map.getSource("pick").setData({ type: "FeatureCollection", features: [] });
+  if (mapOK()) map.getSource("pick").setData({ type: "FeatureCollection", features: [] });
   if (current) renderNational();
 }
 const yearTicks = () => { const t = []; for (let y = +CAT.record.first.slice(0, 4); y <= +CAT.record.last.slice(0, 4); y++) t.push([dayNum(`${y}-01-01`), String(y).slice(2)]); return t; };

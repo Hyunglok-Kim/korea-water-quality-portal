@@ -281,6 +281,16 @@ live text with the repository copy.
   where the mark lands.
 - **Feature state needs the source loaded.** `paint()` does nothing until the map's `load` event, then
   paints the current layer; `tPrev` remembers what each cell was given.
+- **A lost WebGL context takes the style with it.** MapLibre 5 puts its style away when the context is lost
+  and builds it again when the context returns. While it is away every call that reaches for a layer throws
+  (“Cannot read properties of null”), a rebuilt style refuses changes until it has loaded (“Style is not done
+  loading”), and feature state is not part of a style, so the cells came back without colours. Found only on
+  the public site, where the first layer's numbers arrive after the map's `load` event; with local data the
+  test never touched the map during the loss. Hence `mapOK()` before every such call and `restoreMapState()`
+  after `webglcontextrestored`; the smoke test now changes the layer, the opacity and the pick while the
+  context is lost and counts the coloured cells afterwards.
+- **Over the internet `current` is null for a moment after the map's `load` event.** Anything that waits for
+  the page to be ready must wait for `current().vals`, not only for `ready()`.
 - **GeoJSON simplification drops small squares.** The cells source has `tolerance: 0`; below zoom 7.5 only
   the dots are drawn.
 - **A logarithmic chart axis cannot show a lower limit near zero.** The axis is set by the dots and the
