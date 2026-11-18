@@ -202,14 +202,23 @@ and its validation files are public on Zenodo. So the public page is built from 
 
 ## The hydroai.net card
 
-Not published. hydroai.net/data is one HTML Embed in Webflow, shared by every dataset's card and panel and
-edited by several sessions; its text is kept in the HDCA portal's repository
-(`~/orca/projects/hdca/portal/embed/hydroai-data-page.html`, with the rules for editing it in that folder's
-`CLAUDE.md` and `embed/tools/README.md`). What is staged here for a fifth card is described in `embed/README.md`
-of this repository, if that folder exists; if it does not, nothing has been made yet. Publishing it means
-editing the lab's public site through the lab head's own browser session, so it is done only at the lab
-head's word, after asking the other portal sessions (ListAgents / SendMessage) and comparing the Designer's
-live text with the repository copy.
+**Made, tested on a local copy of the Data page, not published** (2026-11-18). hydroai.net/data is one HTML
+Embed in Webflow, shared by every dataset's card and panel and edited by several sessions; its text is kept in
+the HDCA portal's repository (`~/orca/projects/hdca/portal/embed/hydroai-data-page.html`, with the rules for
+editing it in that folder's `CLAUDE.md` and `embed/tools/README.md`).
+
+`embed/` here holds the fifth card: its loop (`media/wq-v1.*`: the six parameters in turn on the whole
+country, into Daecheong Lake, chlorophyll-a there through the year), the tool that makes it (`tools/cap_wq.py`)
+and `data-page-wq.patch.json`, six exact replacements against the live embed (29,626 characters, SHA-1
+`404c7920…`; fetched from hydroai.net/data on 2026-11-18 and equal to the HDCA repository's copy) that add the
+card, its panel, its routing and the hub's columns for five cards. On a local copy of the patched page the
+HDCA repository's `check_captions.py` (eight widths) and `check_playback.py` both pass with all five cards.
+`embed/README.md` has the details and the steps for publishing.
+
+Publishing it means editing the lab's public site through the lab head's own Webflow session and publishing
+the whole site, and the patch changes how the other four cards sit (three across from 1700 px, five across
+from 2000 px), so it is done only at the lab head's word, after asking the other portal sessions
+(ListAgents / SendMessage) and comparing the Designer's live text with the patch's base.
 
 ## Rules that must survive any redesign
 
@@ -306,7 +315,12 @@ live text with the repository copy.
 
 ## Not done yet
 
-- The hydroai.net card (above).
+- Publishing the hydroai.net card, and the manuscript's figures (both above; both the lab head's decisions).
+- The dashboard's three files for this dataset (`gateway/research_datasets.json`, `gateway/static/wq-korea.html`,
+  `gateway/static/shared/nav.js`) are in that repository's working tree, live, and were left uncommitted on
+  2026-11-18: commit them there when the lab head says so.
+- The review dashboard's project record links Zenodo version 3 (10.5281/zenodo.21393563); the manuscript
+  cites version 4 (…23750573). The grids are the same files in both.
 - Regional or per-water-body summaries (click a reservoir for its mean series).
 - The native 30 m predictions: not in the record, not on the site.
 - Korean UI text, a dark page theme.
