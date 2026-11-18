@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
-"""cap_wq.py BASE OUTDIR [test] — frames of the hub card's loop for the Korea water quality portal.
+"""cap_wq.py BASE OUTDIR [test] [size=WxH] [scale=S] [pad=T,R,B,L] [strip=none] — frames of the loop for the Korea water quality portal.
 
+    # the Data page card (16:9; the month strip drawn into the frames)
     python embed/tools/cap_wq.py "http://127.0.0.1:8797/index.html?intro=0&data=/data/" frames/wq
     embed/tools/encode.sh frames/wq/final wq-v1 embed/media 30 44 768 24
+
+    # the home page announcement (upright, beside the text; the months are shown by the page, not drawn in)
+    python embed/tools/cap_wq.py "http://127.0.0.1:8797/index.html?intro=0&data=/data/" frames/wq_tall size=540x556 scale=1.5 pad=40,30,40,30 strip=none
+    embed/tools/encode.sh frames/wq_tall/final wq-tall-v1 embed/media 30 44 810 24
 
 The loop (about ten seconds, drawn in software, one settled frame at a time, from a running copy of the portal
 and nothing else):
@@ -18,6 +23,12 @@ first version did, and its still was a globe with nothing on it.
 Writes OUTDIR/raw/*.png (captures), OUTDIR/final/f_%04d.png (the loop's frames) and OUTDIR/timeline.json, which
 gives the second at which each stage begins: the card's data-caps times are read from it. `test` captures a handful
 of frames only. Needs playwright (chromium), numpy and Pillow.
+
+`size` is the picture in CSS pixels as the page will show it and `scale` the device pixel ratio it is drawn at
+(frames are size x scale pixels); `pad` is the room left around the country in the opening view. The stages and
+their lengths do not depend on any of these, so every version has the same timeline and the same captions fit.
+With `strip=none` the strip of months is left out of the frames: a page that crops the picture to its own shape
+(the announcement does) shows the months itself, from the same timeline, where no crop can cut them.
 """
 import json
 import sys
@@ -29,9 +40,14 @@ from playwright.sync_api import sync_playwright
 
 base, out = sys.argv[1], Path(sys.argv[2])
 test = "test" in sys.argv[3:]
+opt = dict(kv.split("=", 1) for kv in sys.argv[3:] if "=" in kv)
 raw, final = out / "raw", out / "final"
 raw.mkdir(parents=True, exist_ok=True); final.mkdir(parents=True, exist_ok=True)
-W, H, FPS = 960, 540, 24
+W, H = (int(v) for v in opt.get("size", "960x540").split("x"))
+SCALE = float(opt.get("scale", "1"))
+PAD = [int(v) for v in opt.get("pad", "34,34,34,34").split(",")]          # top, right, bottom, left
+STRIP = opt.get("strip", "burn") != "none"
+FPS = 24
 NC = 40                              # frames of the zoom into the lake
 HOLD_B, FADE_B, FIRST_B = 12, 5, 20  # each parameter: frames held, frames of cross-fade into the next; the first is held longer
 HOLD_D, FADE_D = 5, 3                # each month
@@ -58,13 +74,13 @@ smooth = lambda t: t * t * (3 - 2 * t)
 def capture():
     with sync_playwright() as pw:
         br = pw.chromium.launch(args=["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--enable-webgl"])
-        page = br.new_context(viewport={"width": W, "height": H}, device_scale_factor=1).new_page()
+        page = br.new_context(viewport={"width": W, "height": H}, device_scale_factor=SCALE).new_page()
         page.goto(base, wait_until="domcontentloaded", timeout=120000)
         page.wait_for_function("window.__portal && window.__portal.ready && window.__portal.ready()", timeout=90000)
         page.wait_for_function("(() => { const c = window.__portal.current(); return !!c && !!c.vals; })()", timeout=90000)
         page.add_style_tag(content=CSS)
         page.evaluate("() => { const m = window.__portal.map; m.setMinZoom(0); m.resize(); }")
-        home = page.evaluate("() => { const c = window.__portal.map.cameraForBounds([[125.95, 34.2], [129.65, 38.2]], {padding: 34}); return [c.center.lng, c.center.lat, c.zoom]; }")
+        home = page.evaluate("([t, r, b, l]) => { const c = window.__portal.map.cameraForBounds([[125.95, 34.2], [129.65, 38.2]], {padding: {top: t, right: r, bottom: b, left: l}}); return [c.center.lng, c.center.lat, c.zoom]; }", PAD)
 
         def shot(view, name):
             ok = page.evaluate(SETTLE, list(view))
@@ -93,29 +109,33 @@ def capture():
 
 def month_strip(im, month, alpha=1.0):
     """The strip of months at the top left, the current one lit. Drawn at twice the size and scaled, for clean edges."""
-    s = 2
-    pad, cell, hgt = 12 * s, 21 * s, 30 * s
+    if not STRIP:
+        return im
+    u = SCALE                                                 # one CSS pixel, in frame pixels
+    s = 2 * u
+    r = lambda v: int(round(v))
+    pad, cell, hgt = r(12 * s), r(21 * s), r(30 * s)
     w = pad * 2 + cell * 12
     strip = Image.new("RGBA", (w, hgt), (0, 0, 0, 0))
     d = ImageDraw.Draw(strip)
     d.rounded_rectangle([0, 0, w - 1, hgt - 1], radius=hgt // 2, fill=(15, 19, 24, 190))
     try:
-        font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 15 * s)
-        bold = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", 15 * s, index=1)
+        font = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", r(15 * s))
+        bold = ImageFont.truetype("/System/Library/Fonts/Helvetica.ttc", r(15 * s), index=1)
     except OSError:
         font = bold = ImageFont.load_default()
     for k, ch in enumerate(MON):
         on = k == month - 1
         cx = pad + cell * k + cell // 2
         if on:
-            d.rounded_rectangle([cx - cell // 2 + 2, 4 * s, cx + cell // 2 - 2, hgt - 4 * s], radius=10 * s, fill=(253, 231, 37, 235))
+            d.rounded_rectangle([cx - cell // 2 + 2, r(4 * s), cx + cell // 2 - 2, hgt - r(4 * s)], radius=r(10 * s), fill=(253, 231, 37, 235))
         tw = d.textlength(ch, font=bold if on else font)
-        d.text((cx - tw / 2, 6 * s), ch, font=bold if on else font, fill=(15, 19, 24, 255) if on else (240, 238, 230, 200))
-    strip = strip.resize((w // s, hgt // s), Image.LANCZOS)
+        d.text((cx - tw / 2, r(6 * s)), ch, font=bold if on else font, fill=(15, 19, 24, 255) if on else (240, 238, 230, 200))
+    strip = strip.resize((w // 2, hgt // 2), Image.LANCZOS)
     if alpha < 1:
         strip.putalpha(strip.getchannel("A").point(lambda a: int(a * alpha)))
     base = im.convert("RGBA")
-    base.alpha_composite(strip, (16, 16))
+    base.alpha_composite(strip, (r(16 * u), r(16 * u)))
     return base.convert("RGB")
 
 
@@ -147,7 +167,9 @@ def compose():
     for i, f in enumerate(frames):
         f.save(final / f"f_{i:04d}.png")
     marks["duration"] = round(len(frames) / FPS, 2)
-    (out / "timeline.json").write_text(json.dumps({"fps": FPS, "frames": len(frames), "seconds": marks, "order": ORDER_B}, indent=1))
+    (out / "timeline.json").write_text(json.dumps({"fps": FPS, "frames": len(frames), "seconds": marks, "order": ORDER_B,
+                                                   "size": [W, H], "scale": SCALE, "pad": PAD, "months_drawn_in": STRIP,
+                                                   "months": {"first_frame": int(round(marks["D"] * FPS)), "fade_in": FADE_D, "hold": HOLD_D, "fade": FADE_D}}, indent=1))
     print(len(frames), "frames,", marks, flush=True)
 
 

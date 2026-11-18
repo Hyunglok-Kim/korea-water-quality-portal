@@ -225,6 +225,19 @@ are equal, and that repository's `check_captions.py` and `check_playback.py` pas
 Scientific Data”). When the paper is accepted, or the record changes, change the card's Status line too.
 The panel frames the public page with `?embed=1&hidefooter=1`; the line at the top of the portal shows there.
 
+## The home page announcement
+
+**Made 2026-11-19, not on hydroai.net yet** (it waits for the lab head's word). The lab head asked for
+something on the first page, “a popup or the like”, so that a first-time visitor learns the data are
+available. `embed/home-announcement.html` is one block for a Webflow Code Embed on the Home page: a dialog
+that opens once per browser (the loop beside “New dataset · Now available”, the name, two sentences, three
+numbers, the status line, one button to `/data#wq`), then a small pill at the bottom right until it is
+followed or hidden; both stop after `ANN.until` (2027-02-28). It uses the card's loop above the text in
+narrow windows and an upright version of it (`embed/media/wq-tall-v1.*`, made with the same tool) beside the
+text in wide ones. `embed/tools/home_preview.py` shows it on a local copy of the live home page and
+`embed/tools/check_home.py` checks it in three browsers. `embed/README.md` has the behaviour, the reasons and
+how to change or retire it. Its facts repeat the portal's; no manuscript figure is in it.
+
 ## Rules that must survive any redesign
 
 - **Say what kind of layer each parameter is.** SS, Chl-a and TP are optical retrievals; TN is a

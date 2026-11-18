@@ -1,0 +1,303 @@
+<!-- HydroAI home page: announcement of a new dataset (Inland Water Quality of South Korea).
+     One self-contained block (styles, markup, script); nothing else on the page is touched.
+     A browser's first time on the page a dialog opens, once. After that a small pill stays in the corner until the
+     visitor follows it or hides it. Both stop after ANN.until. What a browser has seen is kept in localStorage under
+     "hydroai-announcement"; where that cannot be written, only the pill is shown.
+     To announce something else: give ANN a new id and date, and change the words. To retire it: delete this embed.
+     Kept in github.com/Hyunglok-Kim/korea-water-quality-portal, embed/home-announcement.html (notes in embed/README.md). -->
+<style>
+  .ha-ann, .ha-ann *, .ha-pill, .ha-pill * { box-sizing: border-box; }
+  .ha-ann[hidden], .ha-pill[hidden] { display: none !important; }
+  .ha-ann { position: fixed; inset: 0; z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 24px;
+    background: rgba(8, 20, 19, 0.62); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    opacity: 0; transition: opacity .4s ease; }
+  .ha-ann.is-open { opacity: 1; }
+  .ha-card { position: relative; display: flex; width: 100%; max-width: 1000px; max-height: calc(100vh - 48px); max-height: calc(100dvh - 48px);
+    background: #fcfbf9; color: #1c3533; border-radius: 24px; overflow: hidden; box-shadow: 0 32px 90px rgba(4, 14, 13, 0.5);
+    font-family: Satoshi, sans-serif; font-size: 17px; line-height: 1.5; text-align: left;
+    transform: translateY(22px) scale(.965); transition: transform .6s cubic-bezier(.2, .7, .2, 1); }
+  .ha-card:focus { outline: none; }
+  .ha-ann.is-open .ha-card { transform: none; }
+  .ha-media { position: relative; flex: 0 0 52.8%; background: #0F1318 center / cover no-repeat; }
+  .ha-media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ha-cap { position: absolute; left: 16px; bottom: 16px; max-width: calc(100% - 32px); padding: 6px 13px; border-radius: 999px;
+    background: rgba(15, 19, 24, 0.76); color: #fff; font-size: 13px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ha-cap:empty { display: none; }
+  .ha-months { position: absolute; left: 16px; top: 16px; display: flex; padding: 4px 10px; border-radius: 999px; background: rgba(15, 19, 24, 0.76);
+    opacity: 0; transition: opacity .2s ease; pointer-events: none; }
+  .ha-months.is-on { opacity: 1; }
+  .ha-months i { display: flex; align-items: center; justify-content: center; width: 19px; height: 22px; border-radius: 9px;
+    font-style: normal; font-size: 12.5px; font-weight: 500; line-height: 1; color: rgba(240, 238, 230, 0.8); }
+  .ha-months i.is-on { background: #FDE725; color: #0F1318; font-weight: 700; }
+  .ha-body { flex: 1 1 0; min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 16px; padding: 42px 38px 0;
+    overflow-y: auto; overscroll-behavior: contain; }
+  .ha-tags { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-right: 36px; }
+  .ha-tag { display: inline-flex; align-items: center; font-size: 11.5px; font-weight: 500; line-height: 1.3; letter-spacing: .09em; text-transform: uppercase;
+    padding: 5px 11px; border-radius: 999px; background: rgba(28, 53, 51, 0.08); color: #1c3533; white-space: nowrap; }
+  .ha-tag.ha-new { background: #1c3533; color: #fcfbf9; }
+  .ha-tag.ha-new::before { content: ""; width: 7px; height: 7px; margin-right: 8px; border-radius: 50%; background: #75fb92; animation: haPulse 2.2s ease-out infinite; }
+  @keyframes haPulse { 0% { box-shadow: 0 0 0 0 rgba(117, 251, 146, .65); } 100% { box-shadow: 0 0 0 9px rgba(117, 251, 146, 0); } }
+  .ha-title { margin: 0; font-family: "Plus Jakarta", sans-serif; font-size: 33px; line-height: 1.14; font-weight: 600; letter-spacing: -.012em; color: #1c3533; }
+  .ha-text { margin: 0; font-size: 17px; line-height: 1.52; color: rgba(28, 53, 51, 0.86); }
+  .ha-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 2px 0 0; padding: 0; list-style: none; }
+  .ha-stats li { margin: 0; padding: 12px 12px 11px; border-radius: 14px; background: #f4f1eb; }
+  .ha-stats b { display: block; font-family: "Plus Jakarta", sans-serif; font-size: 23px; line-height: 1.1; font-weight: 600; color: #1c3533; white-space: nowrap; }
+  .ha-stats li > span { display: block; margin-top: 4px; font-size: 12.5px; line-height: 1.3; color: #5a6564; }
+  .ha-nb { white-space: nowrap; }
+  .ha-status { margin: 0; font-size: 13px; line-height: 1.45; color: #5a6564; }
+  .ha-actions { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin-top: -8px; padding: 12px 0 36px;
+    background: linear-gradient(to bottom, rgba(252, 251, 249, 0), #fcfbf9 12px); }      /* stays in view when the text has to scroll */
+  .ha-cta { display: inline-flex; align-items: center; justify-content: center; height: 54px; padding: 0 28px 1px; border-radius: 12px; background: #75fb92; color: #1c3533;
+    font-family: "Plus Jakarta", sans-serif; font-size: 17.5px; font-weight: 600; line-height: 1.2; text-decoration: none; white-space: nowrap;
+    transition: transform .15s, background-color .15s, box-shadow .15s; }
+  .ha-cta:hover { background: #5cf07e; color: #1c3533; transform: translateY(-1px); box-shadow: 0 8px 22px rgba(33, 150, 83, .28); }
+  .ha-later { -webkit-appearance: none; appearance: none; border: 0; background: none; margin: 0; padding: 8px 4px; font: inherit; font-size: 15.5px; line-height: 1.3;
+    color: rgba(28, 53, 51, 0.72); cursor: pointer; }
+  .ha-later:hover { color: #1c3533; text-decoration: underline; }
+  .ha-x { -webkit-appearance: none; appearance: none; position: absolute; top: 14px; right: 14px; z-index: 2; width: 38px; height: 38px; margin: 0; padding: 0;
+    border-radius: 50%; border: 1px solid rgba(28, 53, 51, 0.14); background: rgba(252, 251, 249, 0.94); color: #1c3533; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; transition: background-color .15s, transform .25s; }
+  .ha-x:hover { background: #fff; transform: rotate(90deg); }
+  .ha-x svg, .ha-pill-x svg { display: block; }
+  .ha-cta:focus-visible, .ha-later:focus-visible, .ha-x:focus-visible, .ha-pill-link:focus-visible, .ha-pill-x:focus-visible { outline: 3px solid #219653; outline-offset: 3px; }
+  /* in a narrow window the picture goes on top (the script reads this same condition to choose the loop) */
+  @media (max-width: 880px) and (min-height: 600px), (max-width: 599px) {
+    .ha-card { flex-direction: column; max-width: 540px; }
+    .ha-media { flex: 0 0 auto; max-height: 40vh; max-height: 40dvh; }
+    .ha-media::before { content: ""; display: block; padding-top: 56.25%; }          /* 16:9, unless the window is too short for it */
+    .ha-body { flex: 1 1 auto; padding: 24px 24px 0; gap: 13px; }
+    .ha-actions { padding-bottom: 24px; }
+    .ha-tags { padding-right: 0; }
+    .ha-title { font-size: 26px; }
+    .ha-text { font-size: 16px; }
+  }
+  @media (max-width: 520px) {
+    .ha-ann { padding: 12px; }
+    .ha-card { max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); border-radius: 20px; }
+    .ha-body { padding: 20px 20px 0; }
+    .ha-actions { padding-bottom: 20px; }
+    .ha-title { font-size: 23px; }
+    .ha-stats { gap: 8px; }
+    .ha-stats b { font-size: 20px; }
+    .ha-stats li { padding: 10px 10px 9px; }
+    .ha-actions { flex-wrap: nowrap; gap: 12px; }
+    .ha-cta { height: 50px; flex: 1 1 auto; min-width: 0; padding: 0 14px 1px; font-size: 16.5px; }
+    .ha-later { flex: none; }
+  }
+  @media (max-width: 340px) { .ha-later { display: none; } }                          /* the cross is still there */
+  @media (max-height: 640px) and (min-width: 881px) { .ha-body { padding-top: 28px; gap: 12px; } .ha-actions { padding-bottom: 24px; } }
+  /* a short window that is wide enough (a phone held sideways): still side by side, everything smaller */
+  @media (max-height: 599px) and (min-width: 600px) {
+    .ha-ann { padding: 16px; }
+    .ha-card { max-width: 860px; max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); border-radius: 20px; }
+    .ha-media { flex-basis: 40%; }
+    .ha-body { padding: 22px 24px 0; gap: 10px; }
+    .ha-title { font-size: 22px; }
+    .ha-text { font-size: 15px; line-height: 1.45; }
+    .ha-stats { gap: 8px; margin-top: 0; }
+    .ha-stats li { padding: 8px 10px; border-radius: 12px; }
+    .ha-stats b { font-size: 18px; }
+    .ha-stats li > span { margin-top: 2px; font-size: 11.5px; }
+    .ha-status { font-size: 12px; }
+    .ha-actions { margin-top: -10px; padding: 10px 0 20px; }
+    .ha-cta { height: 44px; padding: 0 22px 1px; font-size: 16px; }
+    .ha-later { font-size: 14.5px; }
+    .ha-x { top: 10px; right: 10px; width: 34px; height: 34px; }
+  }
+  /* the pill that stays after the dialog has been seen */
+  .ha-pill { position: fixed; right: 20px; bottom: 20px; z-index: 999; display: inline-flex; align-items: center; max-width: calc(100vw - 40px);
+    border-radius: 999px; background: #1c3533; color: #fcfbf9; box-shadow: 0 10px 30px rgba(6, 16, 15, 0.32); font-family: Satoshi, sans-serif;
+    opacity: 0; transform: translateY(14px); transition: opacity .45s ease, transform .45s cubic-bezier(.2, .7, .2, 1); }
+  .ha-pill.is-in { opacity: 1; transform: none; }
+  .ha-pill-link { display: inline-flex; align-items: center; gap: 10px; min-width: 0; padding: 12px 6px 12px 16px; color: #fcfbf9; text-decoration: none;
+    font-size: 14.5px; font-weight: 500; line-height: 1.2; border-radius: 999px 0 0 999px; }
+  .ha-pill-link:hover { color: #fcfbf9; }
+  .ha-pill-link::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: #75fb92; animation: haPulse 2.2s ease-out infinite; }
+  .ha-pill-link span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ha-pill-link b { font-weight: 500; color: #75fb92; white-space: nowrap; }
+  .ha-pill-link:hover span { text-decoration: underline; }
+  .ha-pill-x { -webkit-appearance: none; appearance: none; flex: none; width: 34px; height: 34px; margin: 0 6px 0 0; padding: 0; border: 0; border-radius: 50%;
+    background: none; color: rgba(252, 251, 249, 0.7); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .ha-pill-x:hover { background: rgba(252, 251, 249, 0.12); color: #fcfbf9; }
+  @media (max-width: 520px) { .ha-pill { right: 12px; bottom: 12px; max-width: calc(100vw - 24px); } .ha-pill-link b { display: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .ha-ann, .ha-card, .ha-pill, .ha-cta, .ha-x { transition: none; }
+    .ha-card { transform: none; }
+    .ha-tag.ha-new::before, .ha-pill-link::before { animation: none; }
+  }
+  @media print { .ha-ann, .ha-pill { display: none !important; } }
+</style>
+
+<div class="ha-ann" id="ha-ann" lang="en" hidden>
+  <div class="ha-card" role="dialog" aria-modal="true" aria-labelledby="ha-title" aria-describedby="ha-text" tabindex="-1">
+    <button class="ha-x" type="button" aria-label="Close this announcement" data-ha-close>
+      <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+    </button>
+    <div class="ha-media" role="img" aria-label="Six water quality parameters in turn on a map of South Korea's rivers and reservoirs, then into Daecheong Lake, where chlorophyll-a plays through the twelve months of the year">
+      <video muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+      <span class="ha-months" aria-hidden="true"><i>J</i><i>F</i><i>M</i><i>A</i><i>M</i><i>J</i><i>J</i><i>A</i><i>S</i><i>O</i><i>N</i><i>D</i></span>
+      <span class="ha-cap" aria-hidden="true"></span>
+    </div>
+    <div class="ha-body">
+      <div class="ha-tags"><span class="ha-tag ha-new">New dataset</span><span class="ha-tag">Now available</span></div>
+      <h2 class="ha-title" id="ha-title">Inland Water Quality of South Korea</h2>
+      <p class="ha-text" id="ha-text">Six water quality parameters for South Korea&rsquo;s rivers and reservoirs on a 1 km grid, each value with a calibrated uncertainty. Explore the maps, read the full record of any cell, and download the data.</p>
+      <ul class="ha-stats" aria-label="The dataset in three numbers">
+        <li><b>1 km</b><span>grid, inland waters</span></li>
+        <li><b>6</b><span>parameters, each with uncertainty</span></li>
+        <li><b>1,012</b><span>overpass dates, <span class="ha-nb">2016&ndash;2024</span></span></li>
+      </ul>
+      <p class="ha-status">Data open on Zenodo (CC BY 4.0). Paper under review at <i>Scientific Data</i>.</p>
+      <div class="ha-actions">
+        <a class="ha-cta" href="/data#wq" data-ha-go>Explore the data &rarr;</a>
+        <button class="ha-later" type="button" data-ha-close>Maybe later</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ha-pill" id="ha-pill" lang="en" hidden>
+  <a class="ha-pill-link" href="/data#wq" data-ha-go><b>New dataset</b><span>Inland water quality of South Korea &rarr;</span></a>
+  <button class="ha-pill-x" type="button" aria-label="Hide this notice">
+    <svg width="11" height="11" viewBox="0 0 14 14" aria-hidden="true"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+  </button>
+</div>
+
+<script>
+(function () {
+  /* What is announced. A new id makes every browser see the dialog once more. */
+  var ANN = {
+    id: 'wq-korea-2026-11',
+    until: '2027-02-28',                           /* last day it shows (Korea time); after it this block does nothing */
+    delay: 900,                                    /* ms after the page is ready, so the page is seen first */
+    media: 'https://hyunglok-kim.github.io/korea-water-quality-portal/embed/media/',
+    tall: 'wq-tall-v1',                            /* the loop beside the text (wide windows); its months are shown by this script */
+    wide: 'wq-v1',                                 /* the loop above the text (narrow windows): the Data page card's, months drawn in */
+    months: [6.04, 10.04],                         /* s: the twelve calendar months play between these, 8 frames of 24 a second each */
+    caps: [[0, 'Water temperature, 2016–2024 mean'], [1.04, 'Suspended solids'], [1.75, 'Dissolved oxygen'], [2.46, 'Total nitrogen'], [3.17, 'Total phosphorus'],
+           [3.88, 'Chlorophyll-a'], [4.38, 'Into Daecheong Lake: 1 km cells'], [6.04, 'Chlorophyll-a through the year'], [10.04, 'Water temperature, 2016–2024 mean']]
+  };
+  var KEY = 'hydroai-announcement';
+  var root = document.getElementById('ha-ann'), pill = document.getElementById('ha-pill');
+  if (!root || !pill) return;
+  if (ANN.until && Date.now() > Date.parse(ANN.until + 'T23:59:59+09:00')) return;
+  document.body.appendChild(root); document.body.appendChild(pill);   /* fixed to the window whatever element the embed sits in */
+  var card = root.querySelector('.ha-card'), body = root.querySelector('.ha-body'), media = root.querySelector('.ha-media');
+  var video = root.querySelector('video'), cap = root.querySelector('.ha-cap'), months = root.querySelector('.ha-months'), shown = -1;
+  var mm = function (q) { return window.matchMedia ? window.matchMedia(q) : { matches: false }; };
+  var reduced = mm('(prefers-reduced-motion: reduce)').matches;
+  var still = reduced || !!(navigator.connection && navigator.connection.saveData);     /* then the picture stays still */
+  var stacked = mm('(max-width: 880px) and (min-height: 600px), (max-width: 599px)');   /* as in the style sheet: the picture on top */
+  var store = null, state = {}, lastFocus = null, isOpen = false, raf = 0;
+  try { store = window.localStorage; store.setItem(KEY + '-test', '1'); store.removeItem(KEY + '-test'); } catch (e) { store = null; }
+  try { state = (store && JSON.parse(store.getItem(KEY) || '{}')) || {}; } catch (e) { state = {}; }
+  if (state.id !== ANN.id) state = { id: ANN.id };                   /* another announcement was seen: start afresh */
+  function save() { if (store) try { store.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  function month(t) {                                                 /* the month the upright loop shows at t, 0 outside that stage */
+    var f = (t - ANN.months[0]) * 24;
+    if (f < 0 || t >= ANN.months[1] || video.getAttribute('data-loop') !== ANN.tall) return 0;
+    return f < 9 ? 1 : Math.min(12, Math.floor((f - 9) / 8) + 2);
+  }
+  function caption() {
+    var t = video.currentTime || 0, txt = ANN.caps[0][1], m = month(t), i;
+    for (i = 0; i < ANN.caps.length; i++) if (t >= ANN.caps[i][0]) txt = ANN.caps[i][1];
+    if (cap.textContent !== txt) cap.textContent = txt;
+    if (m === shown) return;
+    shown = m;
+    months.className = 'ha-months' + (m ? ' is-on' : '');
+    if (m) for (i = 0; i < 12; i++) months.children[i].className = i === m - 1 ? 'is-on' : '';
+  }
+  function tick() { if (!isOpen) return; caption(); raf = window.requestAnimationFrame(tick); }
+  function pick() {                                                   /* the loop that fits the layout */
+    var name = stacked.matches ? ANN.wide : ANN.tall;
+    if (video.getAttribute('data-loop') === name) return;
+    video.setAttribute('data-loop', name);
+    media.style.backgroundImage = "url('" + ANN.media + name + ".jpg')";
+    video.poster = ANN.media + name + '.jpg';
+    if (still) return;
+    while (video.firstChild) video.removeChild(video.firstChild);
+    ['webm', 'mp4'].forEach(function (k) { var s = document.createElement('source'); s.src = ANN.media + name + '.' + k; s.type = 'video/' + k; video.appendChild(s); });
+    video.load();
+  }
+  function play() {
+    pick(); caption();
+    if (still) return;
+    var p = video.play(); if (p && p.catch) p.catch(function () {});
+    window.cancelAnimationFrame(raf); raf = window.requestAnimationFrame(tick);
+  }
+  function scrolls() { return body.scrollHeight > body.clientHeight + 1; }
+  function onKey(e) {
+    var k = e.key, t = e.target;
+    if (k === 'Escape' || k === 'Esc') { e.preventDefault(); close(); return; }
+    if (k === 'Tab') {                                                /* round the dialog's own controls, in every browser alike */
+      var f = [].slice.call(card.querySelectorAll('a[href], button')).filter(function (n) { return n.offsetParent !== null; });
+      var i = f.indexOf(document.activeElement);
+      e.preventDefault();
+      if (f.length) f[e.shiftKey ? (i <= 0 ? f.length - 1 : i - 1) : (i + 1) % f.length].focus();
+      return;
+    }
+    /* keys that would scroll the page behind */
+    if (k === ' ' && t && t.tagName === 'BUTTON') return;
+    if ([' ', 'Spacebar', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].indexOf(k) >= 0 &&
+        !(scrolls() && t && t.closest && t.closest('.ha-body'))) e.preventDefault();
+  }
+  function hold(e) { if (!(scrolls() && e.target.closest && e.target.closest('.ha-body'))) e.preventDefault(); }   /* the page behind stays where it is */
+  function relayout() { if (isOpen) play(); }
+
+  function open() {
+    if (isOpen) return;
+    isOpen = true; lastFocus = document.activeElement;
+    state.seen = true; save();                                         /* shown once, however the visitor leaves it */
+    root.hidden = false;
+    void root.offsetWidth; root.classList.add('is-open');
+    play();
+    try { card.focus({ preventScroll: true }); } catch (e) { card.focus(); }
+    document.addEventListener('keydown', onKey, true);
+    root.addEventListener('wheel', hold, { passive: false });
+    root.addEventListener('touchmove', hold, { passive: false });
+  }
+  function close(now) {
+    if (!isOpen) return;
+    isOpen = false;
+    root.classList.remove('is-open');
+    document.removeEventListener('keydown', onKey, true);
+    root.removeEventListener('wheel', hold, { passive: false });
+    root.removeEventListener('touchmove', hold, { passive: false });
+    window.cancelAnimationFrame(raf);
+    try { video.pause(); } catch (e) {}
+    if (now === true || reduced) root.hidden = true; else setTimeout(function () { if (!isOpen) root.hidden = true; }, 420);
+    if (lastFocus && lastFocus !== document.body && lastFocus.focus) try { lastFocus.focus({ preventScroll: true }); } catch (e) {}
+    showPill();
+  }
+  function showPill() {
+    if (state.pillHidden || !pill.hidden) return;
+    pill.hidden = false;
+    void pill.offsetWidth; pill.classList.add('is-in');
+  }
+  function hidePill() {
+    state.pillHidden = true; save();
+    pill.classList.remove('is-in');
+    setTimeout(function () { pill.hidden = true; }, reduced ? 0 : 460);
+  }
+
+  [].forEach.call(root.querySelectorAll('[data-ha-close]'), function (b) { b.addEventListener('click', function () { close(); }); });
+  root.addEventListener('mousedown', function (e) { if (e.target === root) close(); });                    /* a click beside the card */
+  pill.querySelector('.ha-pill-x').addEventListener('click', hidePill);
+  /* whoever follows the link has seen it: no pill on the next visit, and no open dialog when they come back */
+  [].forEach.call(document.querySelectorAll('#ha-ann [data-ha-go], #ha-pill [data-ha-go]'), function (a) {
+    a.addEventListener('click', function () { state.pillHidden = true; save(); close(true); pill.hidden = true; });
+  });
+  if (stacked.addEventListener) stacked.addEventListener('change', relayout); else if (stacked.addListener) stacked.addListener(relayout);
+
+  function start() {
+    if (state.seen || !store) { showPill(); return; }                 /* seen before, or it cannot be remembered: the pill only */
+    var go = function () { video.preload = 'auto'; pick(); setTimeout(open, ANN.delay); };   /* the loop starts loading while the page is looked at */
+    if (document.visibilityState === 'hidden') {
+      var once = function () { if (document.visibilityState !== 'hidden') { document.removeEventListener('visibilitychange', once); go(); } };
+      document.addEventListener('visibilitychange', once);
+    } else go();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+</script>
