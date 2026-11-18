@@ -75,12 +75,11 @@
     .ha-ann { padding: 12px; }
     .ha-card { max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); border-radius: 20px; }
     .ha-body { padding: 20px 20px 0; }
-    .ha-actions { padding-bottom: 20px; }
+    .ha-actions { flex-wrap: nowrap; gap: 12px; padding-bottom: 20px; }
     .ha-title { font-size: 23px; }
     .ha-stats { gap: 8px; }
     .ha-stats b { font-size: 20px; }
     .ha-stats li { padding: 10px 10px 9px; }
-    .ha-actions { flex-wrap: nowrap; gap: 12px; }
     .ha-cta { height: 50px; flex: 1 1 auto; min-width: 0; padding: 0 14px 1px; font-size: 16.5px; }
     .ha-later { flex: none; }
   }
@@ -174,8 +173,8 @@
     tall: 'wq-tall-v1',                            /* the loop beside the text (wide windows); its months are shown by this script */
     wide: 'wq-v1',                                 /* the loop above the text (narrow windows): the Data page card's, months drawn in */
     months: [6.04, 10.04],                         /* s: the twelve calendar months play between these, 8 frames of 24 a second each */
-    caps: [[0, 'Water temperature, 2016–2024 mean'], [1.04, 'Suspended solids'], [1.75, 'Dissolved oxygen'], [2.46, 'Total nitrogen'], [3.17, 'Total phosphorus'],
-           [3.88, 'Chlorophyll-a'], [4.38, 'Into Daecheong Lake: 1 km cells'], [6.04, 'Chlorophyll-a through the year'], [10.04, 'Water temperature, 2016–2024 mean']]
+    caps: [[0, 'Water temperature, 2016\u20132024 mean'], [1.04, 'Suspended solids'], [1.75, 'Dissolved oxygen'], [2.46, 'Total nitrogen'], [3.17, 'Total phosphorus'],
+           [3.88, 'Chlorophyll-a'], [4.38, 'Into Daecheong Lake: 1 km cells'], [6.04, 'Chlorophyll-a through the year'], [10.04, 'Water temperature, 2016\u20132024 mean']]
   };
   var KEY = 'hydroai-announcement';
   var root = document.getElementById('ha-ann'), pill = document.getElementById('ha-pill');
