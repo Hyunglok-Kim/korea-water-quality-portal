@@ -252,7 +252,8 @@ def main():
     catalog = {
         "version": f"Zenodo v4 (grids unchanged since v3) · portal build {a.build}",
         "product": product,
-        "record": {"first": iso(dates[0]), "last": iso(dates[-1]), "n": D, "with_tiles": D, "cell_days": N, "rasters": scan["n_files"],
+        "record": {"first": iso(dates[0]), "last": iso(dates[-1]), "n": D, "with_tiles": D, "unit": "day",       # unit: what the lab dashboard's hub counts in
+                   "cell_days": N, "rasters": scan["n_files"],
                    "bytes": int(sum(yr["bytes"] for yr in year_rows)),
                    "cells_per_date": {"median": float(np.median(n_date)), "p10": float(np.percentile(n_date, 10)), "p90": float(np.percentile(n_date, 90)),
                                       "min": int(n_date.min()), "max": int(n_date.max())}},
