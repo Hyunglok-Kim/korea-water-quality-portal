@@ -428,6 +428,7 @@ with sync_playwright() as pw:
     if has:
         # while the context is lost the map has no style: the layer buttons, the opacity and a pick must still work, without an error
         lc.wait_for_timeout(400)
+        early = lc.evaluate("document.documentElement.classList.contains('nomap')")      # not at once: a context usually comes back
         lc.click("#varSeg button[data-var=wt]")
         lc.wait_for_function("document.querySelector('#lyTitle').textContent.startsWith('Water temperature')", timeout=60000)
         lc.evaluate("() => { const o = document.querySelector('#opacity'); o.value = 80; o.dispatchEvent(new Event('input')); window.__portal.pickCell(4000); }")
@@ -435,8 +436,6 @@ with sync_playwright() as pw:
         while_lost = lc.evaluate("[!!window.__portal.map.style, document.querySelector('#lyTitle').textContent, document.querySelector('#srTitle').textContent]")
         check(not while_lost[0] and while_lost[1].startswith("Water temperature") and "°N" in while_lost[2],
               f"while the WebGL context is lost (the map has no style) a layer change and a pick still fill the cards: {while_lost[1]} | {while_lost[2]}")
-        lc.wait_for_timeout(2000)
-        early = lc.evaluate("document.documentElement.classList.contains('nomap')")      # not at once: a context usually comes back
         try:
             lc.wait_for_function("document.documentElement.classList.contains('nomap')", timeout=12000)
         except Exception:
