@@ -1,0 +1,43 @@
+{
+ "base": {
+  "file": "hdca-data-portal: embed/hydroai-data-page.html",
+  "chars": 29626,
+  "sha1": "404c79207b4dc2357c97a3a81a0e08c02c3363a6"
+ },
+ "result": {
+  "chars": 33673,
+  "sha1": "911d4393a1a8a7da5ebc13bfd967f34680c5ff6e"
+ },
+ "edits": [
+  {
+   "what": "hub columns for five cards: three across where four no longer fill a row, five across on a very wide window",
+   "find": "  @media (min-width: 1700px) { .hd-hub .hd-wrap { max-width: 1760px; } .hd-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }\n",
+   "replace": "  @media (min-width: 1700px) { .hd-hub .hd-wrap { max-width: 1760px; } .hd-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }\n  /* five cards: three across where four would leave one alone, five across where the window is wide enough */\n  @media (min-width: 1700px) and (max-width: 1999px) { .hd-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }\n  @media (min-width: 2000px) { .hd-hub .hd-wrap { max-width: 2048px; } .hd-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px; } }\n"
+  },
+  {
+   "what": "the fifth card rises last",
+   "find": "  .hd-hub.is-in .hd-card:nth-child(4) { animation-delay: .24s; }\n",
+   "replace": "  .hd-hub.is-in .hd-card:nth-child(4) { animation-delay: .24s; }\n  .hd-hub.is-in .hd-card:nth-child(5) { animation-delay: .32s; }\n"
+  },
+  {
+   "what": "the card, after the SMAP time-variant error card",
+   "find": "          <span class=\"hd-go\">Open portal &rarr;</span>\n        </span>\n      </a>\n    </div>\n  </div>\n</div>\n",
+   "replace": "          <span class=\"hd-go\">Open portal &rarr;</span>\n        </span>\n      </a>\n      <a class=\"hd-card\" href=\"#wq\">\n        <span class=\"hd-media hd-fill\" role=\"img\" aria-label=\"The six water quality parameters in turn on a map of South Korea&rsquo;s rivers and reservoirs, then into Daecheong Lake, where chlorophyll-a plays through the twelve months of the year\" style=\"background-image: url('https://hyunglok-kim.github.io/korea-water-quality-portal/embed/media/wq-v1.jpg');\">\n          <video muted loop playsinline preload=\"none\" poster=\"https://hyunglok-kim.github.io/korea-water-quality-portal/embed/media/wq-v1.jpg\" data-webm=\"https://hyunglok-kim.github.io/korea-water-quality-portal/embed/media/wq-v1.webm\" data-mp4=\"https://hyunglok-kim.github.io/korea-water-quality-portal/embed/media/wq-v1.mp4\" aria-hidden=\"true\" tabindex=\"-1\"></video>\n          <span class=\"hd-cap\" aria-hidden=\"true\" data-caps='[[0, \"Water temperature, 2016&ndash;2024 mean\"], [1.04, \"Suspended solids\"], [1.75, \"Dissolved oxygen\"], [2.46, \"Total nitrogen\"], [3.17, \"Total phosphorus\"], [3.88, \"Chlorophyll-a\"], [4.38, \"Into Daecheong Lake: 1 km cells\"], [6.04, \"Chlorophyll-a through the year\"], [10.04, \"Water temperature, 2016&ndash;2024 mean\"]]'></span>\n        </span>\n        <span class=\"hd-text\">\n          <span class=\"hd-tags\"><span class=\"hd-tag hd-live\">Live</span><span class=\"hd-tag\">Water quality</span></span>\n          <h3>Inland Water Quality of South Korea</h3>\n          <p>Six water quality parameters for the rivers and reservoirs of South Korea on a 1 km grid, each value with a calibrated uncertainty: water temperature, suspended solids, chlorophyll-a, dissolved oxygen, total nitrogen and total phosphorus, estimated from Sentinel-2 imagery, weather reanalysis and national monitoring records. The portal says what each layer can and cannot be used for.</p>\n          <dl class=\"hd-facts\">\n          <dt>Grid</dt><dd>1 km, inland waters of mainland South Korea</dd>\n          <dt>Record</dt><dd>1,012 clear overpass dates, January 2016 &ndash; December 2024</dd>\n          <dt>Variables</dt><dd>Six parameters, each with its uncertainty</dd>\n          <dt>Status</dt><dd>Data open on Zenodo (CC BY 4.0); paper under review at Scientific Data</dd>\n          </dl>\n          <ul class=\"hd-inside\">\n          <li class=\"hd-inside-h\">In the portal</li>\n          <li>One date, a month, the seasonal cycle or the record mean, for each parameter and its uncertainty</li>\n          <li>Click a cell for every overpass at it, with the 95 % interval</li>\n          <li>Download links, code examples, and how far to trust each layer</li>\n          </ul>\n          <span class=\"hd-go\">Open portal &rarr;</span>\n        </span>\n      </a>\n    </div>\n  </div>\n</div>\n"
+  },
+  {
+   "what": "the panel, after the SMAP time-variant error panel",
+   "find": "  <a href=\"https://www.kiaps.org\" target=\"_blank\" rel=\"noopener\" title=\"KIAPS\"><img src=\"https://hyunglok-kim.github.io/smap-tca-error-portal/assets/logos/KIAPS.png\" alt=\"KIAPS\"></a>\n</div>\n</div>\n\n<script>\n",
+   "replace": "  <a href=\"https://www.kiaps.org\" target=\"_blank\" rel=\"noopener\" title=\"KIAPS\"><img src=\"https://hyunglok-kim.github.io/smap-tca-error-portal/assets/logos/KIAPS.png\" alt=\"KIAPS\"></a>\n</div>\n</div>\n\n<div class=\"hd-panel\" id=\"hd-panel-wq\" hidden>\n  <a class=\"hd-back\" href=\"#datasets\">&larr; All datasets</a>\n<div style=\"margin-top: 0;\">\n  <iframe\n    data-src=\"https://hyunglok-kim.github.io/korea-water-quality-portal/index.html?embed=1&hidefooter=1\"\n    width=\"100%\" height=\"3000\"\n    style=\"border:0; display:block; width:100%; min-height:3000px; background:#fff;\"\n    scrolling=\"no\"></iframe>\n</div>\n<div class=\"portal-logo-bar\" aria-label=\"Partner organizations\">\n  <a href=\"https://hydroai.net\" target=\"_blank\" rel=\"noopener\" class=\"logo-hydroai\" title=\"HydroAI\"><img src=\"https://hyunglok-kim.github.io/korea-water-quality-portal/assets/logos/hydroai.png\" alt=\"HydroAI\"></a>\n  <a href=\"https://www.gist.ac.kr/kr/main.html\" target=\"_blank\" rel=\"noopener\" title=\"GIST\"><img src=\"https://hyunglok-kim.github.io/korea-water-quality-portal/assets/logos/GIST.png\" alt=\"GIST\"></a>\n</div>\n</div>\n\n<script>\n"
+  },
+  {
+   "what": "routing: #wq opens the panel",
+   "find": "tca: document.getElementById('hd-panel-tca') };",
+   "replace": "tca: document.getElementById('hd-panel-tca'), wq: document.getElementById('hd-panel-wq') };"
+  },
+  {
+   "what": "the frame is sized from the portal's own height",
+   "find": "    ['hdca', 'et', 'tca'].forEach(function (k) {",
+   "replace": "    ['hdca', 'et', 'tca', 'wq'].forEach(function (k) {"
+  }
+ ]
+}
