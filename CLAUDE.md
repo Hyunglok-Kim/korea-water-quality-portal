@@ -9,10 +9,12 @@ on a map, as one date, a month, a calendar month or the whole record, and any ce
 six parameters.
 
 **Status (2026-11-18): public on GitHub Pages** at https://hyunglok-kim.github.io/korea-water-quality-portal/
-and listed on the lab dashboard under 🌏 연구자료 (`/wq-korea.html`, which embeds the public page). Two things
-wait for the lab head's word: **the manuscript's figures** (the paper is under review, so the public page
-shows the plain-words account with this site's own charts and not the manuscript's six figures; see “The
-paper's figures” below) and **hydroai.net/data** (no card there yet; see “The hydroai.net card” below).
+and listed on the lab dashboard under 🌏 연구자료 (`/wq-korea.html`, which embeds the public page). A line at the
+top of every tab says the paper is under review at *Scientific Data* (the lab head, 2026-11-18: “지금 본 논문
+Scientific Data에 심사중이야. 그렇게 넣자”). **The manuscript's figures are not published** (the lab head the
+same day: “그림 공개는 아직하지 말자”): the public page shows the plain-words account with this site's own
+charts; see “The paper's figures” below. **hydroai.net/data** has no card for this dataset yet; one is made
+and waits for the lab head's word (see “The hydroai.net card” below).
 
 This portal follows the HDCA portal (`~/orca/projects/hdca/portal/`) in structure, look and dashboard
 wiring; read that folder's `CLAUDE.md` for the shared background (the dashboard's 연구자료 mechanism, the
@@ -183,7 +185,10 @@ its height to the parent frame), `hidefooter=1`, `data=/path/` (same-origin data
 ## The paper's figures
 
 The paper is under review at *Scientific Data* and its figures are published nowhere. The dataset, its README
-and its validation files are public on Zenodo. So the public page is built from the public material only:
+and its validation files are public on Zenodo. **The lab head decided on 2026-11-18 not to publish the figures
+yet (“그림 공개는 아직하지 말자”)**, after a first reading of “그렇게 넣자” as leave to publish them had been
+announced and before anything was pushed. Do not switch them on without the lab head saying so. The public
+page is built from the public material only:
 
 - `paperSection: "text"` (the public setting): the six plain-words blocks, this site's own two bar charts and
   the six-point table. Every skill number in them is computed by `pipeline/skill.py` from `oof_predictions.csv`
@@ -195,7 +200,7 @@ and its validation files are public on Zenodo. So the public page is built from 
   repository's `figures/fig_N.pdf`, 1800 px wide, WebP so that the dashboard's gateway serves them too) and
   **are not in the repository** (`.gitignore`). Lab members can see this version through the dashboard copy:
   `/rd/wq-korea/index.html?paper=figures&data=/rd/wq-korea/data/` (the dashboard page has a button for it).
-- **To publish the figures** (the lab head's decision; at acceptance at the latest): delete the
+- **To publish the figures** (only at the lab head's word; expected when the paper is accepted): delete the
   `assets/figures/` line from `.gitignore`, set `paperSection: "figures"` in `js/config.js`, bump its `?v=`
   in `index.html`, commit and push. Refresh the copies first if the manuscript's figures changed.
 - `"off"` removes the section and the two links to it; the About tab keeps its skill table.
@@ -246,9 +251,12 @@ from 2000 px), so it is done only at the lab head's word, after asking the other
 - **The skill table gives the paper's numbers** (the network's single prediction, Tables 5 and 6). The
   grids carry the mean of the dropout passes, which scores within 0.04 of them except for total nitrogen
   followed through time (0.13, not 0.20); the table's note and the nitrogen layer card say so.
-- **The paper is under review**: see “The paper's figures”. At acceptance: replace “under review” with the
-  reference (use strip, Download and About tabs, the credit line, README, the dashboard registry and shell
-  page) and publish the figures.
+- **The line at the top of the page says where the paper stands** (`notice` in `js/config.js`: “The paper on
+  this dataset is currently under review at Scientific Data. The data are open on Zenodo.”), on every tab and
+  in every copy, as on the Prithvi-ET portal. The lab head asked for it (2026-11-18). Empty it at publication.
+- **The paper is under review**: see “The paper's figures”. At acceptance: empty the notice, replace “under
+  review” with the reference (use strip, Download and About tabs, the credit line, README, the dashboard
+  registry and shell page, the hydroai.net card's Status line) and, at the lab head's word, publish the figures.
 - **Fig. 2 of the manuscript still says “1 km daily gridded”;** the page's own words are “one grid per
   clear overpass, not one per day”, as the rest of the manuscript and the Zenodo record now say.
 - **Basemap without labels.** Esri World Imagery, dimmed; the only names on the map are six cities, ten
@@ -315,7 +323,8 @@ from 2000 px), so it is done only at the lab head's word, after asking the other
 
 ## Not done yet
 
-- Publishing the hydroai.net card, and the manuscript's figures (both above; both the lab head's decisions).
+- Publishing the hydroai.net card (above; the lab head's decision, not yet given). The manuscript's figures
+  stay unpublished by the lab head's decision of 2026-11-18.
 - The dashboard's three files for this dataset (`gateway/research_datasets.json`, `gateway/static/wq-korea.html`,
   `gateway/static/shared/nav.js`) are in that repository's working tree, live, and were left uncommitted on
   2026-11-18: commit them there when the lab head says so.

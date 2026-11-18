@@ -468,3 +468,9 @@ html.paper-text .pf { display: block; break-inside: avoid; border-top: 0; paddin
 .pf .tablewrap { margin-top: 0; }
 .paper-credit code { font-size: 12px; }
 .nb { white-space: nowrap; }
+
+/* ── the line at the very top of the page (js/config.js notice): where the paper stands, as on the Prithvi-ET portal ── */
+.page-notice { margin: 0; padding: 8px 20px; text-align: center; font-size: 13.5px; line-height: 1.45; color: var(--text);
+  background: var(--accent-tint); border-bottom: 1px solid rgba(184,84,52,.28); text-wrap: balance; }
+.page-notice[hidden] { display: none; }
+@media (min-width: 761px) { html:not(.embed) body.has-notice { --map-h: max(540px, calc(100vh - 299px)); } }   /* the map gives up the line's height, so its lower edge stays where it was */

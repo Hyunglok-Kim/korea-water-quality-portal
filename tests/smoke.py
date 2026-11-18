@@ -120,6 +120,8 @@ with sync_playwright() as pw:
           f"catalog: {info['cells']} cells, {info['dates']} dates, {info['first']} to {info['last']}")
     check(info["n"] == info["cells"] and info["cover"] == "8,558", f"the record mean has a value at every one of the product's cells ({info['n']})")
     check("Chlorophyll-a, mean of 2016–2024" == info["title"], "opens on: " + info["title"] + " · median " + info["card"])
+    note = page.evaluate("(() => { const n = document.querySelector('#pageNotice'), r = n.getBoundingClientRect(); return [n.hidden, n.textContent, Math.round(r.top), Math.round(r.height)]; })()")
+    check(not note[0] and "under review at Scientific Data" in note[1] and note[2] == 0 and note[3] > 0, f"the line at the very top says where the paper stands: “{note[1]}”")
 
     # the skill numbers: data/skill.json against the text as shown, the text in the page source, the tables and the charts
     page.wait_for_function("document.querySelectorAll('#abSkill tbody tr').length === 6", timeout=30000)

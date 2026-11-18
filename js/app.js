@@ -14,7 +14,7 @@
 "use strict";
 
 /* ───────────────────────────── configuration ───────────────────────────── */
-const CFG = Object.assign({ dataBase: "./data/", zenodoDoi: "", conceptDoi: "", contactEmail: "", dataContact: "", nasPath: "", paperSection: "text" }, window.PORTAL_CONFIG || {});
+const CFG = Object.assign({ dataBase: "./data/", zenodoDoi: "", conceptDoi: "", contactEmail: "", dataContact: "", nasPath: "", paperSection: "text", notice: "" }, window.PORTAL_CONFIG || {});
 const Q = new URLSearchParams(location.search);
 {
   const d = Q.get("data");                       // same-origin absolute path only
@@ -1531,6 +1531,10 @@ async function main() {
   $("#abMail").textContent = CFG.contactEmail; $("#abMail").href = "mailto:" + CFG.contactEmail;
   $("#footVer").textContent = `Data: ${CAT.version}`;
   state.pts = Q.get("pts") === "1";
+  if (CFG.notice) {                                                // the line at the very top: where the paper stands (config.js)
+    $("#pageNotice").textContent = CFG.notice; $("#pageNotice").hidden = false;
+    document.body.classList.add("has-notice");
+  }
   document.documentElement.classList.add("paper-" + PAPER);
   if (PAPER === "off") {                                           // no account of the paper on the page (config.js)
     const sec = $("#paper"); if (sec) sec.remove();

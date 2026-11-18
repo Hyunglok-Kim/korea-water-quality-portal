@@ -17,7 +17,9 @@
                               (assets/figures/Fig2,4,5,6,7,8.webp) must then be published with the page; they are
                               kept out of the repository until the lab head decides (see CLAUDE.md).
                    "off"      no such section, and no links to it.
-                 A page may override it with ?paper=figures|text|off. */
+                 A page may override it with ?paper=figures|text|off.
+   notice        one line shown at the very top of the page, on every tab: where the paper stands.
+                 Empty it at publication and the line is gone. */
 window.PORTAL_CONFIG = {
   dataBase: "./data/",
   zenodoDoi: "10.5281/zenodo.23750573",
@@ -25,4 +27,5 @@ window.PORTAL_CONFIG = {
   contactEmail: "hyunglokkim@gist.ac.kr",
   dataContact: "Seongjun Lee (first author) and Hyunglok Kim",
   paperSection: "text",
+  notice: "The paper on this dataset is currently under review at Scientific Data. The data are open on Zenodo.",
 };
