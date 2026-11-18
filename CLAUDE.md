@@ -13,8 +13,8 @@ and listed on the lab dashboard under 🌏 연구자료 (`/wq-korea.html`, which
 top of every tab says the paper is under review at *Scientific Data* (the lab head, 2026-11-18: “지금 본 논문
 Scientific Data에 심사중이야. 그렇게 넣자”). **The manuscript's figures are not published** (the lab head the
 same day: “그림 공개는 아직하지 말자”): the public page shows the plain-words account with this site's own
-charts; see “The paper's figures” below. **hydroai.net/data** has no card for this dataset yet; one is made
-and waits for the lab head's word (see “The hydroai.net card” below).
+charts; see “The paper's figures” below. **On hydroai.net/data since 2026-11-18** as the fifth card, `#wq`
+(the lab head: “올려”, “데이터는 올려야 해”); see “The hydroai.net card” below.
 
 This portal follows the HDCA portal (`~/orca/projects/hdca/portal/`) in structure, look and dashboard
 wiring; read that folder's `CLAUDE.md` for the shared background (the dashboard's 연구자료 mechanism, the
@@ -207,23 +207,23 @@ page is built from the public material only:
 
 ## The hydroai.net card
 
-**Made, tested on a local copy of the Data page, not published** (2026-11-18). hydroai.net/data is one HTML
+**Live at https://hydroai.net/data#wq since 2026-11-18**, at the lab head's word. hydroai.net/data is one HTML
 Embed in Webflow, shared by every dataset's card and panel and edited by several sessions; its text is kept in
 the HDCA portal's repository (`~/orca/projects/hdca/portal/embed/hydroai-data-page.html`, with the rules for
 editing it in that folder's `CLAUDE.md` and `embed/tools/README.md`).
 
-`embed/` here holds the fifth card: its loop (`media/wq-v1.*`: the six parameters in turn on the whole
-country, into Daecheong Lake, chlorophyll-a there through the year), the tool that makes it (`tools/cap_wq.py`)
-and `data-page-wq.patch.json`, six exact replacements against the live embed (29,626 characters, SHA-1
-`404c7920…`; fetched from hydroai.net/data on 2026-11-18 and equal to the HDCA repository's copy) that add the
-card, its panel, its routing and the hub's columns for five cards. On a local copy of the patched page the
-HDCA repository's `check_captions.py` (eight widths) and `check_playback.py` both pass with all five cards.
-`embed/README.md` has the details and the steps for publishing.
+`embed/` here holds the card's loop (`media/wq-v1.*`: the six parameters in turn on the whole country, into
+Daecheong Lake, chlorophyll-a there through the year), the tool that makes it (`tools/cap_wq.py`) and the
+patch that was applied (`data-page-wq.patch.json`: the card, its panel with the HydroAI and GIST logo bar, its
+routing, and the hub's columns for five cards: three across from 1700 px, five across from 2000 px). The
+embed is now 33,673 characters, SHA-1 `911d4393…`; editor, live page and the HDCA repository's copy (fe99a9b)
+are equal, and that repository's `check_captions.py` and `check_playback.py` pass on the live page.
+`embed/README.md` has the details and how to change the card later.
 
-Publishing it means editing the lab's public site through the lab head's own Webflow session and publishing
-the whole site, and the patch changes how the other four cards sit (three across from 1700 px, five across
-from 2000 px), so it is done only at the lab head's word, after asking the other portal sessions
-(ListAgents / SendMessage) and comparing the Designer's live text with the patch's base.
+**The card's facts repeat this portal's own** (1 km; 1,012 clear overpass dates, January 2016 to December
+2024; six parameters, each with its uncertainty; “Data open on Zenodo (CC BY 4.0); paper under review at
+Scientific Data”). When the paper is accepted, or the record changes, change the card's Status line too.
+The panel frames the public page with `?embed=1&hidefooter=1`; the line at the top of the portal shows there.
 
 ## Rules that must survive any redesign
 
@@ -323,8 +323,7 @@ from 2000 px), so it is done only at the lab head's word, after asking the other
 
 ## Not done yet
 
-- Publishing the hydroai.net card (above; the lab head's decision, not yet given). The manuscript's figures
-  stay unpublished by the lab head's decision of 2026-11-18.
+- The manuscript's figures stay unpublished by the lab head's decision of 2026-11-18 (“그림 공개는 아직하지 말자”).
 - The dashboard's three files for this dataset (`gateway/research_datasets.json`, `gateway/static/wq-korea.html`,
   `gateway/static/shared/nav.js`) are in that repository's working tree, live, and were left uncommitted on
   2026-11-18: commit them there when the lab head says so.
