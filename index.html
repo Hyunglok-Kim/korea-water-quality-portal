@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Inland Water Quality of South Korea · 1 km grids of six parameters, 2016–2024</title>
+<meta name="description" content="1 km grids of water temperature, suspended solids, chlorophyll-a, dissolved oxygen, total nitrogen and total phosphorus for the inland waters of mainland South Korea on 1,012 dates, 2016–2024, each with a calibrated uncertainty. HydroAI Lab, GIST." />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Inland Water Quality of South Korea · 1 km grids of six parameters, 2016–2024" />
+<meta property="og:description" content="Water temperature, suspended solids, chlorophyll-a, dissolved oxygen, total nitrogen and total phosphorus on 1,012 dates, each with a calibrated uncertainty. Explore the map, read any cell's record, download the grids." />
+<meta property="og:url" content="https://hyunglok-kim.github.io/korea-water-quality-portal/" />
+<meta property="og:image" content="https://hyunglok-kim.github.io/korea-water-quality-portal/assets/preview.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230F1318'/%3E%3Cpath d='M32 9C23 22 16 30 16 39a16 16 0 0 0 32 0c0-9-7-17-16-30z' fill='%2340bd72'/%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://unpkg.com" crossorigin />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap" />
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.1/dist/maplibre-gl.css" />
+<link rel="stylesheet" href="css/portal.css?v=20261118b" />
+</head>
+<body>
+
+<div id="boot" class="boot" role="status" aria-live="polite">
+  <div class="boot-mark" aria-hidden="true"></div>
+  <p class="boot-title">Inland Water Quality of South Korea</p>
+  <p class="boot-sub" id="bootMsg">Loading the catalog…</p>
+</div>
+
+<header class="top">
+  <div class="brand">
+    <p class="eyebrow">HydroAI Lab · GIST</p>
+    <h1>Inland Water Quality of South Korea <span class="h1-sub">1 km grids of six parameters, 2016–2024, each with its uncertainty</span></h1>
+  </div>
+  <dl class="facts" id="facts" aria-label="Dataset at a glance">
+    <div><dt>Grid</dt><dd>1 km · EPSG:4326</dd></div>
+    <div><dt>Time step</dt><dd>Each clear overpass</dd></div>
+    <div><dt>Record</dt><dd id="factRecord">—</dd></div>
+    <div><dt>Coverage</dt><dd>Mainland South Korea</dd></div>
+    <div><dt>Input</dt><dd>HLS S30 + ERA5-Land</dd></div>
+  </dl>
+</header>
+
+<nav class="tabs" role="tablist" aria-label="Sections">
+  <button role="tab" class="tab on" data-tab="explore" aria-selected="true">Explore</button>
+  <button role="tab" class="tab" data-tab="download" aria-selected="false">Download</button>
+  <button role="tab" class="tab" data-tab="code" aria-selected="false">Use in code</button>
+  <button role="tab" class="tab" data-tab="about" aria-selected="false">About the data</button>
+</nav>
+
+<main>
+
+<!-- ───────────────────────────── Explore ───────────────────────────── -->
+<section id="tab-explore" class="tabpane on" role="tabpanel">
+  <!-- "When to use" first, then "What is new" — the same order as the other HydroAI data portals. -->
+  <div class="lead-boxes">
+  <aside class="novelty when" aria-label="When to use this data">
+    <p class="mini-h">When to use this data</p>
+    <p><b>Where the monitoring network has no point.</b> South Korea's national network measures water quality at fixed points, and at reservoirs on a schedule of about four visits a year. This dataset covers the water between them: on every clear Sentinel-2 overpass from 2016 to 2024 it gives six parameters for each 1 km cell whose water surface the satellite saw.<span class="novelty-detail"> Use it to <b>compare one water body with another</b>, to map which reservoirs and river reaches run turbid, green or nutrient-rich, to find where conditions were elevated on a given date, and, for water temperature and dissolved oxygen, as a series at a fixed place. It sits on a regular grid that aggregates onto ERA5-Land and other hydro-climate data, and every value carries an uncertainty for weighting or filtering. It does not replace in-situ measurement: the grids locate elevated conditions well but understate how elevated they were.</span> <a href="#paper" class="novelty-more">What the paper shows →</a></p>
+  </aside>
+  <aside class="novelty" aria-label="What is new">
+    <p class="mini-h">What is new</p>
+    <p><b>Six parameters on one national grid, each with a calibrated uncertainty.</b> Water temperature, suspended solids, <span class="nb">chlorophyll-a</span>, dissolved oxygen, total nitrogen and total phosphorus, including the nutrients and oxygen that have no colour of their own, are estimated together for the inland waters of mainland South Korea and released as an analysis-ready grid.<span class="novelty-detail"> One neural network per parameter learns from 46,933 matchups between national monitoring records and Harmonized Landsat and Sentinel-2 reflectance, ERA5-Land weather, terrain and land cover. It is applied at 30 m and averaged to 1 km only where at least 80 % of a cell's water was seen; nothing is gap-filled. The paper also states what each layer can and cannot carry.</span> <a href="#paper" class="novelty-more">How it works →</a></p>
+  </aside>
+  </div>
+  <!-- Data use in one line: where the files are, what to cite, whom to write to for collaboration (the same on every HydroAI data portal). -->
+  <p class="use-strip" aria-label="Using these data"><span><b>Data</b> <a href="https://doi.org/10.5281/zenodo.23750573" target="_blank" rel="noopener">Zenodo, doi:10.5281/zenodo.23750573</a> · CC BY 4.0</span><span><b>Please cite</b> Lee, Lee, Lee and Kim, Data Descriptor under review at <i>Scientific Data</i>, and <a href="https://doi.org/10.5281/zenodo.23750573" target="_blank" rel="noopener">the dataset</a></span><span><b>Research collaboration</b> <a href="mailto:hyunglokkim@gist.ac.kr">hyunglokkim@gist.ac.kr</a></span></p>
+  <div class="explore">
+    <div class="mapcol">
+      <div class="layerbar" aria-label="What the map shows">
+        <div class="seg" id="varSeg" role="group" aria-label="Parameter">
+          <button data-var="wt" title="Water temperature, °C">WT</button>
+          <button data-var="ss" title="Suspended solids, mg/L">SS</button>
+          <button data-var="chla" class="on" title="Chlorophyll-a, µg/L">Chl-a</button>
+          <button data-var="do" title="Dissolved oxygen, mg/L">DO</button>
+          <button data-var="tn" title="Total nitrogen, mg/L">TN</button>
+          <button data-var="tp" title="Total phosphorus, mg/L">TP</button>
+          <button data-var="n" title="How many overpass dates have a value at each cell">Dates with a value</button>
+        </div>
+        <div class="seg" id="bandSeg" role="group" aria-label="Band">
+          <button data-band="mu" class="on" title="Band 1, mu_pred: the predictive mean">Value</button>
+          <button data-band="sigma" title="Band 2, sigma_cal: the calibrated predictive uncertainty, in the same units">Uncertainty σ</button>
+        </div>
+        <div class="seg" id="modeSeg" role="group" aria-label="Period">
+          <button data-mode="all" class="on" title="Mean over every date with a value at the cell">Record mean</button>
+          <button data-mode="clim" title="Mean over one calendar month of all years">Seasonal cycle</button>
+          <button data-mode="month" title="Mean over the overpass dates of one month">Month</button>
+          <button data-mode="date" title="One overpass date, as released">Date</button>
+        </div>
+        <div class="when" id="when"></div>
+      </div>
+
+      <div class="mapwrap">
+        <div id="map" aria-label="Map of the selected parameter"></div>
+
+        <!-- In the map's place where the browser gives no WebGL context (noMap in app.js). -->
+        <div class="nomap-msg" id="noMap" role="alert" hidden>
+          <p class="nomap-h">The map cannot be drawn in this browser right now</p>
+          <p>The map is drawn with WebGL, the browser's graphics acceleration, and this browser is not providing it. Either it is switched off, or the browser has lost it: Chrome, for one, switches it off after its graphics process has failed several times, and keeps it off until it is restarted.</p>
+          <ul>
+            <li>Quit the browser completely and open it again. That usually brings it back.</li>
+            <li>If it does not, switch on graphics (hardware) acceleration in the browser's settings. In Chrome it is under Settings, System: “Use graphics acceleration when available”.</li>
+            <li>Or open this page in another browser.</li>
+          </ul>
+          <p>The rest of the page does not need the map: the cards beside it<span class="needs-paper">, the account of the paper below,</span> and the Download, Use in code and About the data tabs.</p>
+        </div>
+
+        <div class="map-ui map-tr">
+          <select id="jump" class="mbtn jump" aria-label="Go to a place" title="Fly to a reservoir, a river reach or a monitoring point of the paper"><option value="">Go to…</option></select>
+          <button class="mbtn" id="btnHome" title="Back to the whole country">Whole country</button>
+          <button class="mbtn" id="btnPts" aria-pressed="false" title="Show the 1,194 national monitoring points the model was trained and tested on">Monitoring points</button>
+          <label class="mbtn slider" title="Opacity of the data layer">
+            <span>Opacity</span>
+            <input type="range" id="opacity" min="0" max="100" value="100" aria-label="Layer opacity" />
+          </label>
+        </div>
+
+        <div class="map-ui map-bl legend" id="legend" aria-label="Colour scale">
+          <div class="legend-head">
+            <span class="legend-title" id="lgTitle">—</span>
+            <div class="seg seg-sm" id="scaleSeg" role="group" aria-label="Colour scale range">
+              <button data-scale="fixed" class="on" title="Same range for every date, so dates can be compared">Fixed</button>
+              <button data-scale="auto" title="Stretch to this layer's 2nd–98th percentile">Stretch</button>
+            </div>
+          </div>
+          <canvas id="lgHist" width="240" height="34" aria-hidden="true"></canvas>
+          <div class="lg-bar" id="lgBar"></div>
+          <div class="lg-ticks" id="lgTicks"></div>
+          <p class="lg-note"><span class="sw sw-nodata"></span><span id="lgNodata">No colour: no value</span></p>
+          <p class="lg-note lg-pts" id="lgPts" hidden></p>
+        </div>
+
+        <div class="map-ui map-br readout" id="readout" aria-live="off">
+          <span id="roRes">1 km cell</span>
+          <span id="roVal"></span>
+        </div>
+      </div>
+      <p class="hint" id="hint">Click a water cell: the panel on the right shows every overpass at that cell, for all six parameters, with the 95 % interval. A cell is a 1 km square and is drawn as one; seen from afar the cells are drawn as dots, larger than they are, so that the rivers can be followed.</p>
+    </div>
+
+    <aside class="side">
+      <section class="card" id="cardLayer">
+        <p class="mini-h">On the map</p>
+        <h2 id="lyTitle">—</h2>
+        <p class="regime" id="lyRegime" hidden></p>
+        <p class="sub" id="lySub"></p>
+        <div class="tiles">
+          <div class="tile"><p class="tile-l" id="lyMeanL">Median over the cells shown</p><p class="tile-v"><span id="lyMean">—</span><small id="lyUnit"></small></p></div>
+          <div class="tile">
+            <p class="tile-l" id="lyCoverL">Cells with a value</p>
+            <p class="tile-v"><span id="lyCover">—</span><small id="lyCoverOf"></small></p>
+            <div class="meter" aria-hidden="true"><i id="lyCoverBar"></i></div>
+          </div>
+        </div>
+        <p class="flag" id="lyFlag" hidden></p>
+      </section>
+
+      <section class="card" id="cardSeries">
+        <div class="card-head">
+          <div>
+            <p class="mini-h" id="srKicker">Seasonal cycle</p>
+            <h2 id="srTitle">All cells</h2>
+          </div>
+          <button class="ghost" id="srReset" hidden>← All cells</button>
+        </div>
+        <p class="sub" id="srSub"></p>
+        <div class="yearnav" id="srYearNav" hidden>
+          <button class="mbtn" id="srYearPrev" title="Previous year" aria-label="Previous year">◀</button>
+          <span id="srYear">—</span>
+          <button class="mbtn" id="srYearNext" title="Next year" aria-label="Next year">▶</button>
+        </div>
+        <figure class="chart" id="chart"></figure>
+        <div class="chart-actions">
+          <button class="ghost" id="srTableBtn" aria-expanded="false">Show table</button>
+          <button class="ghost" id="srCsv">Download CSV</button>
+        </div>
+        <div class="tablewrap tall" id="srTable" hidden></div>
+        <div class="record" id="recordBox" hidden>
+          <p class="mini-h">Full record at this cell</p>
+          <p class="sub" id="rcSub"></p>
+          <figure class="chart" id="chartRecord"></figure>
+          <div class="chart-actions">
+            <button class="ghost" id="rcTableBtn" aria-expanded="false">Show table</button>
+            <button class="ghost" id="rcCsv">Download CSV (all six, both bands)</button>
+          </div>
+          <div class="tablewrap tall" id="rcTable" hidden></div>
+          <p class="mini-h six-h">All six parameters at this cell</p>
+          <p class="sub">Every overpass with a value, 2016–2024. Each panel has its own scale; click one to put it on the map.</p>
+          <div class="six" id="six"></div>
+        </div>
+      </section>
+
+    </aside>
+
+    <!-- A grid item of its own: beside the map's column on the standalone page, under the map when embedded (portal.css). -->
+    <section class="card" id="cardRecord">
+      <div class="rec-text">
+        <p class="mini-h">The record</p>
+        <h2>Overpass dates, month by month</h2>
+        <p class="sub" id="calSub"></p>
+        <div class="cal-legend" id="calLegend"></div>
+      </div>
+      <div class="cal" id="cal" role="grid" aria-label="Months of the record"></div>
+    </section>
+  </div>
+
+  <!-- The method and the results in plain words. The numbers in <span data-skill> are filled from data/skill.json, which
+       pipeline/skill.py computes from the record's public validation file (oof_predictions.csv); the text in the page
+       source is the fallback and tests/smoke.py checks that both agree. The manuscript's own figures are shown only
+       when js/config.js says paperSection: "figures" (the paper is under review); their files are then needed
+       in assets/figures/. -->
+  <section class="paper" id="paper" aria-labelledby="paperH">
+    <p class="mini-h">From the paper</p>
+    <h2 id="paperH" class="pane-h">How the grids are made, and how far to trust them — in plain words</h2>
+    <p class="lead">A satellite sees the colour of water, and colour says something about what is in it: sediment brightens it, algae turn it green. Weather, terrain and the land around a water body say more. The dataset joins the two with national monitoring records, and is open about which of the six layers the satellite really informs.<span class="fig-only"> The six figures below are the manuscript's own.</span></p>
+
+    <!-- This site's own two charts, drawn from data/skill.json (drawBars in app.js). Each has its table. -->
+    <div class="own-charts">
+      <figure class="card own" id="ownSkill">
+        <p class="mini-h">Against measurements the model never saw</p>
+        <h3>Where, far better than when</h3>
+        <p class="sub">R² at monitoring points held out of training (<span data-skill="n|val|wt|int">46,933</span> matchups at <span data-skill="points|val|wt|int">1,194</span> points): over all places and dates together, and following one place through time.</p>
+        <div class="chart" id="barsSkill"></div>
+        <div class="chart-actions"><button class="ghost" id="barsSkillBtn" aria-expanded="false">Show table</button></div>
+        <div class="tablewrap" id="barsSkillTable" hidden></div>
+      </figure>
+      <figure class="card own" id="ownCover">
+        <p class="mini-h">The uncertainty band</p>
+        <h3>The 95 % interval, before and after calibration</h3>
+        <p class="sub">Share of the held-out measurements inside the value ± 1.96 σ: with the spread of the dropout passes alone, and with the calibrated σ the files carry.</p>
+        <div class="chart" id="barsCover"></div>
+        <div class="chart-actions"><button class="ghost" id="barsCoverBtn" aria-expanded="false">Show table</button></div>
+        <div class="tablewrap" id="barsCoverTable" hidden></div>
+      </figure>
+    </div>
+
+    <div class="pf-list">
+    <div class="pf">
+      <figure><img data-src="assets/figures/Fig2.webp" alt="Flow chart in four bands: data sources, preprocessing and matchup, model training and validation, product generation" loading="lazy"><figcaption>Fig. 2 of the manuscript</figcaption></figure>
+      <div>
+        <h3>1 · From monitoring records to a national grid</h3>
+        <p>Measurements of the national monitoring network (WEIS) were paired with the satellite view of the same water taken within three days, which gave <b><span data-skill="n|val|wt|int">46,933</span> matchups at <span data-skill="points|val|wt|int">1,194</span> monitoring points</b> (235 river, 793 reservoir, 166 lake and dam points). Each matchup has 63 inputs: the mean and spread of reflectance in ten bands of the Harmonized Landsat and Sentinel-2 product (HLS S30) over a 7 × 7 window of open-water pixels, and the number of such pixels; four spectral indices; twenty ERA5-Land weather and land-surface fields; elevation and local relief; the land cover within 500 m and 2 km; the day of the year; and the days between overpass and sample.</p>
+        <p>One multi-layer perceptron per parameter learns from these. It is then run on every 30 m water pixel of every scene, and the 30 m values are averaged into a 1 km cell <b>only where at least 80 % of the cell's water, and at least five pixels, had a valid prediction</b>. Every other cell stays empty for that date. The result is one grid per clear overpass, not one per day.</p>
+      </div>
+    </div>
+
+    <div class="pf">
+      <figure><img data-src="assets/figures/Fig4.webp" alt="Six density scatter plots of predicted against observed values, one per parameter, with the one-to-one line" loading="lazy"><figcaption>Fig. 4 of the manuscript</figcaption></figure>
+      <div>
+        <h3>2 · Against measurements at stations the model never saw</h3>
+        <p>The skill is measured by holding whole stations out, five folds in turn. <b>Water temperature</b> is reproduced well (R² <span data-skill="r2|val|wt|2">0.87</span>, RMSE <span data-skill="rmse|val|wt|1">2.6</span> °C) and <b>dissolved oxygen</b> moderately (R² <span data-skill="r2|val|do|2">0.53</span>, RMSE <span data-skill="rmse|val|do|1">1.8</span> mg/L). For <b>suspended solids, <span class="nb">chlorophyll-a</span>, total nitrogen and total phosphorus</b> R² is <span data-skill="r2|min|ss,chla,tn,tp|2">0.29</span> to <span data-skill="r2|max|ss,chla,tn,tp|2">0.36</span> in concentration units and <span data-skill="r2_log|min|ss,chla,tn,tp|2">0.50</span> to <span data-skill="r2_log|max|ss,chla,tn,tp|2">0.57</span> on the logarithmic scale they were trained on.</p>
+        <p>All six pull extremes toward the middle, as any model that predicts an average does. At the top one percent of the observations the predictions recover <span data-skill="recover_top1|val|wt|2">0.83</span> of the departure from typical conditions for water temperature, and <span data-skill="recover_top1|min|ss,chla,do,tn,tp|2">0.36</span> to <span data-skill="recover_top1|max|ss,chla,do,tn,tp|2">0.58</span> for the other five. A cell is a sound central estimate; it understates how far an event went.</p>
+      </div>
+    </div>
+
+    <div class="pf">
+      <figure><img data-src="assets/figures/Fig5.webp" alt="Six SHAP beeswarm panels listing the fifteen most influential inputs for each parameter" loading="lazy"><figcaption>Fig. 5 of the manuscript</figcaption></figure>
+      <div>
+        <h3>3 · Three kinds of layer</h3>
+        <p>The inputs each network leans on show what it is really doing. <b>Suspended solids, <span class="nb">chlorophyll-a</span> and total phosphorus are optical retrievals</b>: they are led by reflectance (blue and green for suspended solids, the chlorophyll index NDCI and the red edge for <span class="nb">chlorophyll-a</span>, blue and the red edge for total phosphorus). <b>Total nitrogen is a catchment-context estimate</b>: it is led by the water and wetland fractions of its surroundings, with soil moisture and the farmland and urban fractions behind them, and no reflectance band is among its fifteen most influential inputs, so it is not read from the colour of the water at all. <b>Water temperature and dissolved oxygen are meteorologically driven</b>: the day of the year and soil temperature lead, and a predictor given only the calendar and the weather follows a place through time almost as well as the full model.</p>
+        <p>The portal marks each layer with its kind, because the kind decides what the layer can be used for.</p>
+      </div>
+    </div>
+
+    <div class="pf">
+      <figure><img data-src="assets/figures/Fig7.webp" alt="Twelve time-series panels, 2016 to 2025: water temperature and chlorophyll-a at six monitoring points, national record in black, predictions as blue dots with a shaded band" loading="lazy"><figcaption>Fig. 7 of the manuscript</figcaption></figure>
+      <div>
+        <h3>4 · Where, far better than when</h3>
+        <p>The paper looks closely at six monitoring points, each predicted by a model that had not seen it<span class="fig-only">, against the full national record (black in the figure)</span>. <b>Water temperature follows the seasons at all six</b> (R² <span data-skill="site_min|wt">0.61</span> to <span data-skill="site_max|wt">0.97</span>). <b><span class="nb">Chlorophyll-a</span> sits in the right range for each water body but does not follow its rises and falls</b> (R² from below zero to <span data-skill="site_max|chla">0.49</span>).</p>
+        <div class="tablewrap"><table class="grid" id="siteTable">
+          <thead><tr><th>Monitoring point</th><th>Kind</th><th class="num">Matchups</th><th class="num">R², water temperature</th><th class="num">R², <span class="nb">chlorophyll-a</span></th></tr></thead>
+          <tbody></tbody>
+        </table></div>
+        <p>The same holds across all <span data-skill="points|val|wt|int">1,194</span> points. Following one place through time, R² is <span data-skill="within|val|wt|2">0.89</span> for water temperature and <span data-skill="within|val|do|2">0.50</span> for dissolved oxygen, but only <span data-skill="within|min|ss,chla,tn,tp|2">0.09</span> to <span data-skill="within|max|ss,chla,tn,tp|2">0.21</span> for the other four; at <span data-skill="worse_share|min|ss,chla,tn,tp|pct0">36</span> % to <span data-skill="worse_share|max|ss,chla,tn,tp|pct0">78</span> % of points their predictions do worse than the point's own long-term mean. Those four layers answer “which water bodies run high?” on any clear date. They do not answer “how did this reservoir change this season?”. The six points are in the map's “Go to…” list.</p>
+      </div>
+    </div>
+
+    <div class="pf">
+      <figure><img data-src="assets/figures/Fig6.webp" alt="Six panels with held-out samples sorted by observed value: observation, predictive mean, and raw and calibrated uncertainty bands" loading="lazy"><figcaption>Fig. 6 of the manuscript</figcaption></figure>
+      <div>
+        <h3>5 · An uncertainty that means something</h3>
+        <p>Each value comes with σ, from 100 passes of the network with random units switched off (Monte Carlo dropout). On its own that spread is too narrow: its 95 % band held only <span data-skill="cover_raw|min|all|pct0">46</span> % to <span data-skill="cover_raw|max|all|pct0">75</span> % of the held-out observations. One factor per parameter, from <span data-skill="calib_c|val|wt|1">2.0</span> for water temperature to <span data-skill="calib_c|val|ss|1">6.7</span> for suspended solids, widens it so that <b>value ± 1.96 σ holds <span data-skill="cover_cal|min|all|pct0">94</span> % to <span data-skill="cover_cal|max|all|pct0">98</span> %</b>. For suspended solids, <span class="nb">chlorophyll-a</span>, total nitrogen and total phosphorus the lower limit falls below zero and is read as zero.</p>
+        <p>For five parameters a larger σ goes with a larger error (rank correlation <span data-skill="rho_sigma|min|wt,ss,chla,tn,tp|2">0.20</span> to <span data-skill="rho_sigma|max|wt,ss,chla,tn,tp|2">0.62</span>), so σ can be used to filter or weight. Dissolved oxygen is the exception: its σ is unrelated to the error (<span data-skill="rho_sigma|val|do|2">0.01</span>) and is not a filter.</p>
+      </div>
+    </div>
+
+    <div class="pf">
+      <figure><img data-src="assets/figures/Fig8.webp" alt="Box plots of the spread of 30 m predictions within a 1 km cell for the six parameters, in absolute units and as a coefficient of variation" loading="lazy"><figcaption>Fig. 8 of the manuscript</figcaption></figure>
+      <div>
+        <h3>6 · What a 1 km cell averages</h3>
+        <p>A released cell is the mean of a median of 52 predictions at 30 m. How much those differ inside one cell depends on the parameter: the coefficient of variation is 0.13 for <span class="nb">chlorophyll-a</span> and about 0.09 for suspended solids and total phosphorus, where algal patches and sediment plumes leave structure below a kilometre, 0.075 for total nitrogen, and 0.02 for water temperature and dissolved oxygen, which vary smoothly. Streams narrower than about 60 m do not appear at all: at 30 m they are never a clean water pixel.</p>
+      </div>
+    </div>
+    </div>
+    <p class="paper-credit">The account follows Lee, S., Lee, J., Lee, D., and Kim, H., “A satellite-reanalysis deep-learning 1 km gridded inland water quality dataset for South Korea, 2016–2024”, a Data Descriptor under review at <i>Scientific Data</i>. The skill numbers and the two charts are computed for this site from <code>oof_predictions.csv</code> of the record (<a href="https://doi.org/10.5281/zenodo.23750573" target="_blank" rel="noopener">doi:10.5281/zenodo.23750573</a>), the out-of-fold predictions of the released model; the inputs each network relies on and the spread within a cell are the paper's findings, as its record's README states them.<span class="fig-only"> The figures are from the revised manuscript and may change before publication.</span></p>
+  </section>
+</section>
+
+<!-- ───────────────────────────── Download ───────────────────────────── -->
+<section id="tab-download" class="tabpane" role="tabpanel" hidden>
+  <div class="prose-wide">
+    <h2 class="pane-h">Download</h2>
+    <div class="usebox" aria-label="Using these data">
+      <div><p class="mini-h">Data</p><p>Everything is on Zenodo, open: <a href="https://doi.org/10.5281/zenodo.23750573" target="_blank" rel="noopener">doi:10.5281/zenodo.23750573</a> (version 4), the data and models under CC BY 4.0 and the code under MIT. The links below go straight to the files of that version. <a href="https://doi.org/10.5281/zenodo.18502401" target="_blank" rel="noopener">doi:10.5281/zenodo.18502401</a> always leads to the latest version.</p></div>
+      <div><p class="mini-h">Please cite</p><p>Cite both the paper and the dataset. Paper: Lee, S., Lee, J., Lee, D., and Kim, H. A satellite-reanalysis deep-learning 1 km gridded inland water quality dataset for South Korea, 2016–2024. Data Descriptor under review at <i>Scientific Data</i>. Dataset: Lee, S. and Kim, H. (2026), Zenodo, <a href="https://doi.org/10.5281/zenodo.23750573" target="_blank" rel="noopener">doi:10.5281/zenodo.23750573</a>.</p></div>
+      <div><p class="mini-h">Research collaboration</p><p>For joint work with these grids, such as other periods or regions, the native 30 m predictions, model calibration or validation against your own records, write to Hyunglok Kim, <a href="mailto:hyunglokkim@gist.ac.kr">hyunglokkim@gist.ac.kr</a> (HydroAI Lab, GIST).</p></div>
+    </div>
+    <p class="lead">Six ZIP archives, one per parameter. Each unpacks to a folder of <span id="dlNDates">1,012</span> GeoTIFF files, one per overpass date, with the value in band 1 and its uncertainty in band 2.</p>
+    <div class="notice" id="dlNotice"></div>
+
+    <h3>The grids</h3>
+    <div class="tablewrap">
+      <table class="grid" id="dlProduct">
+        <thead><tr><th>Parameter</th><th>Unit</th><th>Kind of layer</th><th>File</th><th class="num">Size</th><th>Unpacks to</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="form-hint" id="dlTotal"></p>
+
+    <h3>Also in the record</h3>
+    <div class="tablewrap">
+      <table class="grid" id="dlOther">
+        <thead><tr><th>File</th><th class="num">Size</th><th>What it is</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <h3>Dates</h3>
+    <div class="dl-tools">
+      <label>Year <select id="dlYear"></select></label>
+      <button class="ghost" id="dlCopy">Copy the list of dates</button>
+      <span class="dl-total" id="dlYearTotal"></span>
+    </div>
+    <div class="tablewrap">
+      <table class="grid" id="dlTable">
+        <thead><tr><th>Year</th><th class="num">Overpass dates</th><th class="num">Files (six parameters)</th><th class="num">Cell-values per parameter</th><th>First</th><th>Last</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="form-hint" id="dlMissing"></p>
+
+    <h3>What is in a file</h3>
+    <table class="grid spec">
+      <tbody>
+        <tr><th>Name</th><td><code>kr_wq_&lt;param&gt;_1km_&lt;yyyymmdd&gt;.tif</code>, where <code>&lt;param&gt;</code> is <code>wt</code>, <code>ss</code>, <code>chla</code>, <code>do</code>, <code>tn</code> or <code>tp</code> and the date is the HLS S30 acquisition (overpass) date</td></tr>
+        <tr><th>Format</th><td>GeoTIFF, Float32, LZW with floating-point predictor, internally tiled 256 × 256, with overviews</td></tr>
+        <tr><th>Grid</th><td>EPSG:4326, 470 rows × 510 columns at 0.00996462647316037° (about 1 km), spanning 124.589–129.671° E and 33.941–38.625° N. The same grid in every file.</td></tr>
+        <tr><th>Band 1, <code>mu_pred</code></th><td>The predictive mean: the mean of the 30 m predictions inside the cell, in the parameter's unit</td></tr>
+        <tr><th>Band 2, <code>sigma_cal</code></th><td>The calibrated predictive uncertainty, in the same unit: the mean of the 30 m uncertainties inside the cell. It is not divided by √n, because the 30 m predictions in one cell share their weather, terrain and land-cover inputs.</td></tr>
+        <tr><th>No value</th><td><code>NaN</code>. A cell has a value only when valid 30 m predictions cover at least 80 % of its predictable water and number at least five. A date on which no cell qualifies has no file.</td></tr>
+        <tr><th>Units</th><td>WT °C · SS mg/L · Chl-a µg/L · DO mg/L · TN mg/L · TP mg/L</td></tr>
+        <tr><th>Tags</th><td>Every file carries its units, the coverage rule, the definition of predictable water and the boundary used in its GeoTIFF tags.</td></tr>
+        <tr><th>Domain</th><td>The five major river basin regions of the mainland (Han, Nakdong, Geum, Seomjin, Yeongsan). Jeju Island lies south of the grid and is not in the product.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ───────────────────────────── Code ───────────────────────────── -->
+<section id="tab-code" class="tabpane" role="tabpanel" hidden>
+  <div class="prose-wide">
+    <h2 class="pane-h">Use in code</h2>
+    <p class="lead">The files are ordinary two-band GeoTIFFs on one regular latitude–longitude grid: rasterio, GDAL, rioxarray and terra open them directly. The examples assume one parameter's archive unpacked in the working folder.</p>
+
+    <h3>Python — one date</h3>
+    <pre class="code" id="codeOne"></pre>
+    <button class="ghost copy" data-copy="codeOne">Copy</button>
+
+    <h3>Python — every overpass at one place</h3>
+    <pre class="code" id="codePt"></pre>
+    <button class="ghost copy" data-copy="codePt">Copy</button>
+
+    <h3>Python — the 95 % interval</h3>
+    <pre class="code" id="codeCi"></pre>
+    <button class="ghost copy" data-copy="codeCi">Copy</button>
+
+    <h3>Python — a seasonal mean map that says how many dates went into it</h3>
+    <pre class="code" id="codeMap"></pre>
+    <button class="ghost copy" data-copy="codeMap">Copy</button>
+
+    <h3>R — one date</h3>
+    <pre class="code" id="codeR"></pre>
+    <button class="ghost copy" data-copy="codeR">Copy</button>
+
+    <h3>The numbers behind this site</h3>
+    <p>The map on this site is not made of pictures. The browser reads the values themselves: only <span id="cdCells">8,558</span> cells ever carry a value, so the whole record fits in two small stores, one ordered by date for the map and one by cell for the series. Values are kept as 16-bit numbers, to 0.001 °C or mg/L for water temperature and dissolved oxygen and to 0.03 % of the value for the other four parameters, and the cursor reads them as stored. The record means, seasonal means and counts are computed from the released files and are not part of the product. All of this is for looking, not for analysis: use the GeoTIFF files for any calculation.</p>
+  </div>
+</section>
+
+<!-- ───────────────────────────── About ───────────────────────────── -->
+<section id="tab-about" class="tabpane" role="tabpanel" hidden>
+  <div class="about">
+  <div class="prose">
+    <h2 class="pane-h">About the data</h2>
+    <p class="lead">A 1 km grid of six water quality parameters for the inland waters of mainland South Korea, with one grid for each date from <span id="abRecord">6 January 2016 to 29 December 2024</span> on which a cloud-free satellite overpass allowed it, and a calibrated uncertainty for every value.</p>
+
+    <h3 id="ab-what">What the product holds</h3>
+    <p>For each of <span id="abDates">1,012</span> dates there are six files, one per parameter: water temperature (WT), suspended solids (SS), <span class="nb">chlorophyll-a</span> (Chl-a), dissolved oxygen (DO), total nitrogen (TN) and total phosphorus (TP). Each file has two bands, the predictive mean and its calibrated uncertainty σ.</p>
+    <p>The grid has 239,700 cells. Of these, 99,950 lie inside the national boundary (drawn in from the coast), 13,469 contain persistent open water the method can predict, and <span id="abCells">8,558</span> carry a value on at least one date. On a single date a median of 1,182 cells carry a value (a tenth of dates fewer than 38, a tenth more than 3,526), and all six parameters share the same cells. In all the record holds 1,529,676 cell-values per parameter, about 114 dates per predictable water cell: roughly one a month, unevenly spread.</p>
+
+    <h3 id="ab-made">How the grids were made</h3>
+    <ul>
+      <li><b>Reference measurements.</b> Records of the Water Environment Information System (WEIS) of the National Institute of Environmental Research, quality-controlled, at 1,194 monitoring points in the five major river basin regions.</li>
+      <li><b>Satellite input.</b> Harmonized Landsat and Sentinel-2 surface reflectance, the S30 (Sentinel-2) product at 30 m: ten bands, cloud, shadow and snow masked, restricted to persistent open water (Global Surface Water Occurrence of 30 % or more) with the shoreline pixel removed.</li>
+      <li><b>Other inputs.</b> ERA5-Land hourly reanalysis (weather and land-surface state, with precipitation summed over 24, 48 and 72 hours), Copernicus GLO-30 elevation, and the national land cover map as fractions within 500 m and 2 km.</li>
+      <li><b>Model.</b> One multi-layer perceptron per parameter (63 inputs, hidden layers of 256, 128 and 64 units), trained on 46,933 matchups taken within three days of an overpass. SS, Chl-a, TN and TP are trained on the logarithmic scale.</li>
+      <li><b>Uncertainty.</b> The spread of 100 Monte Carlo dropout passes, multiplied by one calibration factor per parameter so that the value ± 1.96 σ holds close to 95 % of held-out observations.</li>
+      <li><b>From 30 m to 1 km.</b> The networks are run on every 30 m water pixel of every scene. A 1 km cell is written as the mean of its 30 m predictions when they cover at least 80 % of the cell's predictable water and number at least five; otherwise it is left empty. A released cell rests on a median of 52 predictions.</li>
+      <li><b>Nothing is gap-filled or smoothed</b>, in the files or on this site. A gap in the water network appears as a gap.</li>
+    </ul>
+
+    <h3 id="ab-kinds">Three kinds of layer, and how well each does</h3>
+    <p>Four independent analyses in the paper (which inputs each network relies on, what happens when groups of inputs are removed, how the skill divides between places and dates, and how much the 30 m predictions vary inside a cell) all separate water temperature and dissolved oxygen from the other four layers; two of them, the inputs each network relies on and the division of the skill, also set total nitrogen apart from the three optical layers. The six layers differ in kind, not only in accuracy.</p>
+    <div class="tablewrap">
+      <table class="grid" id="abSkill">
+        <thead><tr><th>Parameter</th><th>Kind of layer</th><th class="num">R², in units</th><th class="num">R², log scale</th><th class="num">RMSE</th><th class="num">R² at one place through time</th></tr></thead>
+        <tbody><tr><td colspan="6">Loading the skill numbers…</td></tr></tbody>
+      </table>
+    </div>
+    <p class="form-hint">Station-held-out five-fold cross-validation over <span data-skill="n|val|wt|int">46,933</span> matchups, computed for this site from <code>oof_predictions.csv</code> of the record; the numbers equal Tables 5 and 6 of the paper. “At one place through time” removes each monitoring point's own mean before scoring, so it measures only whether the layer follows a place from date to date. These are the scores of the network's single prediction. The grids carry the mean of 100 dropout passes, which scores within 0.04 of them, with one exception: for total nitrogen its R² at one place through time is <span data-skill="within_mu|val|tn|2">0.13</span>, not <span data-skill="within|val|tn|2">0.20</span>.</p>
+    <ul>
+      <li><b>Optical retrievals (SS, Chl-a, TP)</b> are screening layers: for comparing water bodies with one another and for locating elevated conditions across a region. They are at their best when compared with measurements taken close in time to the overpass.</li>
+      <li><b>The catchment-context estimate (TN)</b> infers nutrient loading from land cover and terrain. Read it as a contrast between water bodies, not as a series at a fixed place.</li>
+      <li><b>The meteorologically driven layers (WT, DO)</b> can be used as series at a fixed place, but nearly all of that skill comes from the calendar and the weather, not from the satellite.</li>
+    </ul>
+
+    <h3 id="ab-read">Read this before you use the numbers</h3>
+    <ul>
+      <li><b>None of the six replaces a measurement.</b> The dataset offers coverage in space and time that no monitoring network has, with the skill of each layer stated.</li>
+      <li><b>A date is an overpass, not a day.</b> The series is irregular. Do not place it on a daily axis without deciding what the gaps mean for your purpose.</li>
+      <li><b>Summer is thin.</b> The monsoon covers the peninsula in cloud when blooms and floods are most frequent; July has the fewest values of any month, and summer values rest on the least training data.</li>
+      <li><b>2016 and the first half of 2017 are thin.</b> Only one Sentinel-2 satellite was flying. Start a trend analysis in July 2017, or at least leave out the autumn of 2016.</li>
+      <li><b>High values are understated.</b> The grids show where a condition was elevated, not how elevated it was. Take the size of an event from in-situ records. The TP layer never exceeds 0.174 mg/L although measurements reach 2.469 mg/L; SS values above the largest measurement (473.3 mg/L) are extrapolations.</li>
+      <li><b>Four layers say where far better than when</b> (SS, Chl-a, TN, TP): see the table above. To follow a single reservoir through a season, the local record serves better.</li>
+      <li><b>Reservoirs rest on less training data than rivers.</b> A reservoir point supplied 16 matchups on average, a river point 111, and most of the grid is reservoir.</li>
+      <li><b>Estuaries.</b> The model was trained on inland fresh water. Around the Yeongsan River estuary in the southwest (near 35° N, 126.5° E) the water is tidal and optically complex and the model extrapolates poorly; mask that area for freshwater studies. No such mask is shipped.</li>
+      <li><b>Narrow streams are absent.</b> A stream narrower than about 60 m has no clean 30 m water pixel. Monitoring points often sit on a bridge or a bank: when you compare with a point, take a small neighbourhood, not the single cell under the coordinate.</li>
+      <li><b>The uncertainty.</b> For SS, Chl-a, TN and TP read the lower limit of value ± 1.96 σ as zero where it falls below zero (the record's metadata gives multipliers for a properly asymmetric interval, which this site uses in its charts). The σ of dissolved oxygen is not related to its error and is not a filter; in summer and at reservoirs its interval is somewhat too narrow.</li>
+      <li><b>Jeju Island is outside the domain</b>, by design.</li>
+    </ul>
+
+    <h3 id="ab-site">What this site adds, and what it does not</h3>
+    <p>The “Date” view shows the released grids as they are. “Month”, “Seasonal cycle” and “Record mean” are averages over the dates with a value at each cell, computed for this site; they inherit the uneven sampling above, so a record mean leans toward the well-sampled spring and late autumn. Seen from afar the cells are drawn as dots larger than a kilometre so that rivers remain visible; zoom in to see the cells themselves. The monitoring points are shown at the coordinates the network publishes.</p>
+
+    <h3 id="ab-cite">Citation and collaboration</h3>
+    <p>Please cite both the paper and the dataset when you use these data, and write to <a href="mailto:hyunglokkim@gist.ac.kr">hyunglokkim@gist.ac.kr</a> for research collaboration.</p>
+    <p class="cite">Lee, S., Lee, J., Lee, D., and Kim, H. A satellite-reanalysis deep-learning 1 km gridded inland water quality dataset for South Korea, 2016–2024. Data Descriptor under review at <i>Scientific Data</i>.</p>
+    <p class="cite">Lee, S. and Kim, H. (2026). A 1-km Gridded Decadal (2016–2024) Inland Water Quality Dataset for South Korea. Zenodo. <a href="https://doi.org/10.5281/zenodo.23750573" target="_blank" rel="noopener">https://doi.org/10.5281/zenodo.23750573</a></p>
+
+    <h3 id="ab-credits">Sources and credits</h3>
+    <p>Contains modified Copernicus Climate Change Service information (ERA5-Land) and Copernicus DEM data. Contains information from the Water Environment Information System and the Environmental Geographic Information Service of the Republic of Korea. Produced using data from the Harmonized Landsat Sentinel-2 project (NASA/USGS). Persistent water from the Global Surface Water Occurrence layer of the European Commission Joint Research Centre. Background imagery on the map © Esri and its data providers.</p>
+    <p>Data and model weights: CC BY 4.0. Code: MIT.</p>
+    <p>Contact: <span id="abContact"></span> · HydroAI Lab, Gwangju Institute of Science and Technology — <a id="abMail"></a></p>
+  </div>
+
+  <aside class="about-side">
+    <div class="card">
+      <p class="mini-h">At a glance</p>
+      <dl class="glance">
+        <div><dt>Parameters</dt><dd>Water temperature, suspended solids, <span class="nb">chlorophyll-a</span>, dissolved oxygen, total nitrogen, total phosphorus</dd></div>
+        <div><dt>Bands</dt><dd>Predictive mean and calibrated uncertainty σ</dd></div>
+        <div><dt>Grid</dt><dd>EPSG:4326, about 1 km, 470 × 510 cells</dd></div>
+        <div><dt>Time step</dt><dd>Each cloud-permitting HLS S30 overpass (irregular)</dd></div>
+        <div><dt>Record</dt><dd id="glRecord">—</dd></div>
+        <div><dt>Domain</dt><dd>Inland waters of mainland South Korea (five major river basin regions)</dd></div>
+        <div><dt>Files</dt><dd>6,072 GeoTIFF, 517 MB, on Zenodo</dd></div>
+        <div><dt>Licence</dt><dd>CC BY 4.0 (data and models), MIT (code)</dd></div>
+        <div><dt>Status</dt><dd>Data Descriptor under review at <i>Scientific Data</i></dd></div>
+      </dl>
+    </div>
+    <div class="card">
+      <p class="mini-h">On this page</p>
+      <nav class="toc" aria-label="Sections of this page">
+        <a href="#ab-what">What the product holds</a>
+        <a href="#ab-made">How the grids were made</a>
+        <a href="#ab-kinds">Three kinds of layer</a>
+        <a href="#ab-read">Read this before you use the numbers</a>
+        <a href="#ab-site">What this site adds</a>
+        <a href="#ab-cite">Citation and collaboration</a>
+        <a href="#ab-credits">Sources and credits</a>
+      </nav>
+    </div>
+  </aside>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot" id="foot">
+  <span>HydroAI Lab · Gwangju Institute of Science and Technology</span>
+  <span id="footVer"></span>
+</footer>
+
+<!-- Partner-logo strip, fixed to the bottom of the viewport as on the other HydroAI portals: the home lab and the
+     institution of the paper's authors. ?hidefooter=1 hides it. -->
+<footer class="logos-footer" aria-label="Partner organizations">
+  <div class="logos-row">
+    <a href="https://hydroai.net" target="_blank" rel="noopener" class="logo-hydroai" title="HydroAI"><img src="assets/logos/hydroai.png" alt="HydroAI"></a>
+    <a href="https://www.gist.ac.kr/kr/main.html" target="_blank" rel="noopener" title="GIST"><img src="assets/logos/GIST.png" alt="GIST"></a>
+  </div>
+</footer>
+
+<div class="tip" id="tip" role="tooltip" hidden></div>
+
+<script src="https://unpkg.com/maplibre-gl@5.24.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/pmtiles@4.5.0/dist/pmtiles.js"></script>
+<script src="js/config.js?v=20261118b"></script>
+<script src="js/app.js?v=20261118b"></script>
+</body>
+</html>

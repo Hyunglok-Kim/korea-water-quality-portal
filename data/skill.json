@@ -1,0 +1,162 @@
+{
+ "source": "oof_predictions.csv of doi:10.5281/zenodo.23750573",
+ "what": "station-held-out five-fold cross-validation of the released model; see pipeline/skill.py for each key",
+ "matchups": 46933,
+ "points": 1194,
+ "params": {
+  "wt": {
+   "n": 46933,
+   "points": 1194,
+   "r2": 0.873355,
+   "rmse": 2.605167,
+   "within": 0.892653,
+   "between": 0.069702,
+   "points_10": 1138,
+   "worse_share": 0.046573,
+   "recover_top1": 0.830236,
+   "r2_mu": 0.873573,
+   "within_mu": 0.89285,
+   "cover_raw": 0.747896,
+   "cover_cal": 0.943835,
+   "calib_c": 2.015096,
+   "rho_sigma": 0.199731
+  },
+  "ss": {
+   "n": 46933,
+   "points": 1194,
+   "r2": 0.30734,
+   "rmse": 9.765972,
+   "within": 0.164516,
+   "between": 0.329209,
+   "points_10": 1138,
+   "worse_share": 0.362039,
+   "recover_top1": 0.551272,
+   "r2_mu": 0.34028,
+   "within_mu": 0.172938,
+   "cover_raw": 0.517163,
+   "cover_cal": 0.976711,
+   "calib_c": 6.734663,
+   "rho_sigma": 0.571813,
+   "r2_log": 0.556769,
+   "r2_log_mu": 0.533019
+  },
+  "chla": {
+   "n": 46933,
+   "points": 1194,
+   "r2": 0.340769,
+   "rmse": 19.784939,
+   "within": 0.212944,
+   "between": 0.416055,
+   "points_10": 1138,
+   "worse_share": 0.584359,
+   "recover_top1": 0.582986,
+   "r2_mu": 0.374494,
+   "within_mu": 0.214598,
+   "cover_raw": 0.54744,
+   "cover_cal": 0.968807,
+   "calib_c": 5.013513,
+   "rho_sigma": 0.621262,
+   "r2_log": 0.497178,
+   "r2_log_mu": 0.458211
+  },
+  "do": {
+   "n": 46933,
+   "points": 1194,
+   "r2": 0.533083,
+   "rmse": 1.834812,
+   "within": 0.495987,
+   "between": 0.231318,
+   "points_10": 1138,
+   "worse_share": 0.151142,
+   "recover_top1": 0.359836,
+   "r2_mu": 0.534742,
+   "within_mu": 0.498755,
+   "cover_raw": 0.691028,
+   "cover_cal": 0.937208,
+   "calib_c": 2.406772,
+   "rho_sigma": 0.007956
+  },
+  "tn": {
+   "n": 46933,
+   "points": 1194,
+   "r2": 0.357796,
+   "rmse": 1.350151,
+   "within": 0.198806,
+   "between": 0.66947,
+   "points_10": 1138,
+   "worse_share": 0.782074,
+   "recover_top1": 0.359187,
+   "r2_mu": 0.350384,
+   "within_mu": 0.128583,
+   "cover_raw": 0.462553,
+   "cover_cal": 0.961008,
+   "calib_c": 5.066567,
+   "rho_sigma": 0.342465,
+   "r2_log": 0.504054,
+   "r2_log_mu": 0.499033
+  },
+  "tp": {
+   "n": 46933,
+   "points": 1194,
+   "r2": 0.289613,
+   "rmse": 0.049648,
+   "within": 0.092505,
+   "between": 0.522059,
+   "points_10": 1138,
+   "worse_share": 0.610721,
+   "recover_top1": 0.492102,
+   "r2_mu": 0.306612,
+   "within_mu": 0.090988,
+   "cover_raw": 0.660239,
+   "cover_cal": 0.983913,
+   "calib_c": 5.286502,
+   "rho_sigma": 0.561217,
+   "r2_log": 0.568953,
+   "r2_log_mu": 0.542021
+  }
+ },
+ "sites": [
+  {
+   "id": "1302A40",
+   "type": "river",
+   "n": 32,
+   "r2_wt": 0.61438,
+   "r2_chla": -10.932344
+  },
+  {
+   "id": "2022A20",
+   "type": "river",
+   "n": 38,
+   "r2_wt": 0.942904,
+   "r2_chla": 0.134603
+  },
+  {
+   "id": "5008A10",
+   "type": "river",
+   "n": 122,
+   "r2_wt": 0.967742,
+   "r2_chla": -0.029628
+  },
+  {
+   "id": "1302B10",
+   "type": "lake_dam",
+   "n": 34,
+   "r2_wt": 0.88927,
+   "r2_chla": -0.545244
+  },
+  {
+   "id": "3201B20",
+   "type": "lake_dam",
+   "n": 31,
+   "r2_wt": 0.974558,
+   "r2_chla": 0.492286
+  },
+  {
+   "id": "5003B10",
+   "type": "lake_dam",
+   "n": 39,
+   "r2_wt": 0.963452,
+   "r2_chla": 0.288514
+  }
+ ]
+}

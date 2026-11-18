@@ -1,0 +1,302 @@
+# Korea inland water quality data portal
+
+Web portal for the lab's 1 km gridded inland water quality dataset for mainland South Korea: water
+temperature (WT), suspended solids (SS), chlorophyll-a (Chl-a), dissolved oxygen (DO), total nitrogen (TN)
+and total phosphorus (TP) on each of the 1,012 dates of 2016–2024 that a cloud-free HLS S30 overpass
+allowed, every value with a calibrated uncertainty (Lee, Lee, Lee and Kim, Data Descriptor under review at
+*Scientific Data*; data: doi:10.5281/zenodo.23750573, CC BY 4.0). It shows every water cell of the product
+on a map, as one date, a month, a calendar month or the whole record, and any cell's full record for all
+six parameters.
+
+**Status (2026-11-18): public on GitHub Pages** at https://hyunglok-kim.github.io/korea-water-quality-portal/
+and listed on the lab dashboard under 🌏 연구자료 (`/wq-korea.html`, which embeds the public page). Two things
+wait for the lab head's word: **the manuscript's figures** (the paper is under review, so the public page
+shows the plain-words account with this site's own charts and not the manuscript's six figures; see “The
+paper's figures” below) and **hydroai.net/data** (no card there yet; see “The hydroai.net card” below).
+
+This portal follows the HDCA portal (`~/orca/projects/hdca/portal/`) in structure, look and dashboard
+wiring; read that folder's `CLAUDE.md` for the shared background (the dashboard's 연구자료 mechanism, the
+Webflow Data page). What differs is the data model: the product is sparse, so the browser gets the numbers
+and draws the cells itself instead of projecting a field or reading map tiles (below).
+
+## Where things are
+
+| What | Where |
+|---|---|
+| Portal app (this folder) | `~/orca/projects/wq_korea/portal/` — static site, no build step; **git repository** pushed to github.com/Hyunglok-Kim/korea-water-quality-portal (GitHub Pages, branch `main`, root) |
+| Public browse data | `data/` in this repository (catalog.json, two `.pmtiles` stores, stations.json, skill.json — 71 MB) |
+| The manuscript's six figures (web copies) | `assets/figures/Fig2,4,5,6,7,8.webp` on the dashboard Mac only: the folder is in `.gitignore` until the lab head decides to publish them |
+| The product (public) | Zenodo doi:10.5281/zenodo.23750573 (version 4; concept DOI 10.5281/zenodo.18502401): six ZIP archives by parameter, code, models, validation files |
+| The product (lab storage, CPU server) | `/home/data_4/finished_projects/project_water_quality/datasets/predictions_1km/<year>/kr_wq_<param>_1km_<yyyymmdd>.tif` (6,072 files, 517 MB; the same files as on Zenodo, in folders by year) |
+| Build workspace (CPU server) | `/data/personal_data/project_wq_portal/` (`scripts/`, `venv/`, `work/`, `out/`, `logs/`) |
+| Browse data served to the lab | `~/.hydroai/datasets/wq-korea/` on the dashboard Mac (outside the Drive-synced tree) |
+| Dashboard pages | `hydroai-dashboard/gateway/static/research-data.html` (hub), `wq-korea.html` (shell); registry `gateway/research_datasets.json` (entry `wq-korea`) |
+| Manuscript and code (private) | github.com/Hyunglok-Kim/Gridded_South_Korea_Water_Quality_Dataset (Overleaf-synced) and `…_code`; clones under `~/.hydroai/repos/2026-gridded-south-korea-water-quality-dataset/`; review record `2026-gridded-south-korea-water-quality-dataset` on the lab dashboard |
+
+```
+portal/
+  index.html          one page: Explore / Download / Use in code / About the data
+  css/portal.css      the HDCA portal's stylesheet with this portal's additions at the end
+  js/config.js        deployment settings (data location, DOIs, contact, what “From the paper” shows)
+  js/app.js           the app (MapLibre GL + feature state + SVG charts), one IIFE
+  assets/             logos, preview.jpg (link preview); figures/ (the manuscript's, not in the repository)
+  data/               what the page reads (public copy)
+  pipeline/           scan → store → stations → skill; runs on the CPU server, under a minute
+  tests/smoke.py      headless-browser test (Playwright); field_ref.json holds reference values from the rasters;
+                      make_preview.py re-makes assets/preview.jpg
+  dev_server.py       local preview with HTTP Range support
+```
+
+## How the data reaches the map
+
+```
+6,072 GeoTIFFs (470 x 510, Float32, two bands)                         CPU server
+  └─ pipeline/scan.py          reads every file once, checks grid / bands / the shared mask,
+                               keeps only the cells with a value                      -> work/cube.npz, scan.json
+  └─ pipeline/build_store.py   two stores + catalog + reference values                 -> out/, work/field_ref.json
+       kr_wq_1km_fields.pmtiles   by date   (z 10)
+           x = 12, y = year-2016        the cells with a value on each date of that year, in date order
+           x = L,  y = year-2016        layer L for those same cell-days
+           x = L,  y = 20               [13][cells]: mean over the whole record (0) and each calendar month (1..12)
+           x = 13, y = 20               [13][cells]: number of dates with a value, same slots
+       kr_wq_1km_series.pmtiles   by cell   (z 10, x = column, y = row)
+           n, date index [n], then [12 layers][n]
+       catalog.json               grid, the 8,558 cells, the 1,012 dates and their cell counts, encodings,
+                                  statistics by month and year, the Zenodo file list
+  └─ pipeline/stations.py      the 1,194 monitoring points (published list + WEIS names and coordinates) -> out/stations.json
+  └─ pipeline/skill.py         the skill numbers, from the record's validation file (oof_predictions.csv)  -> out/skill.json
+rsync to the dashboard Mac (~/.hydroai/datasets/wq-korea/) → copy into data/ here → push       (public copy)
+```
+
+Layer index L: 0 wt_mu, 1 wt_sigma, 2 ss_mu, 3 ss_sigma, 4 chla_mu, 5 chla_sigma, 6 do_mu, 7 do_sigma,
+8 tn_mu, 9 tn_sigma, 10 tp_mu, 11 tp_sigma.
+
+**Why numbers and not tiles or pictures.** Of the grid's 239,700 cells, 8,558 ever carry a value, and the
+whole record is 1,529,676 cell-values per layer: 37 MB for both bands of all six parameters as 16-bit
+numbers. So the page loads the cells' positions once (catalog.json), then one small entry per year and
+layer for the map, and one entry of a few kilobytes for a clicked cell. The cells are GeoJSON squares
+(and a second source of their centres, drawn as dots below zoom 8.6 so that 1 km cells stay visible from
+afar); a cell's position on the colour ramp is its **feature state** `t` (0..1, −1 = no value), and a
+layer switch only updates the cells whose `t` changed. Nothing is resampled, the cursor reads the stored
+value, and "Play" needs no further requests within a year.
+
+**Number contract.** Unsigned 16-bit, little-endian, 65535 = no value. `lin`: value = DN × 0.001 + offset
+(WT value: offset −5 °C, so a negative temperature would fit; WT σ, DO value and σ: offset 0). `log`:
+value = 0.001 × exp(DN × k), k = ln(10⁸) / 65534 (SS, Chl-a, TN, TP, value and σ): a constant step of
+0.028 %. `build_store.py` asserts that nothing is clipped and prints the largest error (0.0005 absolute,
+0.014 % relative). The record means, calendar-month means and counts in the stores are computed by the
+pipeline from the rasters; month means are computed in the browser from the year entries (the smoke test
+checks the two routes against each other).
+
+**Why PMTiles as the container.** The lab dashboard's gateway serves only `.json` and `.pmtiles` from a
+portal's data folder, and counts `.pmtiles` bytes for the hub card. A PMTiles archive is a range-readable
+key-value store addressed by z/x/y; the addressing above is in each archive's metadata and in
+`catalog.json` (`store`). Every entry is gzip-compressed (`tile_compression`); `pmtiles.js` inflates on
+read. All entries of an archive sit at one zoom (10), because the reader refuses zooms outside the
+header's range.
+
+**One repository.** The stores are 36 MB and 38 MB, so everything fits one GitHub Pages site (files under
+100 MB, site under 1 GB); no second repository as for HDCA.
+
+## Rebuilding
+
+Runs on the CPU server as `discover` (address, port, user and key are on the lab dashboard's server page and
+in the lab head's notes); the whole run takes under a minute and little memory.
+
+```bash
+cd /data/personal_data/project_wq_portal
+# copy pipeline/*.py and run.sh into scripts/ if they changed
+scripts/run.sh all              # scan → store → stations → skill, a few seconds each
+scripts/run.sh store            # only the stores and the catalog (after a change to build_store.py)
+```
+
+- `venv/` is `python3 -m venv --system-site-packages` plus `pip install pmtiles`; NumPy and GDAL come from
+  the system (Python 3.10). No rasterio there: `scan.py` reads with `osgeo.gdal`.
+- `run.sh store` asks Zenodo for the record's file list (names, sizes, checksums → the Download tab),
+  `stations` for `station_fold_map.csv` and `skill` for `oof_predictions.csv` (20 MB, kept in `work/`).
+  Zenodo refuses curl's default User-Agent from the lab network; the script sends its own.
+- `ZENODO=<record number>` picks another version of the record. A new version with new grids means: put
+  the new GeoTIFFs under `SRC`, run `all`, copy `work/field_ref.json` to `tests/`, update the DOI in
+  `js/config.js`, in `index.html` (use strip, Download and About tabs, the paper credit) and in the
+  dashboard registry, and the version string in `build_store.py`.
+- Copy to the dashboard Mac and into this repository, then run the smoke test before pushing:
+
+```bash
+rsync -a --exclude '*.part' -e "ssh <lab CPU server options>" \
+  <cpu-server>:/data/personal_data/project_wq_portal/out/ ~/.hydroai/datasets/wq-korea/
+rsync -a ~/.hydroai/datasets/wq-korea/ data/
+```
+
+Each push of changed stores adds 74 MB to the repository's history, so publish per data version, not per
+experiment.
+
+## Running it
+
+**Local preview**:
+
+```bash
+~/.venvs/hydroai/bin/python dev_server.py --port 8797        # http://127.0.0.1:8797/   (serves ~/.hydroai/datasets/wq-korea at /data/)
+~/miniconda3/bin/python tests/smoke.py --base http://127.0.0.1:8797/index.html --query "intro=0&data=/data/" --shots /tmp/shots --ref tests/field_ref.json
+~/miniconda3/bin/python tests/smoke.py --browser webkit  --base http://127.0.0.1:8797/index.html --query "intro=0&data=/data/" --shots /tmp/shots-safari --ref tests/field_ref.json
+```
+
+`python -m http.server` will not do: PMTiles needs HTTP Range requests. `--data data` serves this
+repository's own copy instead of the dashboard Mac's.
+
+What the test proves, beyond the page working: every layer of four dates and the whole record of four cells
+read through the page equal the GeoTIFF values that `build_store.py` wrote to `field_ref.json` **before**
+encoding (so it tests the encoding, the stores, the reader and the decoding together); 3 December 2023 has
+4,565 cells, the number the paper gives for its product figure; a month mean computed from the by-date
+store equals the one computed from the by-cell store; and every skill number on the page (37 in the text,
+the About tab's table, the six-point table, the labels of the two bar charts) is the one in `skill.json`,
+both as shown and as written in the page source. `--figures` adds the page with the manuscript's figures
+(only where `assets/figures/` is served: the local preview and the dashboard copy). It ends with the two checks on the map failing (no
+WebGL context; a context lost on a running page), as in the HDCA portal. Chromium runs with software
+drawing (SwiftShader), so the test does not depend on the machine's graphics card; headless WebKit uses the
+real one.
+
+The Python examples of the “Use in code” tab were run against the real Zenodo archive (chlorophyll-a,
+checksum verified): 4,565 cells on 3 December 2023, 177 overpasses at the Daecheong Lake cell — the same
+177 the portal shows there. If you change an example, run it again (unzip an archive, run the snippet in
+that folder). The R example has not been run (no R on the dashboard Mac).
+
+**Public site**: test it with
+`tests/smoke.py --base https://hyunglok-kim.github.io/korea-water-quality-portal/index.html --shots /tmp/shots-public --ref tests/field_ref.json`.
+Pages rebuilds a minute or two after a push. Bump the `?v=` on the script and style tags in `index.html`
+when you change them.
+
+**In the lab dashboard**: `/wq-korea.html` (sidebar 🌏 연구자료) embeds the public site (`?embed=1`), the
+way `hdca.html` does. The gateway also serves this folder at `/rd/wq-korea/` and the data at
+`/rd/wq-korea/data/` for signed-in lab members (a fallback when github.io is unreachable):
+`/rd/wq-korea/index.html?embed=1&data=/rd/wq-korea/data/&nas=/home/data_4/finished_projects/project_water_quality/datasets/predictions_1km`.
+To run the smoke test against that copy, mint a session cookie as described at the top of
+`gateway/research_data.py` and pass it as `SMOKE_COOKIE="hydroai_rd=<token>"`.
+
+URL parameters the app understands: `embed=1` (fixed map height, the record card under the map, reports
+its height to the parent frame), `hidefooter=1`, `data=/path/` (same-origin data location), `nas=/path`
+(lab storage path shown in Download), `intro=0` (skip the opening flight), `tab=download|code|about`,
+`var=wt|ss|chla|do|tn|tp|n`, `band=sigma`, `mode=all|clim|month|date`, `month=1..12` (calendar month),
+`ym=YYYY-MM`, `date=YYYY-MM-DD` (a date without a grid opens the nearest overpass and says so),
+`at=lat,lon` (picks the nearest cell and goes there), `pts=1` (monitoring points on),
+`paper=text|figures|off` (what “From the paper” shows; overrides `js/config.js`).
+
+## The paper's figures
+
+The paper is under review at *Scientific Data* and its figures are published nowhere. The dataset, its README
+and its validation files are public on Zenodo. So the public page is built from the public material only:
+
+- `paperSection: "text"` (the public setting): the six plain-words blocks, this site's own two bar charts and
+  the six-point table. Every skill number in them is computed by `pipeline/skill.py` from `oof_predictions.csv`
+  of the record and read from `data/skill.json`; they equal the manuscript's Tables 5 and 6 and the numbers
+  of its Fig. 6 and Fig. 7 (checked 2026-11-18). What the text takes from the paper in words — which inputs
+  each network relies on, the spread within a cell — is also in the record's public README.
+- `paperSection: "figures"`: the same, with the manuscript's Fig. 2, 4, 5, 6, 7 and 8 beside the blocks. The
+  web copies are in `assets/figures/` on the dashboard Mac (made with `pdftoppm -r 220` from the manuscript
+  repository's `figures/fig_N.pdf`, 1800 px wide, WebP so that the dashboard's gateway serves them too) and
+  **are not in the repository** (`.gitignore`). Lab members can see this version through the dashboard copy:
+  `/rd/wq-korea/index.html?paper=figures&data=/rd/wq-korea/data/` (the dashboard page has a button for it).
+- **To publish the figures** (the lab head's decision; at acceptance at the latest): delete the
+  `assets/figures/` line from `.gitignore`, set `paperSection: "figures"` in `js/config.js`, bump its `?v=`
+  in `index.html`, commit and push. Refresh the copies first if the manuscript's figures changed.
+- `"off"` removes the section and the two links to it; the About tab keeps its skill table.
+
+## The hydroai.net card
+
+Not published. hydroai.net/data is one HTML Embed in Webflow, shared by every dataset's card and panel and
+edited by several sessions; its text is kept in the HDCA portal's repository
+(`~/orca/projects/hdca/portal/embed/hydroai-data-page.html`, with the rules for editing it in that folder's
+`CLAUDE.md` and `embed/tools/README.md`). What is staged here for a fifth card is described in `embed/README.md`
+of this repository, if that folder exists; if it does not, nothing has been made yet. Publishing it means
+editing the lab's public site through the lab head's own browser session, so it is done only at the lab
+head's word, after asking the other portal sessions (ListAgents / SendMessage) and comparing the Designer's
+live text with the repository copy.
+
+## Rules that must survive any redesign
+
+- **Say what kind of layer each parameter is.** SS, Chl-a and TP are optical retrievals; TN is a
+  catchment-context estimate; WT and DO are meteorologically driven. The layer card names the kind and
+  says what it can be used for (`HOWTO` in `app.js`, from the paper's Technical Validation and Usage
+  Notes); the About tab has the table. Do not present all six as equally a “satellite measurement”.
+- **None of the six replaces a measurement,** and the page says so (first box, About tab).
+- **Never hide gaps, never fill them.** A date is an overpass, not a day; a cell without a value on a date
+  is drawn empty and listed nowhere as zero. Month, seasonal and record means are this site's own
+  averages over the dates with a value and say so (layer card, About tab “What this site adds”); the
+  count of dates is a layer of its own.
+- **The interval on the charts is the record's own.** The 95 % interval uses the asymmetric multipliers of
+  `kr_wq_1km_metadata.json` (`CI` in `app.js`), with the lower limit floored at zero for SS, Chl-a, TN and
+  TP. If a new version of the record changes them, change them here. DO's σ is not a filter; the σ layer's
+  note says so.
+- **1 km is the cell.** Cells are drawn as squares from zoom 8.4; below that as dots that are larger than
+  a kilometre on screen, and the hint under the map and the About tab say so.
+- **Numbers on the page are computed, or quoted from public text.** Counts come from `catalog.json`; skill
+  numbers from `skill.json` (the page fills every `<span data-skill>` from it, the smoke test checks the
+  page and its source). What is quoted rather than computed (the spread within a cell, the 52 predictions
+  behind a cell, visits per year, matchups per point, the largest measured SS and TP, the dates without a
+  file) is in the record's README or metadata as well as in the manuscript, and was checked against both on
+  2026-11-18. A new version of the record means rerunning the pipeline and rereading those sentences.
+- **The skill table gives the paper's numbers** (the network's single prediction, Tables 5 and 6). The
+  grids carry the mean of the dropout passes, which scores within 0.04 of them except for total nitrogen
+  followed through time (0.13, not 0.20); the table's note and the nitrogen layer card say so.
+- **The paper is under review**: see “The paper's figures”. At acceptance: replace “under review” with the
+  reference (use strip, Download and About tabs, the credit line, README, the dashboard registry and shell
+  page) and publish the figures.
+- **Fig. 2 of the manuscript still says “1 km daily gridded”;** the page's own words are “one grid per
+  clear overpass, not one per day”, as the rest of the manuscript and the Zenodo record now say.
+- **Basemap without labels.** Esri World Imagery, dimmed; the only names on the map are six cities, ten
+  reservoirs and the monitoring points, all our own text. Public label layers bring the East Sea / Dokdo
+  naming problem.
+- **Colour ramps run dark to light** (lightness monotonic, checked), because the map is dark: a high
+  value is bright and no value disappears into the basemap. WT uses inferno and Chl-a viridis, as in the
+  paper's product figure; SS runs from umber to sand so that clear water is not painted rust; every σ
+  layer is grey. The charts use one data hue and a de-emphasised grey (checked with the dataviz skill's
+  validator together), and the three monitoring-point colours were validated as a set.
+- **The monitoring points are the published list** (`station_fold_map.csv` of the record: 1,194 points,
+  46,933 matchups) at the coordinates WEIS publishes; `stations.py` asserts both totals. The lab's
+  matchup table has more points (1,344): never ship that list.
+- **The retrieval code and manuscript repositories are private** and the portal does not link them; the
+  code is public inside the Zenodo record, which the Download tab lists.
+- **Never leave a visitor on the loading screen** (`webglWorks`, `noMap`, `LOST_WAIT`), as in the HDCA portal.
+- **Every block inside `main` is either full width (1640 px) or centred.** Check layouts at 2048 CSS px
+  wide (the lab head's display) as well as 1440 and 390 before saying a change is done.
+- **The partner strip is HydroAI and GIST** (all four authors are at GIST); `?hidefooter=1` hides it.
+
+## Layout notes
+
+- Standalone page: the map column is sticky from 1061 px, so a cell can be picked while reading the cards
+  beside it; the record (calendar) card is the third card on the right.
+- Embedded (`?embed=1`): the frame is as tall as the page and nothing scrolls inside it, so nothing can
+  stick; the record card goes under the map as a flat strip, which keeps the two columns even when a cell
+  is picked.
+- The opening: the map starts on the globe over East Asia and flies to the peninsula in 3.2 s while the
+  cells fade up (`startIntro`; the fade is driven by `setOpacity` because data-driven paint properties do
+  not transition). Any wheel, press or touch ends it. `?intro=0` and `prefers-reduced-motion` skip it.
+
+## Gotchas already paid for
+
+- **Zenodo has a newer version than the dashboard's link.** The review record's data link pointed to
+  10.5281/zenodo.21393563 (version 3); the revised manuscript cites 10.5281/zenodo.23750573 (version 4).
+  The six grid archives are byte-identical in the two (same MD5), so the portal's data are right for both.
+- **A marker element must not set `position`.** MapLibre places markers absolutely; `.pulse-wrap` once had
+  `position: relative`, became as wide as the map and sat at its left edge. The smoke test now measures
+  where the mark lands.
+- **Feature state needs the source loaded.** `paint()` does nothing until the map's `load` event, then
+  paints the current layer; `tPrev` remembers what each cell was given.
+- **GeoJSON simplification drops small squares.** The cells source has `tolerance: 0`; below zoom 7.5 only
+  the dots are drawn.
+- **A logarithmic chart axis cannot show a lower limit near zero.** The axis is set by the dots and the
+  upper limits; a lower limit below it is cut at the axis and a note under the chart says so; the
+  tooltip, the table and the CSV carry the limit itself.
+- **NaN crosses from the page to Playwright as NaN,** not null; the test treats both as “no value”.
+- **A full-page screenshot of the phone layout sometimes fails once** under software drawing (“Unable to
+  capture screenshot”), and a page can take over a minute to settle when several headless browsers run at
+  once. Retry before suspecting the page.
+- **Bars drawn into a narrow box are drawn at the box's width** (`drawBars`): scaled down from the desktop
+  drawing their labels were 6 px tall on a phone.
+- **`rm -f dir/*` in zsh stops the whole command line when nothing matches.** Use `find … -delete`.
+
+## Not done yet
+
+- The hydroai.net card (above).
+- Regional or per-water-body summaries (click a reservoir for its mean series).
+- The native 30 m predictions: not in the record, not on the site.
+- Korean UI text, a dark page theme.
