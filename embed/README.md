@@ -1,16 +1,18 @@
-# On hydroai.net: the Data page card, the home page announcement, and the home page's new blocks
+# On hydroai.net: the Data page card, the home page's three blocks, and an announcement that is not used
 
-Three pieces of the lab's Webflow site are kept here:
+Three pieces for the lab's Webflow site are kept here:
 
 - the dataset's **card** on hydroai.net/data (live since 2026-11-18);
-- an **announcement** for the home page that tells a first-time visitor the dataset is available (made
-  2026-11-19, **not on the site yet**);
-- three **blocks that remake the top of the home page** (made 2026-11-20, **not on the site yet**): the lab's
-  datasets in motion on the first screen, news and papers that keep themselves up to date, and the long text
-  cut down, with recruiting in one band.
+- three **blocks that remake the top of the home page** (**live since 2026-11-20**): the lab's datasets in
+  motion on the first screen, news and papers that keep themselves up to date, and the long text cut down,
+  with recruiting in one band;
+- an **announcement** dialog for the home page (made 2026-11-19, **not used**: when the blocks went up the lab
+  head decided against a popup, “올리고 팝업은 쓰지 말자”, 2026-11-20). The reel's first entry, marked “New”,
+  announces the dataset instead.
 
-The last two change the lab's front page and mean publishing the Webflow site, so each waits for the lab
-head's word, as the card did.
+Anything on hydroai.net means publishing the Webflow site, which sends out whatever is saved in the Designer,
+so every change waits for the lab head's word, and other sessions working on the site are told before a
+publish.
 
 ## The card on hydroai.net/data
 
@@ -87,15 +89,17 @@ account as the Claude Code session (on 2026-11-18 it was not at first, and no se
 5. Write the live text back to the HDCA repository's copy, commit and push there, and tell the other sessions
    the new SHA-1.
 
-## The announcement on the home page
+## The announcement for the home page (made, not used)
 
 Asked for by the lab head on 2026-11-19: something on the first page, “a popup or the like”, so that a
 first-time visitor learns that the data are available. `home-announcement.html` is that, as one block of
 styles, markup and script for a Webflow **Code Embed** on the Home page. It changes nothing else on the page.
 
-**Status: made and checked on a local copy of the home page; not on hydroai.net.** Putting it there changes
-the lab's front page and means publishing the Webflow site, so it waits for the lab head's word, as the card
-did.
+**Status: made and checked on a local copy of the home page; not on hydroai.net, and not to be put there.**
+On 2026-11-20, when the three blocks below went up, the lab head decided against it (“올리고 팝업은 쓰지
+말자”): the first screen now shows the dataset as the reel's first entry, marked “New”, and a dialog on top of
+that would say the same thing twice. The file and its tools stay for an announcement that may be wanted later; what
+follows describes it as it was made.
 
 ### What a visitor gets
 
@@ -157,30 +161,38 @@ the status line here together with the card's and the portal's top line.
 `home_preview.py` fetches the live home page and puts this file before `</body>`, as the embed would; with
 `--local-media` the loops come from `embed/media/` here, for a loop that is not pushed yet. `check_home.py`
 lists what it checks in its docstring (first visit, later visits, every way out, thirteen window sizes,
-reduced motion, blocked storage, the last day, a background tab); it exits with the number of failures.
+reduced motion, blocked storage, the last day, a background tab); it exits with the number of failures. It
+last passed on 2026-11-19, on the home page as it was before the three blocks; run it again on the page as it
+is now before using the announcement for anything.
 
-### Announcing something else, or taking it down
+### If an announcement is wanted later
 
-- Another announcement: change the words and the loops, and give `ANN.id` a new value. Every browser then
-  sees the dialog once more, including those that closed this one. Set `ANN.until`.
-- Taking it down: delete the Code Embed from the Home page and publish. Nothing else refers to it.
+- Change the words and the loops, and give `ANN.id` a new value (every browser then sees the dialog once,
+  including those that closed an earlier one). Set `ANN.until`.
+- It would go on the Home page as one more Code Embed, last in Body. The reel waits behind the dialog while
+  it is open (`dialog()` in `home/hero.html` looks for the announcement's element), which was tried on
+  2026-11-20 in Chromium and WebKit.
+- Taking it down again: delete that Code Embed and publish. Nothing else refers to it.
 
 
 ## The home page's three blocks
 
 Asked for by the lab head on 2026-11-20: the first page should be more dynamic (“좀 더 동적으로”). Of six
-ideas he chose the first three (“1,2,3 우선 해보자”): the lab's own data in motion on the first screen; news
+ideas the lab head chose the first three (“1,2,3 우선 해보자”): the lab's own data in motion on the first screen; news
 and recent papers that appear by themselves; the long text shortened, with recruiting in one band.
 `embed/home/` holds them as three Webflow **Code Embeds**, each one self-contained (styles, markup, script).
 
-**Status: made and checked on a local copy of the home page; not on hydroai.net.**
+**Status: live on https://hydroai.net/ since 2026-11-20**, at the lab head's word (“올리고 팝업은 쓰지
+말자”). The Home page's three Code Embeds hold these three files byte for byte, and
+`check_home_new.py https://hydroai.net/` passes in Chromium, WebKit and Firefox (264 checks).
 
 | File | What a visitor sees | What it takes the place of |
 |---|---|---|
 | `home/hero.html` | The first screen: the title, one sentence, two buttons (Data, Opportunities), and beside them the five datasets in turn, each one's loop with its captions, its name, one line and its link | The dark block with the title and two paragraphs over the satellite picture, and the two photographs under it |
 | `home/latest.html` | “News” and “Recent publications”: the first three entries of the Events page and of the Publications page | Nothing: it is new |
 | `home/about.html` | The lab in one paragraph and its two research axes beside the two photographs; then “Join HydroAI”: three kinds of position, the year's topics, and the full call folded away. English or Korean, one at a time | The long paragraph above the four green tiles (introduction in two languages, then the recruiting list) |
-| `home/replaced-paragraph.html` | (not shown) That paragraph as it was on the site on 2026-11-20: the record of what was replaced, and what the check compares the folded call with | |
+| `home/replaced-paragraph.html` | (not shown) That paragraph as it was on the site until 2026-11-20: the record of what was replaced, and what the check compares the folded call with | |
+| `home/replaced-hero.html` | (not shown) The old hero block and the photographs' container as they were on the site until 2026-11-20: the record of the other things replaced | |
 
 Nothing is sent anywhere by any of them, and none of them uses a figure of a manuscript: the pictures are the
 loops made for the Data page's cards, from the portals' own public maps.
@@ -251,35 +263,71 @@ loop is re-made, re-make its wide one and change both names and the caption time
 
 ```bash
 ~/.venvs/hydroai/bin/python embed/tools/home_new_preview.py                 # http://127.0.0.1:8814/
-~/.venvs/hydroai/bin/python embed/tools/home_new_preview.py --local-media   # this repository's loops from embed/media/ (before they are pushed)
+~/.venvs/hydroai/bin/python embed/tools/home_new_preview.py --local-media   # this repository's loops from embed/media/ (for a loop that is not pushed yet)
 ~/miniconda3/bin/python embed/tools/check_home_new.py                       # the preview, in Chromium, WebKit and Firefox
-~/miniconda3/bin/python embed/tools/check_home_new.py https://hydroai.net/  # the live page, once the blocks are on it
+~/miniconda3/bin/python embed/tools/check_home_new.py https://hydroai.net/  # the live page
 ```
 
-`home_new_preview.py` fetches the live home page with its Events and Publications pages and makes on it the
-same changes that publishing makes (listed below); `/?old` shows the page as it is now, `/?popup` adds the
-announcement, `/?lang=ko` or `en` sets the section's language. `check_home_new.py` lists what it checks in
-its docstring (the page's structure; the reel through all five datasets, a click, pause, a hidden tab,
-scrolling away, loops that cannot be fetched, reduced motion; the two lists against the two pages, and
-either page unreadable; the two languages, and every sentence of the replaced recruiting list still on the
-page; thirteen window sizes); it exits with the number of failures.
+`home_new_preview.py` fetches the live home page with its Events and Publications pages and puts this
+folder's three files in the place of the page's three Code Embeds, so a change to a block is seen and checked
+on the page as it is before it goes into the Designer; with the files as published it serves the live page
+byte for byte. `/?live` shows the page as it is on the site, `/?lang=ko` or `en` sets the section's language.
+`check_home_new.py` lists what it checks in its docstring (the page's structure; the reel through all five
+datasets, a click on a bar at any moment, pause, a hidden tab, scrolling away, loops that cannot be fetched,
+reduced motion; the two lists against the two pages, and either page unreadable; the two languages, and every
+sentence of the replaced recruiting list still on the page; thirteen window sizes); it exits with the number
+of failures. **Run it on the live page too, not only on the preview**: the one defect so far showed only
+there (below).
 
-### Putting it on the site
+### How it went onto the site (2026-11-20)
 
-In the Webflow Designer, on the Home page (`data-wf-page` 640cbd423ecaf883c33aa530):
+In the Webflow Designer, on the Home page (`data-wf-page` 640cbd423ecaf883c33aa530), after saving a backup
+(Cmd+Shift+S: “Before the home page's new blocks (2026-11-20)”, the site as it was):
 
-1. Select the hero's container (`teaching-detail-wrap hero`), add a **Code Embed** with `home/hero.html`;
-   delete the old `hero-block` and the photographs' container (`container-6`) from it.
-2. Select the first section (`section hero-home`) and add two **Code Embeds**, which land last in it:
+1. In the hero's container (`teaching-detail-wrap hero`): a **Code Embed** with `home/hero.html` was added,
+   and the old `hero-block` and the photographs' container (`container-6`) were deleted
+   (`home/replaced-hero.html` keeps them).
+2. Last in the first section (`section hero-home`), after the two navbars: two **Code Embeds**,
    `home/latest.html`, then `home/about.html`.
-3. Delete the long paragraph (the `paragraph` in `usps-block`, above the tiles) and the stray “Heading” at the
-   foot of the page; correct “Rede more” and “improvments” in the sections below, and “technics” in the
-   page's description (page settings).
-4. Publish with only hydroai.net ticked, then run `check_home_new.py https://hydroai.net/` and look at it.
+3. The long paragraph above the tiles (`home/replaced-paragraph.html` keeps it) and the stray “Heading” at
+   the foot of the page were deleted; “Rede more” and “improvments” in the Satellite Remote Sensing section
+   were corrected.
+4. Published with only hydroai.net ticked (13:16 UTC). The other pages came out byte for byte as they were,
+   but for the publish stamp and the names of the style and script bundles; the backups list showed that
+   nobody had worked in the Designer since the publish of 18 November.
 
-Webflow publishes the whole site, so anything else saved in the Designer goes out too. To go back: delete the
-three embeds and restore the page from a Webflow backup (the Designer keeps them), or paste
-`home/replaced-paragraph.html`'s text back.
+Two things then had to be put right, each with one more publish:
+
+- **“Readmore”.** The label typed into the button had lost its space: typed through the Chrome extension, a
+  space in a *button's* text is dropped (in a paragraph it is kept). Seen in the comparison with the preview,
+  corrected with the space key, published again (13:19 UTC). Read the canvas text back before publishing.
+- **A bar clicked just after a change.** The check on the live page failed where the local one had passed:
+  0.65 s after a change the reel stops the picture that has faded out, and a bar clicked within that time had
+  just given that video the next dataset. Where the loop took longer than that to arrive, it was stopped
+  before it began, the loop before went on playing under the new words, and twelve seconds later the reel
+  moved on. `hero.html` was corrected (the timer leaves a video alone once it has a new dataset to show),
+  the check got the case with a loop held back a second, and the embed was replaced (13:37 UTC).
+
+Not changed, because not asked for: “technics” in the Home page's description (page settings; it shows in
+search results and link previews) and the Teaching page's tab title “Teching”.
+
+### Changing a block on the site
+
+1. Edit the file; look at it in the preview; run the check on the preview. Keep the file's first comment
+   (“block N of 3”) and its one script at the end: the preview finds the block on the live page by them.
+2. Push, so that the file is on the portal's GitHub Pages site.
+3. Tell any other session working on hydroai.net (a publish sends out everything saved in the Designer).
+4. In the Designer: Navigator → the Code Embed (the hero's is inside `Teaching Detail Wrap`; the other two
+   close the first Section) → Enter opens its editor → replace the whole text → Save & Close. Through the
+   Chrome extension the editor is CodeMirror and takes the text with one `view.dispatch` (the page may
+   `fetch` the file from GitHub Pages); open the embed again and compare before publishing.
+5. Publish with only hydroai.net ticked. Fetch the live page and see that the file is in it byte for byte,
+   then run `check_home_new.py https://hydroai.net/`.
+
+**Going back.** The Webflow backup “Before the home page's new blocks (2026-11-20)” is the whole site as it
+was; restoring it also undoes whatever anyone has changed on any page since, so ask first. By hand: delete
+the three embeds and build the old hero and paragraph again from `home/replaced-hero.html` and
+`home/replaced-paragraph.html`.
 
 ### Changing it later
 
@@ -288,5 +336,5 @@ three embeds and restore the page from a Webflow backup (the Designer keeps them
 - **More or fewer entries in the lists.** `CFG` in `home/latest.html`.
 - **The Events or Publications page is rebuilt.** Run the check; if a list is gone, the selectors in
   `read` (in `home/latest.html`) need the new page's class names.
-- **With the announcement.** The two work together (the reel waits behind the dialog); the dataset is
-  then announced twice, in the dialog and as the reel's first, “New” entry, which is a choice, not a fault.
+- **The year turns.** The band's label carries the year (“Topics for 2026” / “2026년도 관심 주제”, as the old
+  page's list did); change it with the chips and the folded call (see “The words”).

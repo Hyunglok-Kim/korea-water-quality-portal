@@ -14,9 +14,10 @@ top of every tab says the paper is under review at *Scientific Data* (the lab he
 Scientific Data에 심사중이야. 그렇게 넣자”). **The manuscript's figures are not published** (the lab head the
 same day: “그림 공개는 아직하지 말자”): the public page shows the plain-words account with this site's own
 charts; see “The paper's figures” below. **On hydroai.net/data since 2026-11-18** as the fifth card, `#wq`
-(the lab head: “올려”, “데이터는 올려야 해”); see “The hydroai.net card” below. Two pieces for the lab's **home page** are made here too and are **not on the site yet**:
-an announcement dialog (2026-11-19) and three blocks that remake the top of the page (2026-11-20); see the two
-sections on the home page below.
+(the lab head: “올려”, “데이터는 올려야 해”); see “The hydroai.net card” below. **On the lab's home page since
+2026-11-20**: three blocks made here that remake its top (the lab head: “올리고 팝업은 쓰지 말자”). The
+announcement dialog made the day before is **not used**, by that same decision. See the two sections on the
+home page below.
 
 This portal follows the HDCA portal (`~/orca/projects/hdca/portal/`) in structure, look and dashboard
 wiring; read that folder's `CLAUDE.md` for the shared background (the dashboard's 연구자료 mechanism, the
@@ -227,11 +228,13 @@ are equal, and that repository's `check_captions.py` and `check_playback.py` pas
 Scientific Data”). When the paper is accepted, or the record changes, change the card's Status line too.
 The panel frames the public page with `?embed=1&hidefooter=1`; the line at the top of the portal shows there.
 
-## The home page announcement
+## The home page announcement (made, not used)
 
-**Made 2026-11-19, not on hydroai.net yet** (it waits for the lab head's word). The lab head asked for
-something on the first page, “a popup or the like”, so that a first-time visitor learns the data are
-available. `embed/home-announcement.html` is one block for a Webflow Code Embed on the Home page: a dialog
+**Made 2026-11-19; not used, by the lab head's decision of 2026-11-20** (“올리고 팝업은 쓰지 말자”, said when
+the three blocks below went up: the reel's first entry, marked “New”, announces the dataset instead). Do not
+put it on the site unless the lab head asks for an announcement again; the file and its tools stay for that day. The
+lab head had asked for something on the first page, “a popup or the like”, so that a first-time visitor learns
+the data are available. `embed/home-announcement.html` is one block for a Webflow Code Embed on the Home page: a dialog
 that opens once per browser (the loop beside “New dataset · Now available”, the name, two sentences, three
 numbers, the status line, one button to `/data#wq`), then a small pill at the bottom right until it is
 followed or hidden; both stop after `ANN.until` (2027-02-28). It uses the card's loop above the text in
@@ -242,10 +245,11 @@ how to change or retire it. Its facts repeat the portal's; no manuscript figure 
 
 ## The home page's three blocks
 
-**Made 2026-11-20, not on hydroai.net yet** (they wait for the lab head's word, like the announcement). The
+**Live on https://hydroai.net/ since 2026-11-20**, at the lab head's word (“올리고 팝업은 쓰지 말자”). The
 lab head asked for a more dynamic first page (“좀 더 동적으로”) and chose three of six ideas (“1,2,3 우선
-해보자”). They are three Webflow Code Embeds in `embed/home/`, kept in this repository because the tools for
-previewing and checking the home page are here, not because they are about this dataset:
+해보자”). They are three Webflow Code Embeds on the Home page, whose text is the three files in `embed/home/`
+byte for byte; the files are kept in this repository because the tools for previewing and checking the home
+page are here, not because they are about this dataset:
 
 - `hero.html`: the first screen. The title, one sentence and two buttons; beside them the lab's five open
   datasets in turn, each one's card loop playing once with its captions (water quality first, marked “New”
@@ -254,16 +258,26 @@ previewing and checking the home page are here, not because they are about this 
   read from those pages when the home page opens. Nobody edits the home page for them.
 - `about.html`: the lab in a paragraph with its two axes and the two photographs, then a recruiting band
   with the full call folded away; English or Korean, one at a time. It takes the place of the long paragraph
-  above the green tiles, which is kept as `replaced-paragraph.html`.
+  above the green tiles, which is kept as `replaced-paragraph.html` (the old hero as `replaced-hero.html`).
 
-`embed/tools/home_new_preview.py` (port 8814) makes on a copy of the live page the changes that publishing
-would make, and `embed/tools/check_home_new.py` checks the result in three browsers. The reel uses the cards'
+`embed/tools/home_new_preview.py` (port 8814) serves the live page with this folder's three files in the
+place of its three embeds, so a change is seen on the page as it is, and `embed/tools/check_home_new.py`
+checks the preview or the live page in three browsers. The reel uses the cards'
 768 px loops and, on large or dense screens, larger versions of all five kept in `embed/media/*-wide-v1.*`,
 made by `embed/tools/wide_loops.py` from the other portals' own tools (their previews must be running).
-`embed/README.md` has the behaviour, the words' origins, the Designer steps and how to change things later.
+`embed/README.md` has the behaviour, the words' origins, how the blocks went onto the site, the steps for
+changing one there, and how to go back.
 
 Things to keep when touching them:
 
+- **A change is not done until the check has passed on the live page.** On the day they went up the local
+  check passed and the live one failed: a bar clicked within 0.65 s of a change, on a loop that took longer
+  than that to arrive, was left without its loop. The local copy had never been that slow.
+- **Publishing sends out everything saved in the Webflow Designer, on every page.** Publish with only
+  hydroai.net ticked (the staging domain stays unpublished), save a backup first, and tell any other session
+  working on the site before publishing (on 2026-11-20 another session was redoing the People page).
+- **A block file begins with its “block N of 3” comment and ends with its one script**: the preview finds a
+  block on the live page by them.
 - **The lists follow the pages' order, not the entries' dates.** The dates on the Events page are when an
   entry was made (an old AGU entry carries August 2026), so sorting by them would put old news first.
 - **Every sentence of the old recruiting list stays on the page** (the folded call); the check compares it
@@ -369,9 +383,23 @@ Things to keep when touching them:
 - **Bars drawn into a narrow box are drawn at the box's width** (`drawBars`): scaled down from the desktop
   drawing their labels were 6 px tall on a phone.
 - **`rm -f dir/*` in zsh stops the whole command line when nothing matches.** Use `find … -delete`.
+- **A timer set for one state fired in another** (the home page's reel, 2026-11-20). “Stop the picture that
+  has faded out, 0.65 s from now” was right when it was set; a click in between gave that video the next
+  dataset, and the timer stopped it. A delayed action checks that what it was set for still holds
+  (`front === k && active === k`), and the check holds a loop back a second so that the case cannot hide
+  behind a fast network.
+- **Typed through the Chrome extension, a space in a Webflow button's label is dropped**; in a paragraph it
+  is kept. “Read more” went live as “Readmore” for three minutes. The extension's space key inserts it. Read
+  the Designer canvas back before publishing (its frame, `#site-iframe-next`, can be read from the page) and
+  compare the published page with the preview afterwards.
 
 ## Not done yet
 
+- On hydroai.net, “technics” in the Home page's description (page settings: search results, link previews)
+  and the Teaching page's tab title “Teching” are still as they were. The lab head was told of both on
+  2026-11-20 and did not ask for them to be changed.
+- The other ideas for the home page were not chosen: the three research sections as one moving block, a
+  “now” element (satellite positions or values from the validation site), a globe to drag.
 - The manuscript's figures stay unpublished by the lab head's decision of 2026-11-18 (“그림 공개는 아직하지 말자”).
 - The dashboard's three files for this dataset (`gateway/research_datasets.json`, `gateway/static/wq-korea.html`,
   `gateway/static/shared/nav.js`) are in that repository's working tree, live, and were left uncommitted on
