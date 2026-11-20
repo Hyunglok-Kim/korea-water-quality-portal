@@ -5,10 +5,12 @@ Three pieces for the lab's Webflow site are kept here:
 - the dataset's **card** on hydroai.net/data (live since 2026-11-18);
 - three **blocks that remake the top of the home page** (**live since 2026-11-20**): the lab's datasets in
   motion on the first screen, news and papers that keep themselves up to date, and the long text cut down,
-  with recruiting in one band;
+  with recruiting in one band. A **second round** (the satellites' picture behind the first screen, the
+  datasets in the order the lab head asked for, the Korean reworded) is in these files and saved in the
+  Webflow Designer since 2026-11-21, and **not yet published**: see “The second round” below;
 - an **announcement** dialog for the home page (made 2026-11-19, **not used**: when the blocks went up the lab
-  head decided against a popup, “올리고 팝업은 쓰지 말자”, 2026-11-20). The reel's first entry, marked “New”,
-  announces the dataset instead.
+  head decided against a popup, “올리고 팝업은 쓰지 말자”, 2026-11-20). The reel's water quality entry, marked
+  “New”, announces the dataset instead.
 
 Anything on hydroai.net means publishing the Webflow site, which sends out whatever is saved in the Designer,
 so every change waits for the lab head's word, and other sessions working on the site are told before a
@@ -97,7 +99,7 @@ styles, markup and script for a Webflow **Code Embed** on the Home page. It chan
 
 **Status: made and checked on a local copy of the home page; not on hydroai.net, and not to be put there.**
 On 2026-11-20, when the three blocks below went up, the lab head decided against it (“올리고 팝업은 쓰지
-말자”): the first screen now shows the dataset as the reel's first entry, marked “New”, and a dialog on top of
+말자”): the first screen now shows the dataset in the reel, marked “New”, and a dialog on top of
 that would say the same thing twice. The file and its tools stay for an announcement that may be wanted later; what
 follows describes it as it was made.
 
@@ -183,25 +185,35 @@ and recent papers that appear by themselves; the long text shortened, with recru
 `embed/home/` holds them as three Webflow **Code Embeds**, each one self-contained (styles, markup, script).
 
 **Status: live on https://hydroai.net/ since 2026-11-20**, at the lab head's word (“올리고 팝업은 쓰지
-말자”). The Home page's three Code Embeds hold these three files byte for byte, and
-`check_home_new.py https://hydroai.net/` passes in Chromium, WebKit and Firefox (264 checks).
+말자”), as the files of commit `011ae9c`: on that day the Home page's three Code Embeds held the three files
+byte for byte, and `check_home_new.py https://hydroai.net/` passed in Chromium, WebKit and Firefox (264
+checks).
+
+**The second round is not on the site yet.** After seeing the live page the lab head asked for three changes
+(“The second round” below); `hero.html` and `about.html` as they are here carry them and are saved in the
+Designer's two embeds since 2026-11-21, the lab head has said to publish (“우선올려”), and the publish itself
+is still to be done. Until then the site shows the files of `011ae9c`, the check as it is here fails on the
+live page (it expects the new order and the picture), and this section describes the files, not the site.
 
 | File | What a visitor sees | What it takes the place of |
 |---|---|---|
-| `home/hero.html` | The first screen: the title, one sentence, two buttons (Data, Opportunities), and beside them the five datasets in turn, each one's loop with its captions, its name, one line and its link | The dark block with the title and two paragraphs over the satellite picture, and the two photographs under it |
+| `home/hero.html` | The first screen: the title, one sentence, two buttons (Data, Opportunities), and beside them the five datasets in turn, each one's loop with its captions, its name, one line and its link; behind all of it the picture of the Earth-observing satellites that the old first screen had | The dark block with the title and two paragraphs over the satellite picture, and the two photographs under it |
 | `home/latest.html` | “News” and “Recent publications”: the first three entries of the Events page and of the Publications page | Nothing: it is new |
 | `home/about.html` | The lab in one paragraph and its two research axes beside the two photographs; then “Join HydroAI”: three kinds of position, the year's topics, and the full call folded away. English or Korean, one at a time | The long paragraph above the four green tiles (introduction in two languages, then the recruiting list) |
 | `home/replaced-paragraph.html` | (not shown) That paragraph as it was on the site until 2026-11-20: the record of what was replaced, and what the check compares the folded call with | |
 | `home/replaced-hero.html` | (not shown) The old hero block and the photographs' container as they were on the site until 2026-11-20: the record of the other things replaced | |
 
 Nothing is sent anywhere by any of them, and none of them uses a figure of a manuscript: the pictures are the
-loops made for the Data page's cards, from the portals' own public maps.
+loops made for the Data page's cards, from the portals' own public maps, and the picture behind the first
+screen is the one the site has always had there.
 
 ### How each behaves
 
-**The first screen.** Each dataset's loop plays once, then the next comes with a short dissolve; five bars
-under the picture fill as they play, with the datasets' names under them where there is room. A click on a
-bar shows that dataset; the round button pauses and plays. The whole picture and “Open dataset →” lead to
+**The first screen.** The datasets come in the order the lab head asked for on 2026-11-20: soil moisture
+(HDCA), 30 m ET, SMAP error, the validation site, water quality (the newest, marked “New” while it is on
+show, until `REEL.newUntil`). Each dataset's loop plays once, then the next comes with a short dissolve;
+five bars under the picture fill as they play, with the datasets' names under them where there is room. A
+click on a bar shows that dataset; the round button pauses and plays. The whole picture and “Open dataset →” lead to
 the dataset on the Data page. The loops stop while the tab is hidden, while the picture is scrolled out of
 view, and while the announcement dialog (if the page has it) is open. Only the loop on show is fetched, and
 the next one a few seconds before it is needed. A loop that cannot be fetched does not hold the reel: its
@@ -209,6 +221,12 @@ still picture stays for twelve seconds, then the next dataset comes. With reduce
 data saver nothing plays and no video is fetched until the visitor presses play; the bars still change the
 dataset, as still pictures. The block keeps one height whichever dataset is on show (each width reserves
 room for the longest name and line), so nothing below it moves.
+
+**The picture behind it.** The Earth-observing satellites, the Moon and the Earth lie behind the whole panel
+(on a phone behind its upper part, fading out before the dataset's picture), under a thin veil; it fades in
+once it has arrived and is decoration only (no words for a screen reader, never in the way of a click). If it
+cannot be fetched the panel is the dark green it was, and everything else works. See “The picture behind the
+first screen” below for how it was made and how the words on it stay readable.
 
 **The two lists.** They are read from `/events` and `/publication` when the home page opens: the list items
 of each page's first tab, in the order the page lists them (the Events page's own order, not the dates on
@@ -222,8 +240,10 @@ all it takes for the home page to show it.**
 **The section in two languages.** A visitor sees Korean if the browser's language is Korean and English
 otherwise, can switch with the two buttons, and the browser remembers the choice (`localStorage`,
 `hydroai-home-lang`). Without scripts both languages show, one after the other. The recruiting list that was
-on the page is kept word for word under “Read the full call” (one misspelling corrected: 가족기숙자 →
-가족기숙사); the band above it says the same more briefly, and the three cards lead to the Opportunities page.
+on the page is kept under “Read the full call” / “모집 내용 자세히 보기”, word for word but for one
+misspelling corrected (가족기숙자 → 가족기숙사) and one Korean sentence reworded in the second round (“The
+words” below); the band above it says the same more briefly, and the three cards lead to the Opportunities
+page.
 
 ### The words
 
@@ -235,7 +255,22 @@ on the page is kept word for word under “Read the full call” (one misspellin
   page; the list itself is in the folded call. When the list changes each year, change the three `.hh-chip`
   lines and the list in `.hh-call`, in both languages.
 - The datasets' names and one-line descriptions repeat the Data page's cards. When a card changes, change
-  its entry in `REEL.slides`.
+  its entry in `REEL.slides`. Year ranges are written with a hyphen here (“2015-2025”); the cards have en
+  dashes.
+- **The Korean was reworded on 2026-11-20**, when the lab head found that it did not read as a Korean
+  researcher's own writing and asked for that to be put right. It is not a line-for-line translation of the
+  English any more, and what was taken out shows what to keep out: dashes set into a sentence; “~하기 위한
+  AI” as a heading (now “…예측하는 AI”);
+  “그리고 최신 … 기술”, “차세대”, “핵심 기반”, “그 자체의 발전”, “이는 … 위한 시도입니다”, “열정을 가진”;
+  an English noun phrase left standing as a fragment; labels translated word for word (“첫째 축” is “연구
+  방향 1”); the same thing said under a heading and again under it (the Korean band has no sentence under its
+  heading, the English one has). Sentences are in 합니다체 with plain verbs; the short lines of the cards and
+  chips are notes with noun endings (“… 운영”, “… 파인튜닝”), as the lab head writes them. The first axis's
+  text is the lab head's own and was left as it was; of the lab head's five sentences in the folded call, one
+  was reworded (“… 방법론 적용 연구에 대한 열정을 가지고 있는 …” → “… 방법론을 적용해 연구하고 싶은 …”),
+  and the check knows that one. Two places where the Korean and the English of the call say different
+  things were so on the old page and were left for the lab head: “수재해 예측” (water-related disasters)
+  beside “natural disaster prediction”, and “유출량 … 측정” (measurement) beside “runoff estimation”.
 
 ### The loops, in two sizes
 
@@ -259,6 +294,40 @@ embed/tools/README.md`): only what is published is drawn; the ET loop is drawn f
 tiles and its first caption names the background product; a re-made loop gets a new file name. When a card's
 loop is re-made, re-make its wide one and change both names and the caption times in `REEL.slides`.
 
+### The picture behind the first screen
+
+The first page the lab had until 2026-11-20 showed its title over one picture: the Earth-observing
+satellites streaming from the Moon's side towards the Earth. The first version of the new first screen left
+it out, and the lab head missed it at once (“첫페이지에 뭔가 위성 그림이 없으니까 어색해. 우리 연구실의
+아이덴티티가 좀 없는 느낌”). It is back as the backdrop of the whole panel: **the first screen has to show
+what the lab is (satellites, Earth observation), not only its data.**
+
+- **The file.** `media/home-sky-v1.jpg` (1500 × 1125, 139 kB, progressive), made by `tools/home_sky.py` from
+  the site's own asset (`satellites.jpg`, 887 kB) with two changes. The nineteen satellite names printed in
+  the picture are taken out, because behind the page's own words they read as broken text and at some window
+  size one of them is always cut by the edge of the reel: each name is found inside a box placed by eye, as
+  near-white pixels standing out from what is round them, and filled in from its surroundings. Pieces that
+  touch the edge of their box are left alone (they are a satellite, a trail or a cloud), and the letters are
+  labelled as found, not widened first: widened, “SMAP” joined the trail beside it and was left in. And it is
+  saved smaller. `--sheet FILE` writes every name's place before and after, to look at. If the site's picture
+  is ever replaced the boxes are wrong; a re-made picture gets a new file name, and `hero.html` with it.
+- **In the block.** `.hh-hero-sky` is the panel's first child, behind everything (`z-index: -1` inside the
+  panel's own stacking context), with `alt=""`, `aria-hidden` and no pointer events; the script holds it at
+  opacity 0 until it has arrived. On a window of 960 px or more it covers the panel; below that it covers the
+  upper 58 % and fades out, so that the dataset's picture does not sit on another picture.
+- **Words stay readable by measurement, not by eye.** A thin veil lies over the whole picture, darker to the
+  left and to the foot; the small text (the sentence, the dataset's name and line) has a soft dark pool behind
+  it that runs down to the foot of the panel; the title and the label above it carry a text shadow.
+  `check_home_new.py` measures the result at each of its thirteen window sizes: it takes a picture of the
+  panel with the letters made transparent, and holds each line's colour against the brightest of what lies
+  behind that line (the 97th percentile of luminance in its box, so that a single star does not decide it).
+  Every line must reach WCAG's 4.5 : 1 (3 : 1 for large text), also when the picture cannot be fetched.
+  After any change to the picture, the veil, the pools or the text, run it.
+- **The panel clips, it does not hide.** `.hh-hero` has `overflow: hidden; overflow: clip`. With `hidden`
+  alone the panel is a box that can be scrolled inside itself, and `scrollIntoView` on something in it shifted
+  its contents against the picture on a phone; `clip` cannot be scrolled (`hidden` stays for browsers
+  without `clip`). The check asserts that the panel's scroll position stays 0.
+
 ### Looking at it and checking it
 
 ```bash
@@ -272,12 +341,14 @@ loop is re-made, re-make its wide one and change both names and the caption time
 folder's three files in the place of the page's three Code Embeds, so a change to a block is seen and checked
 on the page as it is before it goes into the Designer; with the files as published it serves the live page
 byte for byte. `/?live` shows the page as it is on the site, `/?lang=ko` or `en` sets the section's language.
-`check_home_new.py` lists what it checks in its docstring (the page's structure; the reel through all five
-datasets, a click on a bar at any moment, pause, a hidden tab, scrolling away, loops that cannot be fetched,
-reduced motion; the two lists against the two pages, and either page unreadable; the two languages, and every
-sentence of the replaced recruiting list still on the page; thirteen window sizes); it exits with the number
-of failures. **Run it on the live page too, not only on the preview**: the one defect so far showed only
-there (below).
+`check_home_new.py` lists what it checks in its docstring (the page's structure; the picture behind the first
+screen, and that the words on it can be read; the reel through all five datasets in their order, a click on a
+bar at any moment, pause, a hidden tab, scrolling away, loops that cannot be fetched, reduced motion; the two
+lists against the two pages, and either page unreadable; the two languages, and every sentence of the
+replaced recruiting list still on the page; thirteen window sizes): 116 checks in each browser. It exits
+with the number of failures. **Run it on the live page too, not only on the preview**: the one defect so far
+showed only there (below). It describes the files as they are here, so it passes on the live page only once
+the site holds them.
 
 ### How it went onto the site (2026-11-20)
 
@@ -311,6 +382,35 @@ Two things then had to be put right, each with one more publish:
 Not changed, because not asked for: “technics” in the Home page's description (page settings; it shows in
 search results and link previews) and the Teaching page's tab title “Teching”.
 
+### The second round (2026-11-21): saved in the Designer, not yet published
+
+After seeing the live page the lab head asked for three things:
+
+- “첫페이지에 뭔가 위성 그림이 없으니까 어색해. 우리 연구실의 아이덴티티가 좀 없는 느낌”: the satellites'
+  picture is behind the first screen again (“The picture behind the first screen” above).
+- “오른쪽 데이터 셋 수질 먼저 나오지 말고, 토양수분, 증발산, 토양수분 에러, 코어사이트, 그리고 수질 자료
+  나오게 해줘”: the reel's order. Water quality is last and keeps its “New” mark; the first dataset's words
+  and still picture in the markup are HDCA's now.
+- The Korean wording, which did not read as a Korean researcher's own: the Korean of `about.html` was
+  reworded, after two independent rewrites were compared and the result read once more (“The words” above).
+  The English is as it was.
+
+`hero.html` and `about.html` changed (commit `74650b6`); `latest.html` did not. On a preview that carries
+exactly these files, with the picture and the loops from the public site, the check passed in Chromium,
+WebKit and Firefox (116 each).
+
+In the Designer, on 2026-11-21, after the backup “Before the home page's second round (2026-11-21)”: the
+text of the first and of the third Code Embed was replaced with the two files and each embed was opened
+again and found equal to the pushed file. The lab head said to publish (“우선올려”). **The publish has not
+happened yet**: the browser connection used for the Designer was lost just before it (see step 4 of
+“Changing a block on the site”). The same publish will also send out what another session saved for the
+People page that night (the “Contact me” block removed, misspellings corrected, the “Visiting Scholars” tab
+made “Alumni”), which the lab head asked for there and was told of here.
+
+After the publish, by whoever clicks it: fetch the pages and see that the home page is the page from before
+with these two embeds exchanged and that the pages nobody worked on are unchanged, run
+`check_home_new.py https://hydroai.net/`, and bring this section and the status above up to date.
+
 ### Changing a block on the site
 
 1. Edit the file; look at it in the preview; run the check on the preview. Keep the file's first comment
@@ -320,21 +420,36 @@ search results and link previews) and the Teaching page's tab title “Teching�
 4. In the Designer: Navigator → the Code Embed (the hero's is inside `Teaching Detail Wrap`; the other two
    close the first Section) → Enter opens its editor → replace the whole text → Save & Close. Through the
    Chrome extension the editor is CodeMirror and takes the text with one `view.dispatch` (the page may
-   `fetch` the file from GitHub Pages); open the embed again and compare before publishing.
+   `fetch` the file from GitHub Pages, or from raw.githubusercontent.com at the commit, with
+   `cache: 'no-store'`); open the embed again and compare before publishing. Save a backup first
+   (Cmd+Shift+S) and name it. **The Chrome extension answers only to sessions signed in to the claude.ai
+   account it is signed in to**: on 2026-11-21 the session doing this was cut off between “Save & Close” and
+   the publish (apparently by a login under another account in another session), and no retry brings it
+   back (no browser is listed as connected); the lab head has to sign the session in again, or click
+   Publish.
 5. Publish with only hydroai.net ticked. Fetch the live page and see that the file is in it byte for byte,
-   then run `check_home_new.py https://hydroai.net/`.
+   and that the pages nobody worked on are the same but for the publish stamp and the bundles' names, then
+   run `check_home_new.py https://hydroai.net/`.
 
-**Going back.** The Webflow backup “Before the home page's new blocks (2026-11-20)” is the whole site as it
-was; restoring it also undoes whatever anyone has changed on any page since, so ask first. By hand: delete
-the three embeds and build the old hero and paragraph again from `home/replaced-hero.html` and
-`home/replaced-paragraph.html`.
+**Going back.** To the first round's blocks: put `hero.html` and `about.html` of commit `011ae9c` back into
+the first and third embeds (`git show 011ae9c:embed/home/hero.html`). The Webflow backup “Before the home
+page's second round (2026-11-21)” is the site with the first round's blocks and with the People page edits
+saved by then; “Before the home page's new blocks (2026-11-20)” is the whole site as it was before any of
+this. Restoring a backup also undoes whatever anyone has changed on any page since, so ask first. By hand,
+all the way back: delete the three embeds and build the old hero and paragraph again from
+`home/replaced-hero.html` and `home/replaced-paragraph.html`.
 
 ### Changing it later
 
-- **A new dataset.** Add an entry to `REEL.slides` (first, with `isNew: true`, to lead with it) and set
-  `REEL.newUntil`: after that day nothing is marked new, so the mark never outstays its news.
+- **A new dataset.** Add an entry to `REEL.slides` with `isNew: true` and set `REEL.newUntil`: after that day
+  nothing is marked new, so the mark never outstays its news. Where it goes in the order is the lab head's to
+  say (water quality, the newest, was moved from first to last on 2026-11-20). The first entry's name, line,
+  link and still picture are also in the markup, for a page without scripts: change both together, and the
+  order in the check (`SLIDES`, `FIRST_CAPS`).
 - **More or fewer entries in the lists.** `CFG` in `home/latest.html`.
 - **The Events or Publications page is rebuilt.** Run the check; if a list is gone, the selectors in
   `read` (in `home/latest.html`) need the new page's class names.
-- **The year turns.** The band's label carries the year (“Topics for 2026” / “2026년도 관심 주제”, as the old
+- **The year turns.** The band's label carries the year (“Topics for 2026” / “2026년도 연구 주제”, as the old
   page's list did); change it with the chips and the folded call (see “The words”).
+- **Korean text.** Keep to what “The words” says of it, and have a second reader go over it before it is
+  shown to the lab head.

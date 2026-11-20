@@ -16,8 +16,9 @@ same day: “그림 공개는 아직하지 말자”): the public page shows the
 charts; see “The paper's figures” below. **On hydroai.net/data since 2026-11-18** as the fifth card, `#wq`
 (the lab head: “올려”, “데이터는 올려야 해”); see “The hydroai.net card” below. **On the lab's home page since
 2026-11-20**: three blocks made here that remake its top (the lab head: “올리고 팝업은 쓰지 말자”). The
-announcement dialog made the day before is **not used**, by that same decision. See the two sections on the
-home page below.
+announcement dialog made the day before is **not used**, by that same decision. **A second round of the
+blocks (2026-11-21) is saved in Webflow and not yet published**: the lab head has said to publish (“우선올려”)
+and the click is still to be made. See the two sections on the home page below.
 
 This portal follows the HDCA portal (`~/orca/projects/hdca/portal/`) in structure, look and dashboard
 wiring; read that folder's `CLAUDE.md` for the shared background (the dashboard's 연구자료 mechanism, the
@@ -231,7 +232,7 @@ The panel frames the public page with `?embed=1&hidefooter=1`; the line at the t
 ## The home page announcement (made, not used)
 
 **Made 2026-11-19; not used, by the lab head's decision of 2026-11-20** (“올리고 팝업은 쓰지 말자”, said when
-the three blocks below went up: the reel's first entry, marked “New”, announces the dataset instead). Do not
+the three blocks below went up: the reel's water quality entry, marked “New”, announces the dataset instead). Do not
 put it on the site unless the lab head asks for an announcement again; the file and its tools stay for that day. The
 lab head had asked for something on the first page, “a popup or the like”, so that a first-time visitor learns
 the data are available. `embed/home-announcement.html` is one block for a Webflow Code Embed on the Home page: a dialog
@@ -247,18 +248,32 @@ how to change or retire it. Its facts repeat the portal's; no manuscript figure 
 
 **Live on https://hydroai.net/ since 2026-11-20**, at the lab head's word (“올리고 팝업은 쓰지 말자”). The
 lab head asked for a more dynamic first page (“좀 더 동적으로”) and chose three of six ideas (“1,2,3 우선
-해보자”). They are three Webflow Code Embeds on the Home page, whose text is the three files in `embed/home/`
+해보자”). They are three Webflow Code Embeds on the Home page, whose text is three files in `embed/home/`
 byte for byte; the files are kept in this repository because the tools for previewing and checking the home
-page are here, not because they are about this dataset:
+page are here, not because they are about this dataset.
+
+**Which files the site holds (read this first).** Since 2026-11-20 13:37 UTC the site holds the files of
+commit `011ae9c`. `hero.html` and `about.html` as they are now (commit `74650b6`, the **second round** the
+lab head asked for after seeing the live page) are saved in the Designer's embeds since 2026-11-21 and **not
+published**: the lab head said “우선올려”, and the browser connection was lost before the click. That publish
+also sends out the People page edits another session saved that night; the lab head knows. Until it is done,
+`check_home_new.py https://hydroai.net/` does not pass (it describes the files as they are here). After it:
+compare the live pages with the files, run the check on the live page, and correct this paragraph and
+`embed/README.md` (“The second round”).
 
 - `hero.html`: the first screen. The title, one sentence and two buttons; beside them the lab's five open
-  datasets in turn, each one's card loop playing once with its captions (water quality first, marked “New”
-  until `REEL.newUntil`, 2027-02-28). It takes the place of the old hero block and the two photographs.
+  datasets in turn, each one's card loop playing once with its captions, in the order the lab head asked for
+  (soil moisture, ET, SMAP error, validation site, water quality; water quality marked “New” until
+  `REEL.newUntil`, 2027-02-28). Behind the whole panel, the picture the old first screen had: the
+  Earth-observing satellites (`embed/media/home-sky-v1.jpg`, the site's own picture with the satellites'
+  names taken out by `embed/tools/home_sky.py`). It takes the place of the old hero block and the two
+  photographs.
 - `latest.html`: “News” and “Recent publications”, the first three entries of `/events` and `/publication`,
   read from those pages when the home page opens. Nobody edits the home page for them.
 - `about.html`: the lab in a paragraph with its two axes and the two photographs, then a recruiting band
   with the full call folded away; English or Korean, one at a time. It takes the place of the long paragraph
   above the green tiles, which is kept as `replaced-paragraph.html` (the old hero as `replaced-hero.html`).
+  Its Korean was reworded in the second round and is not a line-for-line translation of the English.
 
 `embed/tools/home_new_preview.py` (port 8814) serves the live page with this folder's three files in the
 place of its three embeds, so a change is seen on the page as it is, and `embed/tools/check_home_new.py`
@@ -287,6 +302,23 @@ Things to keep when touching them:
 - **A loop and its wide version share a timeline.** Re-make both together, rename both, and change the
   caption times in `REEL.slides` and on the Data page card.
 - **No manuscript figure, no unpublished data**: the loops are the cards', drawn from the public portals.
+- **The first screen shows what the lab is, not only its data.** The first version had no satellite picture
+  and the lab head missed it at once (“첫페이지에 뭔가 위성 그림이 없으니까 어색해. 우리 연구실의 아이덴티티가
+  좀 없는 느낌”). Keep the satellites on the first screen through any redesign.
+- **Words on the picture are measured, not judged by eye.** The check pictures the panel with the letters
+  taken out and holds every line's colour against the brightest of what lies behind it, at thirteen window
+  sizes (4.5 : 1, large text 3 : 1). After a change to the picture, the veil, the dark pools behind the small
+  text, or any text size or colour on the first screen, run it.
+- **The picture is decoration.** `alt=""`, `aria-hidden`, no pointer events, behind everything; the page is
+  whole when it cannot be fetched. Nothing a visitor needs may be only in it, and its own words (the
+  satellites' names) are taken out because they crossed the page's.
+- **The order of the reel is the lab head's** (soil moisture, ET, SMAP error, validation site, water
+  quality). The first dataset's words and still are in the markup as well as in `REEL.slides`.
+- **Korean text under the lab's name.** No dashes; sentences in 합니다체 with plain verbs; short lines as
+  notes with noun endings; no “차세대”, “핵심”, “열정을 가진”, “~하기 위한 …” headings or labels translated
+  word for word; never the same thing under a heading and again below it. The lab head's own sentences are
+  changed as little as possible and each change is reported one by one. Have a second reader go over Korean
+  text before the lab head sees it (`embed/README.md`, “The words”).
 
 ## Rules that must survive any redesign
 
@@ -392,9 +424,31 @@ Things to keep when touching them:
   is kept. “Read more” went live as “Readmore” for three minutes. The extension's space key inserts it. Read
   the Designer canvas back before publishing (its frame, `#site-iframe-next`, can be read from the page) and
   compare the published page with the preview afterwards.
+- **The Chrome extension answers to one claude.ai account.** On 2026-11-21 the session doing the home page
+  lost its browser between saving the embeds and the publish click (“Browser extension is not connected”,
+  and the list of connected browsers empty, for hours). The likely cause, as the other session reported it
+  and not verified: an hour earlier the lab head had signed that session in under a different account, and
+  the extension is signed in to that one (the same happened on 2026-11-18). Retrying does not help: the lab
+  head signs the session in again, or clicks Publish. Never ask the other session to click for this one,
+  least of all when its own click was refused.
+- **An `overflow: hidden` box can still be scrolled by script.** The dark pools behind the first screen's
+  small text reach past the panel's foot, so the panel had something to scroll to: `scrollIntoView` on a link
+  inside it shifted its contents against the picture behind them on a phone. The panel has `overflow: clip`
+  (after `hidden`, for browsers without it), and the check asks for exactly that scroll and asserts the
+  panel's scroll position is still 0.
+- **Finding letters in a picture: label first, widen afterwards.** Taking the satellites' names out of the
+  home page's picture, widening the found pixels before labelling joined “SMAP” to the bright trail beside
+  it, and the rule that drops whatever touches the edge of its box (a satellite, a trail) then kept the name
+  in the picture. `home_sky.py` labels the pixels as found and widens each kept piece afterwards; its
+  `--sheet` shows every name's place before and after.
+- **A hit test needs its target inside the window.** `elementFromPoint` gives nothing for a point below the
+  fold, so the check brings each button to the middle of the window (`window.scrollTo`) before asking what a
+  click there would reach.
 
 ## Not done yet
 
+- **The home page's second round is saved in the Webflow Designer and not published** (2026-11-21; see “The
+  home page's three blocks”). The lab head's word is given (“우선올려”); the click is not made.
 - On hydroai.net, “technics” in the Home page's description (page settings: search results, link previews)
   and the Teaching page's tab title “Teching” are still as they were. The lab head was told of both on
   2026-11-20 and did not ask for them to be changed.
