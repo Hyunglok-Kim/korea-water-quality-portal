@@ -1,0 +1,293 @@
+<!--
+  hydroai.net home page, block 3 of 3: what the lab is, and who it is looking for.
+  The lab in one paragraph and its two research axes, beside the two photographs; then a band for recruiting:
+  the three kinds of position, this year's topics, and the full call folded away under "Read the full call".
+  English and Korean are both here; a visitor sees one at a time (Korean when the browser's language is Korean,
+  otherwise English) and can switch with the two buttons, which the browser remembers.
+
+  Where it goes: one Webflow Code Embed in the home page's first section, after the news block. It replaces the
+  long paragraph that was under the hero (introduction in two languages and the recruiting list); every sentence
+  of that list is kept, word for word, in the folded call.
+
+  To change it: edit the words below. Each piece exists twice, once in a block marked data-l="en" and once in
+  the block marked data-l="ko" right after it; change both. The yearly recruiting topics are the three
+  .hh-chip lines and the list inside .hh-call.
+  This file is UTF-8 (it holds Korean text).
+-->
+<style>
+  .hh-about { box-sizing: border-box; padding: 76px 0 0; font-family: Satoshi, sans-serif; color: #1c3533; text-align: left; }
+  .hh-about * { box-sizing: border-box; }
+  .hh-about[data-lang="en"] [data-l="ko"], .hh-about[data-lang="ko"] [data-l="en"] { display: none !important; }
+  .hh-about [lang="ko"] { word-break: keep-all; line-break: strict; }
+  .hh-about-wrap { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr); column-gap: 68px; align-items: start; max-width: 1348px; margin: 0 auto; padding: 0 24px; }
+  .hh-about-text { min-width: 0; }
+  .hh-about-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+  .hh-kicker { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 13px; font-weight: 500; line-height: 1.3; letter-spacing: 0.14em; text-transform: uppercase; color: #219653; }
+  .hh-kicker::before { content: ""; flex: none; width: 26px; height: 2px; border-radius: 2px; background: currentColor; }
+  .hh-kicker[lang="ko"] { letter-spacing: 0.06em; font-size: 14px; }
+  .hh-lang { display: none; flex: none; padding: 3px; border-radius: 999px; background: rgba(28, 53, 51, 0.08); }
+  .hh-about[data-lang] .hh-lang { display: inline-flex; }
+  .hh-lang button { margin: 0; padding: 6px 13px; border: 0; border-radius: 999px; background: none; color: rgba(28, 53, 51, 0.7); font: 500 13.5px/1.2 Satoshi, sans-serif; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+  .hh-lang button[aria-pressed="true"] { background: #1c3533; color: #fff; }
+  .hh-lang button:not([aria-pressed="true"]):hover { color: #1c3533; background: rgba(28, 53, 51, 0.08); }
+  .hh-about-h2 { margin: 0; font-family: "Plus Jakarta", sans-serif; font-size: clamp(27px, 2.5vw, 34px); font-weight: 600; line-height: 1.26; letter-spacing: -0.01em; color: #1c3533; }
+  .hh-about-h2[lang="ko"] { letter-spacing: -0.02em; line-height: 1.36; }
+  .hh-about-p { margin: 18px 0 0; font-size: 18px; font-weight: 400; line-height: 1.62; color: rgba(28, 53, 51, 0.9); }
+  .hh-about-p[lang="ko"] { font-size: 17px; line-height: 1.78; }
+  .hh-axes { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin: 24px 0 0; padding: 0; list-style: none; }
+  .hh-axis { position: relative; margin: 0; padding: 20px 20px 20px 22px; border-radius: 14px; background: #fcfbf9; box-shadow: inset 0 0 0 1px rgba(28, 53, 51, 0.09); }
+  .hh-axis::before { content: ""; position: absolute; left: 0; top: 20px; bottom: 20px; width: 3px; border-radius: 3px; background: #75fb92; }
+  .hh-axis b { display: block; font-family: "Plus Jakarta", sans-serif; font-size: 17.5px; font-weight: 600; line-height: 1.3; color: #1c3533; }
+  .hh-axis b small { display: block; margin-bottom: 6px; font-family: Satoshi, sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #219653; }
+  .hh-axis span { display: block; margin-top: 8px; font-size: 15.5px; line-height: 1.56; color: rgba(28, 53, 51, 0.8); }
+  .hh-axis[lang="ko"] span { font-size: 15px; line-height: 1.7; }
+  .hh-about-end { margin: 22px 0 0; font-size: 16px; line-height: 1.6; color: rgba(28, 53, 51, 0.78); }
+  .hh-about-end[lang="ko"] { font-size: 15.5px; line-height: 1.75; }
+  .hh-link { font-weight: 600; white-space: nowrap; color: #14622f; text-decoration: none; border-bottom: 1.5px solid rgba(33, 150, 83, 0.4); transition: border-color 0.2s; }
+  .hh-link:hover { border-bottom-color: #219653; }
+
+  /* the two photographs: the group in front of the field, the tower over its corner */
+  .hh-pics { position: relative; min-width: 0; margin-top: 52px; padding-bottom: 12%; }
+  .hh-pics img { display: block; max-width: none; background: #e9e5dd; }
+  .hh-pic-a { width: 100%; height: auto; border-radius: 16px; box-shadow: 0 18px 44px rgba(28, 53, 51, 0.16); }
+  .hh-pic-b { position: absolute; right: -2%; bottom: 0; width: 46%; height: auto; border-radius: 14px; border: 6px solid #f4f1eb; box-shadow: 0 18px 40px rgba(28, 53, 51, 0.2); }
+
+  /* recruiting */
+  .hh-join-wrap { max-width: 1348px; margin: 72px auto 0; padding: 0 24px; }
+  .hh-join { position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr); column-gap: 56px; row-gap: 30px; padding: 48px 52px 44px; border-radius: 18px; color: #fff; background: radial-gradient(70% 120% at 100% 0%, rgba(117, 251, 146, 0.12) 0%, rgba(117, 251, 146, 0) 62%), linear-gradient(135deg, #1c3533 0%, #152a29 55%, #102020 100%); }
+  .hh-join-tag { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 16px; padding: 6px 13px 6px 11px; border-radius: 999px; background: rgba(117, 251, 146, 0.14); color: #75fb92; font-size: 12px; font-weight: 600; line-height: 1.3; letter-spacing: 0.1em; text-transform: uppercase; }
+  .hh-join-tag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #75fb92; animation: hhBeat 1.8s ease-in-out infinite; }
+  .hh-join-tag[lang="ko"] { letter-spacing: 0.04em; font-size: 13px; }
+  @keyframes hhBeat { 0%, 100% { box-shadow: 0 0 0 0 rgba(117, 251, 146, 0.5); } 60% { box-shadow: 0 0 0 7px rgba(117, 251, 146, 0); } }
+  .hh-join-h2 { margin: 0; font-family: "Plus Jakarta", sans-serif; font-size: clamp(27px, 2.3vw, 32px); font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; color: #fff; }
+  .hh-join-h2[lang="ko"] { line-height: 1.38; letter-spacing: -0.02em; }
+  .hh-join-p { margin: 14px 0 0; font-size: 17px; line-height: 1.58; color: rgba(255, 255, 255, 0.8); }
+  .hh-join-p[lang="ko"] { font-size: 16px; line-height: 1.75; }
+  .hh-join-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+  .hh-jbtn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 50px; padding: 0 22px 1px; border-radius: 12px; font-family: "Plus Jakarta", sans-serif; font-size: 16px; font-weight: 600; line-height: 1; white-space: nowrap; text-decoration: none; transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s; }
+  .hh-jbtn-a { background: #75fb92; color: #1c3533; }
+  .hh-jbtn-a:hover { background: #93fcaa; transform: translateY(-1px); }
+  .hh-jbtn-b { color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.4); }
+  .hh-jbtn-b:hover { background: rgba(255, 255, 255, 0.07); box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.85); }
+  .hh-join-side { min-width: 0; }
+  .hh-roles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+  .hh-roles li { margin: 0; }
+  .hh-role { position: relative; display: block; height: 100%; padding: 18px 18px 20px; border-radius: 14px; background: rgba(255, 255, 255, 0.06); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); color: #fff; text-decoration: none; transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s; }
+  .hh-role:hover { background: rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 0 1px rgba(117, 251, 146, 0.55); transform: translateY(-2px); }
+  .hh-role b { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-family: "Plus Jakarta", sans-serif; font-size: 17px; font-weight: 600; line-height: 1.3; }
+  .hh-role b::after { content: "\2192"; flex: none; font-family: Satoshi, sans-serif; font-weight: 500; color: #75fb92; transition: transform 0.2s; }
+  .hh-role:hover b::after { transform: translateX(3px); }
+  .hh-role span { display: block; margin-top: 9px; font-size: 14.5px; line-height: 1.52; color: rgba(255, 255, 255, 0.74); }
+  .hh-role[lang="ko"] span { line-height: 1.68; }
+  .hh-topics { margin: 22px 0 0; }
+  .hh-topics-h { margin: 0 0 10px; font-size: 12px; font-weight: 500; line-height: 1.3; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255, 255, 255, 0.56); }
+  .hh-topics-h[lang="ko"] { letter-spacing: 0.04em; font-size: 13px; }
+  .hh-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .hh-chip { margin: 0; padding: 7px 13px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); font-size: 14px; line-height: 1.35; color: rgba(255, 255, 255, 0.9); }
+  .hh-call { grid-column: 1 / -1; border-top: 1px solid rgba(255, 255, 255, 0.14); padding-top: 16px; }
+  .hh-call summary { display: inline-flex; align-items: center; gap: 9px; padding: 4px 2px; font-size: 15px; font-weight: 600; line-height: 1.3; color: #75fb92; cursor: pointer; list-style: none; }
+  .hh-call summary::-webkit-details-marker { display: none; }
+  .hh-call summary::before { content: ""; width: 8px; height: 8px; margin-top: -3px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform 0.2s, margin 0.2s; }
+  .hh-call[open] summary::before { margin-top: 4px; transform: rotate(-135deg); }
+  .hh-call ul { margin: 14px 0 2px; padding: 0 0 0 20px; columns: 2; column-gap: 44px; animation: hhOpen 0.35s ease both; }
+  .hh-call li { margin: 0 0 12px; padding-left: 2px; break-inside: avoid; font-size: 15px; line-height: 1.58; color: rgba(255, 255, 255, 0.82); }
+  .hh-call ul[lang="ko"] li { line-height: 1.75; }
+  .hh-call li::marker { color: #75fb92; }
+  .hh-call strong { font-weight: 600; color: #fff; }
+  .hh-call a { color: #75fb92; text-decoration: underline; text-underline-offset: 3px; }
+  @keyframes hhOpen { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .hh-about a:focus-visible, .hh-about button:focus-visible, .hh-about summary:focus-visible { outline: 3px solid #219653; outline-offset: 3px; border-radius: 6px; }
+  .hh-join a:focus-visible, .hh-join summary:focus-visible { outline-color: #75fb92; }
+
+  /* arriving */
+  .hh-about.hh-anim .hh-rise { opacity: 0; transform: translateY(18px); }
+  .hh-about.hh-anim .hh-rise.is-in { opacity: 1; transform: none; transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+
+  @media (max-width: 1100px) {
+    .hh-about-wrap { column-gap: 44px; }
+    .hh-axes { grid-template-columns: minmax(0, 1fr); }
+    .hh-join { grid-template-columns: minmax(0, 1fr); padding: 44px 40px 38px; }
+    .hh-join-main { max-width: 640px; }
+  }
+  @media (max-width: 900px) {
+    .hh-about { padding-top: 60px; }
+    .hh-about-wrap { grid-template-columns: minmax(0, 1fr); row-gap: 40px; }
+    .hh-axes { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .hh-pics { max-width: 620px; margin-top: 0; padding-bottom: 9%; }
+    .hh-join-wrap { margin-top: 60px; }
+  }
+  @media (max-width: 700px) {
+    .hh-axes, .hh-roles { grid-template-columns: minmax(0, 1fr); }
+    .hh-call ul { columns: 1; }
+  }
+  @media (max-width: 479px) {
+    .hh-about { padding-top: 48px; }
+    .hh-about-wrap { padding: 0 16px; row-gap: 32px; }
+    .hh-about-p { font-size: 17px; }
+    .hh-about-p[lang="ko"] { font-size: 16px; }
+    .hh-pic-b { border-width: 4px; }
+    .hh-join-wrap { margin-top: 48px; padding: 0 8px; }
+    .hh-join { padding: 32px 20px 26px; row-gap: 26px; }
+    .hh-join-p { font-size: 16px; }
+    .hh-jbtn { flex: 1 1 auto; height: 48px; padding: 0 16px 1px; font-size: 15.5px; }
+    .hh-roles { gap: 10px; }
+    .hh-role { padding: 15px 16px 16px; }
+    .hh-role span { margin-top: 6px; font-size: 14px; }
+    .hh-chip { font-size: 13.5px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hh-join-tag::before, .hh-call ul { animation: none; }
+    .hh-role, .hh-jbtn { transition: none; }
+  }
+</style>
+
+<section class="hh-about" id="hh-about">
+  <div class="hh-about-wrap">
+    <div class="hh-about-text hh-rise">
+      <div class="hh-about-top">
+        <p class="hh-kicker" data-l="en">About the lab</p>
+        <p class="hh-kicker" data-l="ko" lang="ko">연구실 소개</p>
+        <div class="hh-lang" role="group" aria-label="Language of this section">
+          <button type="button" data-set="en" aria-pressed="false">English</button>
+          <button type="button" data-set="ko" aria-pressed="false" lang="ko">한국어</button>
+        </div>
+      </div>
+
+      <h2 class="hh-about-h2" data-l="en">AI for observing, understanding and predicting the Earth system</h2>
+      <h2 class="hh-about-h2" data-l="ko" lang="ko">지구 시스템을 관측하고 이해하고 예측하기 위한 AI</h2>
+
+      <p class="hh-about-p" data-l="en">The Hydrological Remote Sensing and Artificial Intelligence Laboratory (HydroAI) combines microwave UAV and satellite observations, numerical models, and state-of-the-art machine learning and foundation model techniques to address environmental change, natural hazards, and water resource challenges driven by climate change and human activities. Our research proceeds along two main axes.</p>
+      <p class="hh-about-p" data-l="ko" lang="ko">수문 원격탐사 인공지능 연구실(HydroAI)은 마이크로파 UAV/위성 관측과 수치모델, 그리고 최신 기계학습·파운데이션 모델 기술을 결합하여 기후변화와 인간 활동이 만들어내는 환경 변화, 자연재해, 수자원 문제를 다룹니다. 우리의 연구는 두 축으로 진행됩니다.</p>
+
+      <ul class="hh-axes" data-l="en">
+        <li class="hh-axis"><b><small>Axis 1</small>Domain-informed AI modeling</b><span>The physics of hydrology and remote sensing, brought together with deep learning, data assimilation and foundation models, to predict droughts, floods, wildfires, dust storms and changes in water resources quickly and accurately.</span></li>
+        <li class="hh-axis"><b><small>Axis 2</small>Earth foundation models</b><span>Next-generation AI models, built on satellite big data and large-scale pretraining, that generalize across environmental problems: beyond task-specific models, toward AI that understands the Earth.</span></li>
+      </ul>
+      <ul class="hh-axes" data-l="ko">
+        <li class="hh-axis" lang="ko"><b><small>첫째 축</small>도메인 기반 AI 모델링</b><span>수문학·원격탐사의 물리적 지식과 딥러닝·자료동화·파운데이션 모델을 통합해, 가뭄·홍수·산불·황사 등 전 지구적 자연재해와 수자원 변화를 신속하고 정확하게 예측하는 시스템을 개발합니다.</span></li>
+        <li class="hh-axis" lang="ko"><b><small>둘째 축</small>지구 파운데이션 모델 (Earth Foundation Models)</b><span>위성 빅데이터와 대규모 사전학습을 활용해, 다양한 환경 문제에 일반화 가능한 차세대 AI 모델을 구축합니다. 이는 기존의 task-specific 모델을 넘어 &ldquo;지구를 이해하는 AI&rdquo;를 만들기 위한 시도입니다.</span></li>
+      </ul>
+
+      <p class="hh-about-end" data-l="en">This work underpins climate change response, disaster management and data-driven environmental policy, and it advances AI methodology itself, especially the use of foundation models in science. <a class="hh-link" href="/projects">See our current projects &rarr;</a></p>
+      <p class="hh-about-end" data-l="ko" lang="ko">이러한 연구는 기후변화 대응, 재난 관리, 데이터 기반 환경 정책 수립의 핵심 기반이 되며, 동시에 AI 방법론 그 자체의 발전 — 특히 과학 도메인에서의 파운데이션 모델 응용 — 에 기여합니다. <a class="hh-link" href="/projects">진행 중인 프로젝트 보기 &rarr;</a></p>
+    </div>
+
+    <div class="hh-pics hh-rise">
+      <img class="hh-pic-a" loading="lazy" width="1477" height="703" alt="Lab members and visitors with the lab's drones beside a rice field"
+        src="https://cdn.prod.website-files.com/640cbd413ecaf856623aa507/6900789542c2afc34ca64237_20251021_GIST_NASA_Dara_03.jpg"
+        srcset="https://cdn.prod.website-files.com/640cbd413ecaf856623aa507/6900789542c2afc34ca64237_20251021_GIST_NASA_Dara_03-p-500.jpg 500w, https://cdn.prod.website-files.com/640cbd413ecaf856623aa507/6900789542c2afc34ca64237_20251021_GIST_NASA_Dara_03-p-800.jpg 800w, https://cdn.prod.website-files.com/640cbd413ecaf856623aa507/6900789542c2afc34ca64237_20251021_GIST_NASA_Dara_03-p-1080.jpg 1080w, https://cdn.prod.website-files.com/640cbd413ecaf856623aa507/6900789542c2afc34ca64237_20251021_GIST_NASA_Dara_03.jpg 1477w"
+        sizes="(max-width: 900px) 92vw, 600px">
+      <img class="hh-pic-b" loading="lazy" width="978" height="756" alt="An instrument tower in front of a GIST building, seen from a drone"
+        src="https://cdn.prod.website-files.com/640cbd413ecaf856623aa507/69dc8d0720360cf51e823c31_tower_GIST.png"
+        srcset="https://cdn.prod.website-files.com/640cbd413ecaf856623aa507/69dc8d0720360cf51e823c31_tower_GIST-p-500.png 500w, https://cdn.prod.website-files.com/640cbd413ecaf856623aa507/69dc8d0720360cf51e823c31_tower_GIST-p-800.png 800w, https://cdn.prod.website-files.com/640cbd413ecaf856623aa507/69dc8d0720360cf51e823c31_tower_GIST.png 978w"
+        sizes="(max-width: 900px) 44vw, 280px">
+    </div>
+  </div>
+
+  <div class="hh-join-wrap">
+    <div class="hh-join hh-rise" id="hh-join">
+      <div class="hh-join-main">
+        <p class="hh-join-tag" data-l="en">Now hiring</p>
+        <p class="hh-join-tag" data-l="ko" lang="ko">모집 중</p>
+        <h2 class="hh-join-h2" data-l="en">Join HydroAI</h2>
+        <h2 class="hh-join-h2" data-l="ko" lang="ko">HydroAI와 함께할 연구자를 찾습니다</h2>
+        <p class="hh-join-p" data-l="en">We welcome postdoctoral researchers, graduate students and undergraduates who are passionate about applying AI and machine learning to hydrology, remote sensing and climate.</p>
+        <p class="hh-join-p" data-l="ko" lang="ko">수문·원격탐사·기후 분야에 AI/기계학습을 적용하는 연구에 열정을 가진 박사후연구원, 대학원생, 학부생을 환영합니다.</p>
+        <div class="hh-join-actions" data-l="en">
+          <a class="hh-jbtn hh-jbtn-a" href="/opportunities">See all opportunities <span aria-hidden="true">&rarr;</span></a>
+          <a class="hh-jbtn hh-jbtn-b" href="/contact">Contact</a>
+        </div>
+        <div class="hh-join-actions" data-l="ko" lang="ko">
+          <a class="hh-jbtn hh-jbtn-a" href="/opportunities">모집 안내 보기 <span aria-hidden="true">&rarr;</span></a>
+          <a class="hh-jbtn hh-jbtn-b" href="/contact">문의하기</a>
+        </div>
+      </div>
+
+      <div class="hh-join-side">
+        <ul class="hh-roles" data-l="en">
+          <li><a class="hh-role" href="/opportunities"><b>Postdoctoral researchers</b><span>Base salary of KRW 90 million per year plus benefits, family housing for two years, and conference support (InnoCore AITA group).</span></a></li>
+          <li><a class="hh-role" href="/opportunities"><b>Masters and PhD students</b><span>Domain scientists in satellite remote sensing, numerical modeling, climate change and environmental sciences.</span></a></li>
+          <li><a class="hh-role" href="/opportunities"><b>Undergraduates</b><span>Open Lab events through the year and a four-week internship in the lab.</span></a></li>
+        </ul>
+        <ul class="hh-roles" data-l="ko">
+          <li><a class="hh-role" href="/opportunities" lang="ko"><b>박사후연구원</b><span>기본급 9,000만원/연 + @. 가족기숙사 입주(2년) 및 국외 학술대회 참석 지원 (InnoCore AITA group).</span></a></li>
+          <li><a class="hh-role" href="/opportunities" lang="ko"><b>석·박사과정</b><span>위성 원격탐사, 수치모델, 기후변화, 환경 분야의 Domain Scientist.</span></a></li>
+          <li><a class="hh-role" href="/opportunities" lang="ko"><b>학부생</b><span>연중 열리는 오픈랩과 4주 인턴십 프로그램.</span></a></li>
+        </ul>
+
+        <div class="hh-topics">
+          <p class="hh-topics-h" data-l="en">Topics for 2026</p>
+          <p class="hh-topics-h" data-l="ko" lang="ko">2026년도 관심 주제</p>
+          <ul class="hh-chips" data-l="en">
+            <li class="hh-chip">Fine-tuning large language models for environmental, hydrological and satellite data</li>
+            <li class="hh-chip">SWOT and SAR for runoff and surface variables</li>
+            <li class="hh-chip">Deep learning for satellite imagery and natural disaster prediction</li>
+          </ul>
+          <ul class="hh-chips" data-l="ko" lang="ko">
+            <li class="hh-chip">환경·수문·위성 데이터 분석에 특화된 대규모 언어 모델(LLM) 파인튜닝</li>
+            <li class="hh-chip">SWOT 위성과 SAR를 활용한 유출량·지표변수 측정</li>
+            <li class="hh-chip">딥러닝 기반 위성 이미지 분석과 수재해 예측</li>
+          </ul>
+        </div>
+      </div>
+
+      <details class="hh-call">
+        <summary><span data-l="en">Read the full call</span><span data-l="ko" lang="ko">모집 공고 전문 보기</span></summary>
+        <ul data-l="en">
+          <li>If you are passionate about hydrology, remote sensing, and machine learning applications in Earth sciences, please feel free to <a href="/contact">contact me</a>.</li>
+          <li>Postdoctoral researcher position available. Base salary of KRW 90 million per year plus additional benefits. Family housing provided for two years. Strong support for attending an international conference per year plus additional opportunities through the InnoCore AITA group (<a href="https://sites.google.com/view/kaist-aita-2918823/aita" target="_blank" rel="noopener">InnoCore AITA group</a>).</li>
+          <li>We welcome undergraduate students and prospective graduate students who are passionate about applying AI and machine learning methodologies as domain scientists in satellite remote sensing, numerical modeling, climate change, and environmental sciences.</li>
+          <li>For 2026, we seek students and researchers interested in <strong>fine-tuning state-of-the-art large language models such as GPT-5</strong> for environmental, hydrological, and satellite data analysis.</li>
+          <li>For 2026, we also seek students and researchers interested in using the <strong>Surface Water and Ocean Topography (SWOT)</strong> satellite and <strong>Synthetic-Aperture Radar (SAR)</strong> for runoff estimation and surface variable measurements.</li>
+          <li>We welcome students and researchers interested in deep learning methodologies, including physics-informed neural networks, partial convolution neural networks, super-resolution GAN, and reinforcement learning for satellite image analysis and accuracy improvement, as well as long short-term memory, gated recurrent units, and transfer learning for natural disaster prediction and land surface modeling, including the development of specialized loss functions.</li>
+          <li>Before reaching out to me, you can visit <a href="/opportunities">this page</a> for what opportunities are currently available. I&rsquo;m excited to work with the next generation of researchers in this exciting and rapidly evolving field.</li>
+        </ul>
+        <ul data-l="ko" lang="ko">
+          <li>박사후연구원 채용. <strong>기본급 9,000만원/연 + @</strong>. 가족기숙사 입주(2년) 및 국외 학술 대회 참석 지원 (<a href="https://sites.google.com/view/kaist-aita-2918823/aita" target="_blank" rel="noopener">InnoCore AITA group</a>)</li>
+          <li>위성 원격 탐사, 수치모델, 기후변화, 환경/원격탐사 분야 Domain Scientist로 <strong>AI/기계학습</strong> 방법론 적용 연구에 대한 열정을 가지고 있는 학부생 및 대학원 진학 예정 학생을 환영합니다.</li>
+          <li>(2026년도) GPT-5와 같은 <strong>최신 대규모 언어 모델(LLM)을 환경·수문·위성 데이터 분석에 특화되도록 파인튜닝</strong>하는 연구에 관심있는 학생 및 연구자</li>
+          <li>(2026년도) <strong>Surface Water and Ocean Topography (SWOT)</strong> 위성 및 <strong>Synthetic-Aperture Radar (SAR)</strong>를 활용한 유출량 및 지표변수 측정에 관심이 있는 학생 및 연구자</li>
+          <li><strong>딥러닝</strong> 방법론 중 physics-informed neural networks (PINNs), partial convolution neural network (PCNN), super-resolution GAN (SRGAN), reinforcement learning (RL) 등을 활용한 위성 이미지 분석 및 정확도 향상, long short-term memory (LSTM), gated recurrent unit (GRU), Transfer Learning (TL) 을 활용한 수재해 예측, loss function 개발에 관심이 있는 학생 및 연구자</li>
+        </ul>
+      </details>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.getElementById('hh-about');
+  if (!root || root.getAttribute('data-ready')) return;
+  root.setAttribute('data-ready', '1');
+
+  /* one language at a time: what the visitor chose before, else Korean for a Korean browser, else English */
+  var KEY = 'hydroai-home-lang';
+  var buttons = [].slice.call(root.querySelectorAll('.hh-lang button'));
+  var lang = '';
+  try { lang = window.localStorage.getItem(KEY) || ''; } catch (e) {}
+  if (lang !== 'en' && lang !== 'ko') lang = /^ko\b/i.test(navigator.language || '') ? 'ko' : 'en';
+  function set(l) {
+    root.setAttribute('data-lang', l);
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-set') === l ? 'true' : 'false'); });
+  }
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var l = b.getAttribute('data-set');
+      set(l);
+      try { window.localStorage.setItem(KEY, l); } catch (e) {}
+    });
+  });
+  set(lang);
+
+  /* the three parts rise as they come into view (not for a visitor who asked for reduced motion) */
+  var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!calm && 'IntersectionObserver' in window) {
+    root.classList.add('hh-anim');
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -10% 0px' });
+    [].slice.call(root.querySelectorAll('.hh-rise')).forEach(function (e) { io.observe(e); });
+  }
+})();
+</script>

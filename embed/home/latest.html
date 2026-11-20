@@ -1,0 +1,222 @@
+<!--
+  hydroai.net home page, block 2 of 3: news and recent publications.
+  Two short lists that keep themselves up to date: the first entries of the Events page and of the
+  Publications page ("Peer-reviewed Journals"), read from those pages when the home page is opened. Adding an
+  entry to either page in Webflow is all it takes for it to show here; nobody edits the home page.
+
+  Where it goes: one Webflow Code Embed in the home page's first section, after the hero.
+
+  To change it:
+    how many entries, which pages     CFG in the script
+    the headings and the two links    the markup below
+  It reads the two pages by their structure (the first tab's list items; each item's date, title, link and
+  picture). If either page is rebuilt so that nothing can be read, that list is left out; if both are, the
+  whole block is. tools/check_home_new.py says so when it happens.
+-->
+<style>
+  .hh-latest { box-sizing: border-box; padding: 64px 0 0; font-family: Satoshi, sans-serif; color: #1c3533; text-align: left; }
+  .hh-latest * { box-sizing: border-box; }
+  .hh-latest[hidden], .hh-latest [hidden] { display: none !important; }
+  .hh-latest-wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 64px; row-gap: 52px; max-width: 1348px; margin: 0 auto; padding: 0 24px; }
+  .hh-latest-wrap.is-single { grid-template-columns: minmax(0, 1fr); max-width: 900px; }
+  .hh-latest-col { min-width: 0; }
+  .hh-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 14px; border-bottom: 2px solid #1c3533; }
+  .hh-h2 { margin: 0; font-family: "Plus Jakarta", sans-serif; font-size: 26px; font-weight: 600; line-height: 1.25; letter-spacing: -0.005em; color: #1c3533; }
+  .hh-more { flex: none; font-size: 15px; font-weight: 600; line-height: 1.3; white-space: nowrap; color: #1c3533; text-decoration: none; }
+  .hh-more span { display: inline-block; transition: transform 0.2s; }
+  .hh-more:hover { color: #219653; }
+  .hh-more:hover span { transform: translateX(3px); }
+  .hh-list { list-style: none; margin: 0; padding: 0; }
+  .hh-item { margin: 0; border-bottom: 1px solid rgba(28, 53, 51, 0.14); }
+  .hh-row { position: relative; display: grid; grid-template-columns: 132px minmax(0, 1fr); column-gap: 22px; align-items: start; min-height: 139px; padding: 20px 34px 20px 0; color: inherit; text-decoration: none; }
+  .hh-row::after { content: "\2192"; position: absolute; right: 6px; top: 22px; font-size: 18px; line-height: 1; color: #219653; opacity: 0; transform: translateX(-6px); transition: opacity 0.2s, transform 0.2s; }
+  .hh-row.is-out::after { content: "\2197"; }
+  .hh-row:hover::after, .hh-row:focus-visible::after { opacity: 1; transform: none; }
+  .hh-row:focus-visible, .hh-more:focus-visible { outline: 3px solid #219653; outline-offset: 2px; border-radius: 4px; }
+  .hh-thumb { position: relative; display: block; width: 132px; height: 99px; overflow: hidden; border-radius: 12px; background: #fff; box-shadow: inset 0 0 0 1px rgba(28, 53, 51, 0.1); }
+  .hh-thumb-bg { position: absolute; left: -14%; top: -14%; width: 128%; height: 128%; background: center / cover no-repeat; filter: blur(12px); opacity: 0.85; }
+  .hh-thumb img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; max-width: none; object-fit: contain; transition: transform 0.35s ease; }
+  .hh-thumb::after { content: ""; position: absolute; left: 0; top: 0; right: 0; bottom: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px rgba(28, 53, 51, 0.1); }
+  .hh-row:hover .hh-thumb img { transform: scale(1.05); }
+  .hh-text { display: block; min-width: 0; }
+  .hh-meta { display: block; font-size: 12.5px; font-weight: 500; line-height: 1.35; letter-spacing: 0.08em; text-transform: uppercase; color: #219653; }
+  .hh-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; margin-top: 6px; font-family: "Plus Jakarta", sans-serif; font-size: 18px; font-weight: 500; line-height: 1.36; color: #1c3533; transition: color 0.2s; }
+  .hh-row:hover .hh-title { color: #14622f; }
+  .hh-sum { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin-top: 6px; font-size: 15px; font-weight: 400; line-height: 1.45; color: rgba(28, 53, 51, 0.72); }
+  .hh-sum.is-journal { -webkit-line-clamp: 1; font-style: italic; }
+
+  /* while the two pages are being read: three quiet rows in each list */
+  .hh-wait .hh-row { pointer-events: none; }
+  .hh-wait .hh-thumb, .hh-wait .hh-bar { background: rgba(28, 53, 51, 0.08); box-shadow: none; animation: hhWait 1.4s ease-in-out infinite; }
+  .hh-bar { display: block; height: 12px; margin-top: 12px; border-radius: 6px; }
+  .hh-bar:first-child { width: 34%; margin-top: 4px; }
+  .hh-bar:nth-child(2) { width: 92%; height: 16px; }
+  .hh-bar:nth-child(3) { width: 70%; height: 16px; }
+  @keyframes hhWait { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+  /* arriving: the rows rise one after another when the block comes into view */
+  .hh-latest.hh-anim .hh-item:not(.hh-wait) { opacity: 0; transform: translateY(14px); }
+  .hh-latest.hh-anim.is-in .hh-item:not(.hh-wait) { opacity: 1; transform: none; transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .hh-latest.hh-anim.is-in .hh-item:nth-child(2) { transition-delay: 0.08s; }
+  .hh-latest.hh-anim.is-in .hh-item:nth-child(3) { transition-delay: 0.16s; }
+  .hh-latest.hh-anim.is-in .hh-item:nth-child(4) { transition-delay: 0.24s; }
+
+  @media (max-width: 1100px) { .hh-latest-wrap { column-gap: 40px; } .hh-row { grid-template-columns: 112px minmax(0, 1fr); column-gap: 18px; min-height: 124px; } .hh-thumb { width: 112px; height: 84px; } }
+  @media (max-width: 900px) { .hh-latest { padding-top: 52px; } .hh-latest-wrap { grid-template-columns: minmax(0, 1fr); } .hh-row { grid-template-columns: 132px minmax(0, 1fr); column-gap: 22px; min-height: 139px; } .hh-thumb { width: 132px; height: 99px; } }
+  @media (max-width: 479px) {
+    .hh-latest { padding-top: 44px; }
+    .hh-latest-wrap { row-gap: 40px; padding: 0 16px; }
+    .hh-h2 { font-size: 23px; }
+    .hh-row { grid-template-columns: 92px minmax(0, 1fr); column-gap: 14px; min-height: 109px; padding: 16px 0; }
+    .hh-row::after { display: none; }
+    .hh-thumb { width: 92px; height: 69px; border-radius: 10px; }
+    .hh-title { font-size: 16.5px; -webkit-line-clamp: 4; }
+    .hh-sum { font-size: 14px; }
+    .hh-sum:not(.is-journal) { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hh-wait .hh-thumb, .hh-wait .hh-bar { animation: none; }
+    .hh-thumb img, .hh-row::after, .hh-more span { transition: none; }
+  }
+</style>
+<noscript><style>.hh-latest { display: none; }</style></noscript>
+
+<section class="hh-latest" id="hh-latest" aria-label="News and recent publications">
+  <div class="hh-latest-wrap">
+    <div class="hh-latest-col" data-hh="news">
+      <div class="hh-head">
+        <h2 class="hh-h2">News</h2>
+        <a class="hh-more" href="/events">All news and events <span aria-hidden="true">&rarr;</span></a>
+      </div>
+      <ul class="hh-list" aria-busy="true">
+        <li class="hh-item hh-wait" aria-hidden="true"><span class="hh-row"><span class="hh-thumb"></span><span class="hh-text"><span class="hh-bar"></span><span class="hh-bar"></span><span class="hh-bar"></span></span></span></li>
+        <li class="hh-item hh-wait" aria-hidden="true"><span class="hh-row"><span class="hh-thumb"></span><span class="hh-text"><span class="hh-bar"></span><span class="hh-bar"></span><span class="hh-bar"></span></span></span></li>
+        <li class="hh-item hh-wait" aria-hidden="true"><span class="hh-row"><span class="hh-thumb"></span><span class="hh-text"><span class="hh-bar"></span><span class="hh-bar"></span><span class="hh-bar"></span></span></span></li>
+      </ul>
+    </div>
+    <div class="hh-latest-col" data-hh="pubs">
+      <div class="hh-head">
+        <h2 class="hh-h2">Recent publications</h2>
+        <a class="hh-more" href="/publication">All publications <span aria-hidden="true">&rarr;</span></a>
+      </div>
+      <ul class="hh-list" aria-busy="true">
+        <li class="hh-item hh-wait" aria-hidden="true"><span class="hh-row"><span class="hh-thumb"></span><span class="hh-text"><span class="hh-bar"></span><span class="hh-bar"></span><span class="hh-bar"></span></span></span></li>
+        <li class="hh-item hh-wait" aria-hidden="true"><span class="hh-row"><span class="hh-thumb"></span><span class="hh-text"><span class="hh-bar"></span><span class="hh-bar"></span><span class="hh-bar"></span></span></span></li>
+        <li class="hh-item hh-wait" aria-hidden="true"><span class="hh-row"><span class="hh-thumb"></span><span class="hh-text"><span class="hh-bar"></span><span class="hh-bar"></span><span class="hh-bar"></span></span></span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.getElementById('hh-latest');
+  if (!root || root.getAttribute('data-ready')) return;
+  root.setAttribute('data-ready', '1');
+
+  var CFG = {
+    news: { page: '/events', count: 3 },          /* the Events page, its first tab ("All events"), in the order it lists them */
+    pubs: { page: '/publication', count: 3 },     /* the Publications page, its first tab ("Peer-reviewed Journals") */
+    keep: 15                                      /* minutes a visitor's browser re-uses what it read, while they move between pages */
+  };
+  var KEY = 'hydroai-home-latest-v1';
+  var wrap = root.querySelector('.hh-latest-wrap');
+  var cols = { news: root.querySelector('[data-hh="news"]'), pubs: root.querySelector('[data-hh="pubs"]') };
+
+  function text(el) { return el ? el.textContent.replace(/[\u200b-\u200d\ufeff]/g, '').replace(/\s+/g, ' ').trim() : ''; }
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt) e.textContent = txt; return e; }
+  /* the smallest file that is still sharp in a thumbnail: Webflow lists the sizes it has in srcset */
+  function picture(img) {
+    if (!img) return '';
+    var best = '', bestW = Infinity;
+    (img.getAttribute('srcset') || '').split(',').forEach(function (part) {
+      var m = part.trim().match(/^(\S+)\s+(\d+)w$/);
+      if (m && +m[2] >= 300 && +m[2] < bestW) { best = m[1]; bestW = +m[2]; }
+    });
+    return best || img.getAttribute('src') || '';
+  }
+  function firstList(doc) { var pane = doc.querySelector('.w-tab-pane') || doc; return [].slice.call(pane.querySelectorAll('.w-dyn-item')); }
+
+  var read = {
+    news: function (doc, n) {
+      var out = [];
+      firstList(doc).some(function (it) {
+        var a = it.querySelector('a[href*="/events/"]'), date = it.querySelector('.date'), title = '';
+        [].slice.call(it.querySelectorAll('.text-block-h3-style')).forEach(function (b) { if (!title && b !== date) title = text(b); });
+        if (title && a) out.push({ title: title, meta: text(date), sum: text(it.querySelector('.text-medium')), href: a.getAttribute('href'), img: picture(it.querySelector('img')) });
+        return out.length >= n;
+      });
+      return out;
+    },
+    pubs: function (doc, n) {
+      var out = [];
+      firstList(doc).some(function (it) {
+        var title = text(it.querySelector('h3')), a = it.querySelector('a[href]'), href = a ? a.getAttribute('href') : '';
+        var date = text(it.querySelector('.publication_date')).replace(/^([A-Za-z]+) \d{1,2}, (\d{4})$/, '$1 $2');
+        /* a paper whose address is not filled in yet ("TBD") leads to the Publications page instead */
+        if (title) out.push({ title: title, meta: date, sum: text(it.querySelector('h4')), journal: true, href: /^https?:\/\//i.test(href) ? href : '', out: /^https?:\/\//i.test(href), img: picture(it.querySelector('img')) });
+        return out.length >= n;
+      });
+      return out;
+    }
+  };
+
+  function row(d, kind) {
+    var li = el('li', 'hh-item'), a = el('a', 'hh-row' + (d.out ? ' is-out' : '')), th = el('span', 'hh-thumb'), tx = el('span', 'hh-text');
+    a.setAttribute('href', d.href || CFG[kind].page);
+    if (d.out) { a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener'); }
+    if (d.img) {
+      var bg = el('span', 'hh-thumb-bg'), im = document.createElement('img');
+      bg.style.backgroundImage = 'url("' + d.img.replace(/"/g, '%22') + '")';
+      im.alt = ''; im.loading = 'lazy'; im.decoding = 'async'; im.src = d.img;
+      th.appendChild(bg); th.appendChild(im);
+    }
+    if (d.meta) tx.appendChild(el('span', 'hh-meta', d.meta));
+    tx.appendChild(el('span', 'hh-title', d.title));
+    if (d.sum) tx.appendChild(el('span', 'hh-sum' + (d.journal ? ' is-journal' : ''), d.sum));
+    a.appendChild(th); a.appendChild(tx); li.appendChild(a);
+    return li;
+  }
+  function fill(kind, items) {
+    var col = cols[kind], list = col.querySelector('.hh-list');
+    list.removeAttribute('aria-busy');
+    if (!items || !items.length) { col.hidden = true; }
+    else { list.textContent = ''; items.forEach(function (d) { list.appendChild(row(d, kind)); }); }
+    root.setAttribute('data-' + kind, items ? items.length : 0);
+    var left = ['news', 'pubs'].filter(function (k) { return !cols[k].hidden; }).length;
+    wrap.classList.toggle('is-single', left === 1);
+    root.hidden = left === 0;
+  }
+  function page(kind) {
+    return fetch(window.location.origin + CFG[kind].page, { credentials: 'same-origin' })
+      .then(function (r) { if (!r.ok) throw new Error(CFG[kind].page + ': ' + r.status); return r.text(); })
+      .then(function (t) { return read[kind](new DOMParser().parseFromString(t, 'text/html'), CFG[kind].count); });
+  }
+
+  /* the rows rise when the block comes into view (not for a visitor who asked for reduced motion) */
+  var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!calm && 'IntersectionObserver' in window) {
+    root.classList.add('hh-anim');
+    var io = new IntersectionObserver(function (es) { if (es.some(function (e) { return e.isIntersecting; })) { root.classList.add('is-in'); io.disconnect(); } }, { rootMargin: '0px 0px -12% 0px' });
+    io.observe(root);
+  }
+
+  var saved = null;
+  try { saved = JSON.parse(window.sessionStorage.getItem(KEY) || 'null'); } catch (e) {}
+  if (saved && saved.t && Date.now() - saved.t < CFG.keep * 60000 && saved.news && saved.pubs) {
+    fill('news', saved.news); fill('pubs', saved.pubs);
+    return;
+  }
+  if (!window.fetch || !window.DOMParser) { root.hidden = true; return; }
+  var got = {}, left = 2;
+  ['news', 'pubs'].forEach(function (kind) {
+    page(kind).then(function (items) { return items; }, function () { return []; }).then(function (items) {
+      got[kind] = items; fill(kind, items);
+      if (--left === 0 && got.news.length && got.pubs.length) {
+        try { window.sessionStorage.setItem(KEY, JSON.stringify({ t: Date.now(), news: got.news, pubs: got.pubs })); } catch (e) {}
+      }
+    });
+  });
+})();
+</script>

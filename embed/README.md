@@ -1,8 +1,16 @@
-# On hydroai.net: the Data page card and the home page announcement
+# On hydroai.net: the Data page card, the home page announcement, and the home page's new blocks
 
-Two pieces of the lab's Webflow site are kept here: the dataset's **card** on hydroai.net/data (live), and an
-**announcement** for the home page that tells a first-time visitor the dataset is available (made 2026-11-19,
-**not on the site yet**: it waits for the lab head's word; see the second half of this file).
+Three pieces of the lab's Webflow site are kept here:
+
+- the dataset's **card** on hydroai.net/data (live since 2026-11-18);
+- an **announcement** for the home page that tells a first-time visitor the dataset is available (made
+  2026-11-19, **not on the site yet**);
+- three **blocks that remake the top of the home page** (made 2026-11-20, **not on the site yet**): the lab's
+  datasets in motion on the first screen, news and papers that keep themselves up to date, and the long text
+  cut down, with recruiting in one band.
+
+The last two change the lab's front page and mean publishing the Webflow site, so each waits for the lab
+head's word, as the card did.
 
 ## The card on hydroai.net/data
 
@@ -156,3 +164,129 @@ reduced motion, blocked storage, the last day, a background tab); it exits with 
 - Another announcement: change the words and the loops, and give `ANN.id` a new value. Every browser then
   sees the dialog once more, including those that closed this one. Set `ANN.until`.
 - Taking it down: delete the Code Embed from the Home page and publish. Nothing else refers to it.
+
+
+## The home page's three blocks
+
+Asked for by the lab head on 2026-11-20: the first page should be more dynamic (“좀 더 동적으로”). Of six
+ideas he chose the first three (“1,2,3 우선 해보자”): the lab's own data in motion on the first screen; news
+and recent papers that appear by themselves; the long text shortened, with recruiting in one band.
+`embed/home/` holds them as three Webflow **Code Embeds**, each one self-contained (styles, markup, script).
+
+**Status: made and checked on a local copy of the home page; not on hydroai.net.**
+
+| File | What a visitor sees | What it takes the place of |
+|---|---|---|
+| `home/hero.html` | The first screen: the title, one sentence, two buttons (Data, Opportunities), and beside them the five datasets in turn, each one's loop with its captions, its name, one line and its link | The dark block with the title and two paragraphs over the satellite picture, and the two photographs under it |
+| `home/latest.html` | “News” and “Recent publications”: the first three entries of the Events page and of the Publications page | Nothing: it is new |
+| `home/about.html` | The lab in one paragraph and its two research axes beside the two photographs; then “Join HydroAI”: three kinds of position, the year's topics, and the full call folded away. English or Korean, one at a time | The long paragraph above the four green tiles (introduction in two languages, then the recruiting list) |
+| `home/replaced-paragraph.html` | (not shown) That paragraph as it was on the site on 2026-11-20: the record of what was replaced, and what the check compares the folded call with | |
+
+Nothing is sent anywhere by any of them, and none of them uses a figure of a manuscript: the pictures are the
+loops made for the Data page's cards, from the portals' own public maps.
+
+### How each behaves
+
+**The first screen.** Each dataset's loop plays once, then the next comes with a short dissolve; five bars
+under the picture fill as they play, with the datasets' names under them where there is room. A click on a
+bar shows that dataset; the round button pauses and plays. The whole picture and “Open dataset →” lead to
+the dataset on the Data page. The loops stop while the tab is hidden, while the picture is scrolled out of
+view, and while the announcement dialog (if the page has it) is open. Only the loop on show is fetched, and
+the next one a few seconds before it is needed. A loop that cannot be fetched does not hold the reel: its
+still picture stays for twelve seconds, then the next dataset comes. With reduced motion or the browser's
+data saver nothing plays and no video is fetched until the visitor presses play; the bars still change the
+dataset, as still pictures. The block keeps one height whichever dataset is on show (each width reserves
+room for the longest name and line), so nothing below it moves.
+
+**The two lists.** They are read from `/events` and `/publication` when the home page opens: the list items
+of each page's first tab, in the order the page lists them (the Events page's own order, not the dates on
+the entries, which are when an entry was made). A paper whose address is not filled in on the Publications
+page (“TBD”) leads to the Publications page; the others open in a new tab. What was read is re-used for
+fifteen minutes within a browser tab (`sessionStorage`, `hydroai-home-latest-v1`). If a page cannot be read,
+or is rebuilt so that nothing can be found in it, its list is left out, and if both are, the whole block is:
+the check below says so when it happens. **Adding an entry to the Events or Publications page in Webflow is
+all it takes for the home page to show it.**
+
+**The section in two languages.** A visitor sees Korean if the browser's language is Korean and English
+otherwise, can switch with the two buttons, and the browser remembers the choice (`localStorage`,
+`hydroai-home-lang`). Without scripts both languages show, one after the other. The recruiting list that was
+on the page is kept word for word under “Read the full call” (one misspelling corrected: 가족기숙자 →
+가족기숙사); the band above it says the same more briefly, and the three cards lead to the Opportunities page.
+
+### The words
+
+- The hero's sentence is the old hero's two paragraphs made into one (what the lab studies, with what, and to
+  what end). The title is unchanged.
+- The English introduction is the old one with its first sentence turned into the heading; the two research
+  axes were only in Korean on the old page, and their English lines here are translations of those.
+- The band's short lines (three positions, three topics) summarise the recruiting list and the Opportunities
+  page; the list itself is in the folded call. When the list changes each year, change the three `.hh-chip`
+  lines and the list in `.hh-call`, in both languages.
+- The datasets' names and one-line descriptions repeat the Data page's cards. When a card changes, change
+  its entry in `REEL.slides`.
+
+### The loops, in two sizes
+
+The reel shows the Data page cards' loops (`media` in `REEL.slides`: 768 × 432, from the three portals'
+repositories). Where the picture is drawn on about 1,100 screen pixels or more (a desktop or tablet with a
+dense screen), it fetches a larger version of the same loop instead (`wide`), all five kept here:
+
+| File | Size | Made with |
+|---|---|---|
+| `media/wq-wide-v1.*` | 1536 × 864, 10.5 s, 1.0–1.3 MB | `tools/cap_wq.py … size=960x540 scale=1.6` |
+| `media/et-wide-v1.*` | 1536 × 864, 13.7 s, 2.0–2.6 MB | `tools/wide_loops.py et_cap` (the ET preview on the public copy of the tiles) |
+| `media/hdca-wide-v1.*` | 1536 × 864, 10.5 s, 2.4–2.7 MB | `tools/wide_loops.py hdca_cap`, `hdca_compose` |
+| `media/tca-wide-v1.*` | 1536 × 864, 9.5 s, 1.9–2.3 MB | `tools/wide_loops.py tca_cap`, `tca_compose` |
+| `media/cvs-wide-v1.*` | 1280 × 720, 12 s, 1.0–1.4 MB (the drone mosaic is 1 m, no finer) | `tools/wide_loops.py cvs` |
+
+`tools/wide_loops.py` runs the tools that made the card loops, unchanged, from their own repositories, with
+the frames drawn at 1.6 device pixels per CSS pixel and the chart panels scaled with them; its docstring has
+the commands. Camera, stages and frame counts are the same, so a wide loop has its card loop's timeline and
+the card's captions fit both. The rules of those loops are their repositories' (`hdca-data-portal:
+embed/tools/README.md`): only what is published is drawn; the ET loop is drawn from the public copy of the
+tiles and its first caption names the background product; a re-made loop gets a new file name. When a card's
+loop is re-made, re-make its wide one and change both names and the caption times in `REEL.slides`.
+
+### Looking at it and checking it
+
+```bash
+~/.venvs/hydroai/bin/python embed/tools/home_new_preview.py                 # http://127.0.0.1:8814/
+~/.venvs/hydroai/bin/python embed/tools/home_new_preview.py --local-media   # this repository's loops from embed/media/ (before they are pushed)
+~/miniconda3/bin/python embed/tools/check_home_new.py                       # the preview, in Chromium, WebKit and Firefox
+~/miniconda3/bin/python embed/tools/check_home_new.py https://hydroai.net/  # the live page, once the blocks are on it
+```
+
+`home_new_preview.py` fetches the live home page with its Events and Publications pages and makes on it the
+same changes that publishing makes (listed below); `/?old` shows the page as it is now, `/?popup` adds the
+announcement, `/?lang=ko` or `en` sets the section's language. `check_home_new.py` lists what it checks in
+its docstring (the page's structure; the reel through all five datasets, a click, pause, a hidden tab,
+scrolling away, loops that cannot be fetched, reduced motion; the two lists against the two pages, and
+either page unreadable; the two languages, and every sentence of the replaced recruiting list still on the
+page; thirteen window sizes); it exits with the number of failures.
+
+### Putting it on the site
+
+In the Webflow Designer, on the Home page (`data-wf-page` 640cbd423ecaf883c33aa530):
+
+1. Select the hero's container (`teaching-detail-wrap hero`), add a **Code Embed** with `home/hero.html`;
+   delete the old `hero-block` and the photographs' container (`container-6`) from it.
+2. Select the first section (`section hero-home`) and add two **Code Embeds**, which land last in it:
+   `home/latest.html`, then `home/about.html`.
+3. Delete the long paragraph (the `paragraph` in `usps-block`, above the tiles) and the stray “Heading” at the
+   foot of the page; correct “Rede more” and “improvments” in the sections below, and “technics” in the
+   page's description (page settings).
+4. Publish with only hydroai.net ticked, then run `check_home_new.py https://hydroai.net/` and look at it.
+
+Webflow publishes the whole site, so anything else saved in the Designer goes out too. To go back: delete the
+three embeds and restore the page from a Webflow backup (the Designer keeps them), or paste
+`home/replaced-paragraph.html`'s text back.
+
+### Changing it later
+
+- **A new dataset.** Add an entry to `REEL.slides` (first, with `isNew: true`, to lead with it) and set
+  `REEL.newUntil`: after that day nothing is marked new, so the mark never outstays its news.
+- **More or fewer entries in the lists.** `CFG` in `home/latest.html`.
+- **The Events or Publications page is rebuilt.** Run the check; if a list is gone, the selectors in
+  `read` (in `home/latest.html`) need the new page's class names.
+- **With the announcement.** The two work together (the reel waits behind the dialog); the dataset is
+  then announced twice, in the dialog and as the reel's first, “New” entry, which is a choice, not a fault.

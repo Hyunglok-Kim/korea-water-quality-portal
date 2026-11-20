@@ -14,7 +14,9 @@ top of every tab says the paper is under review at *Scientific Data* (the lab he
 Scientific Data에 심사중이야. 그렇게 넣자”). **The manuscript's figures are not published** (the lab head the
 same day: “그림 공개는 아직하지 말자”): the public page shows the plain-words account with this site's own
 charts; see “The paper's figures” below. **On hydroai.net/data since 2026-11-18** as the fifth card, `#wq`
-(the lab head: “올려”, “데이터는 올려야 해”); see “The hydroai.net card” below.
+(the lab head: “올려”, “데이터는 올려야 해”); see “The hydroai.net card” below. Two pieces for the lab's **home page** are made here too and are **not on the site yet**:
+an announcement dialog (2026-11-19) and three blocks that remake the top of the page (2026-11-20); see the two
+sections on the home page below.
 
 This portal follows the HDCA portal (`~/orca/projects/hdca/portal/`) in structure, look and dashboard
 wiring; read that folder's `CLAUDE.md` for the shared background (the dashboard's 연구자료 mechanism, the
@@ -237,6 +239,40 @@ narrow windows and an upright version of it (`embed/media/wq-tall-v1.*`, made wi
 text in wide ones. `embed/tools/home_preview.py` shows it on a local copy of the live home page and
 `embed/tools/check_home.py` checks it in three browsers. `embed/README.md` has the behaviour, the reasons and
 how to change or retire it. Its facts repeat the portal's; no manuscript figure is in it.
+
+## The home page's three blocks
+
+**Made 2026-11-20, not on hydroai.net yet** (they wait for the lab head's word, like the announcement). The
+lab head asked for a more dynamic first page (“좀 더 동적으로”) and chose three of six ideas (“1,2,3 우선
+해보자”). They are three Webflow Code Embeds in `embed/home/`, kept in this repository because the tools for
+previewing and checking the home page are here, not because they are about this dataset:
+
+- `hero.html`: the first screen. The title, one sentence and two buttons; beside them the lab's five open
+  datasets in turn, each one's card loop playing once with its captions (water quality first, marked “New”
+  until `REEL.newUntil`, 2027-02-28). It takes the place of the old hero block and the two photographs.
+- `latest.html`: “News” and “Recent publications”, the first three entries of `/events` and `/publication`,
+  read from those pages when the home page opens. Nobody edits the home page for them.
+- `about.html`: the lab in a paragraph with its two axes and the two photographs, then a recruiting band
+  with the full call folded away; English or Korean, one at a time. It takes the place of the long paragraph
+  above the green tiles, which is kept as `replaced-paragraph.html`.
+
+`embed/tools/home_new_preview.py` (port 8814) makes on a copy of the live page the changes that publishing
+would make, and `embed/tools/check_home_new.py` checks the result in three browsers. The reel uses the cards'
+768 px loops and, on large or dense screens, larger versions of all five kept in `embed/media/*-wide-v1.*`,
+made by `embed/tools/wide_loops.py` from the other portals' own tools (their previews must be running).
+`embed/README.md` has the behaviour, the words' origins, the Designer steps and how to change things later.
+
+Things to keep when touching them:
+
+- **The lists follow the pages' order, not the entries' dates.** The dates on the Events page are when an
+  entry was made (an old AGU entry carries August 2026), so sorting by them would put old news first.
+- **Every sentence of the old recruiting list stays on the page** (the folded call); the check compares it
+  with `replaced-paragraph.html`. Shorten the band above it freely, not the call.
+- **The first screen keeps one height** whichever dataset is on show; a new dataset's name and line must fit
+  the room each width reserves (`.hh-reel-info` min-heights), and the check measures it at thirteen sizes.
+- **A loop and its wide version share a timeline.** Re-make both together, rename both, and change the
+  caption times in `REEL.slides` and on the Data page card.
+- **No manuscript figure, no unpublished data**: the loops are the cards', drawn from the public portals.
 
 ## Rules that must survive any redesign
 

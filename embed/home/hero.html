@@ -1,0 +1,384 @@
+<!--
+  hydroai.net home page, block 1 of 3: the first screen.
+  The lab's title, one sentence, two buttons, and beside them the lab's open datasets in turn: each dataset's
+  short silent loop plays once, with the words that go with it, then the next one comes.
+
+  Where it goes: one Webflow Code Embed, the only child of the hero's container (.teaching-detail-wrap.hero),
+  in place of the old .hero-block and the two photographs under it.
+
+  To change it:
+    the title, sentence, buttons   the markup below
+    the datasets and their order   REEL.slides in the script (label, title, one line, link, loop, captions);
+                                   media is the card's loop (768 px), wide a larger one of the same timeline for large screens
+    how long "New" is shown        REEL.newUntil (last day, Korean time); isNew marks the datasets it applies to
+  The loops are the ones made for the cards on hydroai.net/data (media), and the same loops drawn larger for
+  large screens (wide: made by tools/wide_loops.py from the cards' own tools, frame for frame the same timeline),
+  so the caption times are the cards' data-caps. A re-made loop gets a new file name, both sizes are re-made
+  together, and its caption times change here as well as on the card.
+-->
+<style>
+  .hh-hero { position: relative; isolation: isolate; overflow: hidden; box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr); align-items: center; column-gap: clamp(32px, 4.2vw, 68px); min-height: 543px; padding: clamp(36px, 3.4vw, 52px) clamp(28px, 4.4vw, 64px); border-radius: 18px; color: #fff; font-family: Satoshi, sans-serif; text-align: left;
+    background: radial-gradient(58% 78% at 80% 34%, rgba(117, 251, 146, 0.11) 0%, rgba(117, 251, 146, 0) 72%), linear-gradient(135deg, #1c3533 0%, #152a29 46%, #0d1b1b 100%); }
+  /* behind the words: orbits round a planet below the corner */
+  .hh-hero::before { content: ""; position: absolute; z-index: -1; left: 0; top: 0; right: 0; bottom: 0; pointer-events: none;
+    background: radial-gradient(circle at 6% 118%, rgba(255, 255, 255, 0.04) 0, rgba(255, 255, 255, 0.04) 239px, rgba(255, 255, 255, 0.13) 240px, rgba(255, 255, 255, 0) 241.5px, rgba(255, 255, 255, 0) 399px, rgba(255, 255, 255, 0.1) 400px, rgba(255, 255, 255, 0) 401.5px, rgba(255, 255, 255, 0) 589px, rgba(255, 255, 255, 0.075) 590px, rgba(255, 255, 255, 0) 591.5px, rgba(255, 255, 255, 0) 809px, rgba(255, 255, 255, 0.05) 810px, rgba(255, 255, 255, 0) 811.5px); }
+  .hh-hero * { box-sizing: border-box; }
+  .hh-hero-copy { min-width: 0; max-width: 620px; }
+  .hh-eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; font-size: 13px; font-weight: 500; line-height: 1.3; letter-spacing: 0.14em; text-transform: uppercase; color: #75fb92; }
+  .hh-eyebrow::before { content: ""; flex: none; width: 26px; height: 2px; border-radius: 2px; background: currentColor; }
+  .hh-hero-title { margin: 0; font-family: "Plus Jakarta", sans-serif; font-size: clamp(34px, 3.42vw, 50px); font-weight: 600; line-height: 1.2; letter-spacing: -0.012em; color: #fff; text-wrap: balance; }
+  .hh-hero-lead { margin: 22px 0 0; max-width: 33em; font-size: clamp(17px, 1.4vw, 20px); font-weight: 400; line-height: 1.55; color: rgba(255, 255, 255, 0.86); }
+  .hh-hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+  .hh-btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; height: 54px; padding: 0 26px 1px; border-radius: 12px; font-family: "Plus Jakarta", sans-serif; font-size: 17px; font-weight: 600; line-height: 1; white-space: nowrap; text-decoration: none; transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s; }
+  .hh-btn span { transition: transform 0.2s; }
+  .hh-btn:hover span { transform: translateX(3px); }
+  .hh-btn-primary { background: #75fb92; color: #1c3533; }
+  .hh-btn-primary:hover { background: #93fcaa; transform: translateY(-1px); }
+  .hh-btn-ghost { color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.4); }
+  .hh-btn-ghost:hover { background: rgba(255, 255, 255, 0.07); box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.85); }
+  .hh-hero a:focus-visible, .hh-hero button:focus-visible { outline: 3px solid #75fb92; outline-offset: 3px; }
+
+  /* the datasets in turn */
+  .hh-reel { min-width: 0; }
+  .hh-reel-stage { position: relative; display: block; overflow: hidden; border-radius: 14px; background: #0f1318 center / cover no-repeat; box-shadow: 0 26px 60px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(255, 255, 255, 0.1); color: #fff; text-decoration: none; }
+  .hh-reel-stage::before { content: ""; display: block; padding-top: 56.25%; }
+  .hh-reel-stage video { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.6s ease; }
+  .hh-reel-stage video.is-on { opacity: 1; }
+  .hh-reel-cap { position: absolute; left: 14px; bottom: 14px; max-width: calc(100% - 28px); padding: 6px 12px; border-radius: 999px; background: rgba(15, 19, 24, 0.74); font-size: 13px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hh-reel-cap:empty { display: none; }
+  .hh-reel-new { position: absolute; right: 14px; top: 14px; display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px 6px 10px; border-radius: 999px; background: #75fb92; color: #1c3533; font-size: 11.5px; font-weight: 700; line-height: 1.25; letter-spacing: 0.09em; text-transform: uppercase; }
+  .hh-reel-new::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #1c3533; animation: hhPulse 1.8s ease-in-out infinite; }
+  .hh-reel-new[hidden] { display: none; }
+  @keyframes hhPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.7); } }
+  .hh-reel-tabs { display: flex; align-items: stretch; gap: 6px; min-height: 44px; margin-top: 14px; }
+  .hh-reel-tab { position: relative; flex: 1 1 0; min-width: 0; margin: 0; padding: 13px 2px 8px; border: 0; background: none; color: rgba(255, 255, 255, 0.58); font: 500 13.5px/1.25 Satoshi, sans-serif; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; transition: color 0.2s; }
+  .hh-reel-tab::before, .hh-reel-tab i { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 3px; border-radius: 3px; }
+  .hh-reel-tab::before { background: rgba(255, 255, 255, 0.2); transition: background-color 0.2s; }
+  .hh-reel-tab i { background: #75fb92; transform: scaleX(0); transform-origin: 0 50%; }
+  .hh-reel-tab:hover { color: #fff; }
+  .hh-reel-tab:hover::before { background: rgba(255, 255, 255, 0.36); }
+  .hh-reel-tab[aria-current="true"] { color: #fff; }
+  .hh-reel-tab b { display: inline-block; width: 6px; height: 6px; margin: 0 6px 1px 0; border-radius: 50%; background: #75fb92; vertical-align: middle; }
+  .hh-reel-pause { flex: none; align-self: center; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; margin: 4px 0 0 6px; padding: 0; border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.1); color: #fff; cursor: pointer; transition: background-color 0.2s; }
+  .hh-reel-pause:hover { background: rgba(255, 255, 255, 0.2); }
+  .hh-reel-pause svg { display: block; }
+  .hh-reel-pause .hh-i-play, .hh-reel-pause.is-paused .hh-i-pause { display: none; }
+  .hh-reel-pause.is-paused .hh-i-play { display: block; }
+  .hh-reel-info { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; min-height: 78px; margin-top: 10px; }
+  .hh-reel-info.is-in { animation: hhInfo 0.45s ease both; }
+  @keyframes hhInfo { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .hh-reel-title { margin: 0; font-family: "Plus Jakarta", sans-serif; font-size: 20px; font-weight: 600; line-height: 1.3; color: #fff; }
+  .hh-reel-desc { margin: 5px 0 0; font-size: 15px; font-weight: 400; line-height: 1.45; color: rgba(255, 255, 255, 0.72); }
+  .hh-reel-go { flex: none; margin-top: 3px; font-size: 15px; font-weight: 600; line-height: 1.3; white-space: nowrap; color: #75fb92; text-decoration: none; }
+  .hh-reel-go span { display: inline-block; transition: transform 0.2s; }
+  .hh-reel-go:hover span { transform: translateX(3px); }
+
+  /* arriving */
+  @keyframes hhRise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  .hh-hero-copy > * { animation: hhRise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .hh-hero-copy > :nth-child(2) { animation-delay: 0.07s; }
+  .hh-hero-copy > :nth-child(3) { animation-delay: 0.14s; }
+  .hh-hero-copy > :nth-child(4) { animation-delay: 0.21s; }
+  .hh-reel { animation: hhRise 0.8s 0.18s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+  /* a narrower window: two columns still, smaller */
+  @media (max-width: 1199px) {
+    .hh-hero { grid-template-columns: minmax(0, 0.92fr) minmax(0, 1fr); column-gap: 36px; padding: 40px; }
+    .hh-hero-title br { display: none; }
+    .hh-hero-lead { margin-top: 18px; font-size: 17px; }
+    .hh-hero-actions { margin-top: 26px; }
+    .hh-btn { height: 50px; padding: 0 20px 1px; font-size: 16px; }
+    .hh-reel-desc { font-size: 14.5px; }
+    .hh-reel-info { min-height: 124px; }
+  }
+  /* where the five names would not fit under the pictures: the five bars alone (the name is in the line below) */
+  @media (min-width: 960px) and (max-width: 1279px), (max-width: 699px) {
+    .hh-reel-tab span { display: none; }
+    .hh-reel-tab { padding: 16px 0 14px; }
+    .hh-reel-tab::before, .hh-reel-tab i { top: 14px; height: 4px; }
+    .hh-reel-tabs { margin-top: 6px; }
+    .hh-reel-info { margin-top: 2px; }
+  }
+  /* one column: the words, then the pictures */
+  @media (max-width: 959px) {
+    .hh-hero { grid-template-columns: minmax(0, 1fr); row-gap: 34px; min-height: 0; padding: 44px 40px 32px; }
+    .hh-hero-copy { max-width: 680px; }
+    .hh-hero-title { font-size: clamp(32px, 5vw, 42px); }
+    .hh-hero-lead { font-size: 19px; }
+    .hh-btn { height: 54px; padding: 0 26px 1px; font-size: 17px; }
+    .hh-reel-desc { font-size: 15px; }
+    .hh-reel-info { min-height: 78px; }
+  }
+  @media (max-width: 767px) {
+    .hh-hero { row-gap: 30px; padding: 36px 24px 26px; }
+    .hh-hero-lead { font-size: 18px; }
+  }
+  @media (max-width: 699px) { .hh-reel-info { flex-direction: column; gap: 8px; min-height: 108px; } }
+  @media (max-width: 479px) {
+    .hh-hero { padding: 30px 18px 20px; row-gap: 26px; }
+    .hh-eyebrow { margin-bottom: 14px; font-size: 12px; }
+    .hh-hero-title { font-size: 29px; line-height: 1.22; }
+    .hh-hero-lead { font-size: 16.5px; line-height: 1.5; }
+    .hh-btn { flex: 1 1 auto; height: 50px; padding: 0 18px 1px; font-size: 16px; }
+    .hh-reel-stage { border-radius: 12px; }
+    .hh-reel-cap { left: 10px; bottom: 10px; max-width: calc(100% - 20px); font-size: 12px; }
+    .hh-reel-new { right: 10px; top: 10px; }
+    .hh-reel-info { min-height: 148px; }
+    .hh-reel-title { font-size: 18px; }
+    .hh-reel-desc { font-size: 14.5px; }
+  }
+  @media (max-width: 359px) {
+    .hh-hero { padding-top: 24px; }
+    .hh-hero-title { font-size: 26px; }
+    .hh-hero-lead { margin-top: 14px; font-size: 15.5px; }
+    .hh-hero-actions { margin-top: 20px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hh-hero-copy > *, .hh-reel, .hh-reel-info.is-in, .hh-reel-new::before { animation: none; }
+    .hh-reel-stage video, .hh-btn, .hh-btn span, .hh-reel-go span { transition: none; }
+  }
+  @media print { .hh-reel-tabs, .hh-reel-new { display: none; } }
+</style>
+<noscript><style>.hh-reel-tabs { display: none; }</style></noscript>
+
+<section class="hh-hero" id="hh-hero" aria-labelledby="hh-hero-title">
+  <div class="hh-hero-copy">
+    <p class="hh-eyebrow">HydroAI Lab at GIST</p>
+    <h1 class="hh-hero-title" id="hh-hero-title">Hydrology with AI and <br>Remote Sensing</h1>
+    <p class="hh-hero-lead">We study how climate change reshapes the water cycle, from regional to global scales, with microwave remote sensing, land surface models and AI foundation models, to improve forecasts of natural disasters, water resources and weather.</p>
+    <div class="hh-hero-actions">
+      <a class="hh-btn hh-btn-primary" href="/data">Explore our data <span aria-hidden="true">&rarr;</span></a>
+      <a class="hh-btn hh-btn-ghost" href="/opportunities">Join the lab</a>
+    </div>
+  </div>
+
+  <div class="hh-reel" id="hh-reel" role="group" aria-roledescription="carousel" aria-label="Open datasets from the lab">
+    <a class="hh-reel-stage" href="/data#wq" tabindex="-1" aria-hidden="true" style="background-image: url('https://hyunglok-kim.github.io/korea-water-quality-portal/embed/media/wq-v1.jpg');">
+      <video muted playsinline preload="none" tabindex="-1"></video>
+      <video muted playsinline preload="none" tabindex="-1"></video>
+      <span class="hh-reel-new" hidden>New dataset</span>
+      <span class="hh-reel-cap"></span>
+    </a>
+    <div class="hh-reel-tabs">
+      <button class="hh-reel-pause" type="button" aria-label="Pause the pictures">
+        <svg class="hh-i-pause" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 1.5h2.4v9H2.5zM7.1 1.5h2.4v9H7.1z" fill="currentColor"/></svg>
+        <svg class="hh-i-play" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.3l7.2 4.7L3 10.7z" fill="currentColor"/></svg>
+      </button>
+    </div>
+    <div class="hh-reel-info">
+      <div>
+        <p class="hh-reel-title">Inland Water Quality of South Korea</p>
+        <p class="hh-reel-desc">Six water quality parameters for rivers and reservoirs on a 1 km grid, with uncertainty, 2016&ndash;2024.</p>
+      </div>
+      <a class="hh-reel-go" href="/data#wq">Open dataset <span aria-hidden="true">&rarr;</span></a>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.getElementById('hh-reel');
+  if (!root || root.getAttribute('data-ready')) return;
+  root.setAttribute('data-ready', '1');
+
+  var PAGES = 'https://hyunglok-kim.github.io/';
+  var HERE = 'https://hyunglok-kim.github.io/korea-water-quality-portal/embed/media/';     /* this dataset's loops, and the larger loops of all five */
+  var REEL = {
+    newUntil: '2027-02-28',
+    slides: [
+      { id: 'wq', label: 'Water quality', isNew: true, href: '/data#wq',
+        title: 'Inland Water Quality of South Korea',
+        desc: 'Six water quality parameters for rivers and reservoirs on a 1 km grid, with uncertainty, 2016\u20132024.',
+        media: HERE + 'wq-v1', wide: HERE + 'wq-wide-v1',
+        caps: [[0, 'Water temperature, 2016\u20132024 mean'], [1.04, 'Suspended solids'], [1.75, 'Dissolved oxygen'], [2.46, 'Total nitrogen'], [3.17, 'Total phosphorus'], [3.88, 'Chlorophyll-a'], [4.38, 'Into Daecheong Lake: 1 km cells'], [6.04, 'Chlorophyll-a through the year'], [10.04, 'Water temperature, 2016\u20132024 mean']] },
+      { id: 'et', label: '30 m ET', href: '/data#et',
+        title: 'Global 30m-ET',
+        desc: 'Monthly evapotranspiration at 30 m from Landsat and Sentinel-2, with a geospatial foundation model.',
+        media: PAGES + 'hdca-data-portal/embed/media/et-v2', wide: HERE + 'et-wide-v1',
+        caps: [[0, 'Global background: MODIS ET (MOD16A2GF)'], [3.7, 'Korean Peninsula: Prithvi-OpenET, available now'], [6.0, 'Mean annual ET, 2016\u20132024'], [8.3, 'A 30 m sample area: Pyeongchang'], [12.6, 'Global background: MODIS ET (MOD16A2GF)']] },
+      { id: 'hdca', label: 'Soil moisture', href: '/data#hdca',
+        title: 'Hybrid Dual-Channel Algorithm (HDCA)',
+        desc: 'Global L-band soil moisture, vegetation optical depth and scattering albedo from SMAP, daily since 2015.',
+        media: PAGES + 'hdca-data-portal/embed/media/hdca-v3', wide: HERE + 'hdca-wide-v1',
+        caps: [[0, 'Soil moisture, 2015\u20132025 mean'], [1.67, 'Into the Amazon basin'], [3.33, 'Amazon basin: wet and dry seasons, 2015\u20132025'], [9.96, 'Soil moisture, 2015\u20132025 mean']] },
+      { id: 'tca', label: 'SMAP error', href: '/data#tca',
+        title: 'SMAP Time-Variant Error',
+        desc: 'The random error of every SMAP soil moisture retrieval, from triple collocation and machine learning.',
+        media: PAGES + 'smap-tca-error-portal/embed/media/tca-v2', wide: HERE + 'tca-wide-v1',
+        caps: [[0, 'SMAP soil-moisture error \u03c3, 2015\u20132023 mean'], [1.67, 'Into the western United States'], [3.33, 'Western US: the error, month by month'], [9.0, 'SMAP soil-moisture error \u03c3, 2015\u20132023 mean']] },
+      { id: 'cvs', label: 'Validation site', href: '/data#cvs',
+        title: 'NASA-GIST Core Validation Site',
+        desc: 'South Korea\u2019s first Core Validation Site: a 1 km cell measured from the ground, drones and satellites.',
+        media: PAGES + 'hdca-data-portal/embed/media/cvs', wide: HERE + 'cvs-wide-v1',
+        caps: [[0, 'Drone flight, 7 May 2026'], [0.93, 'Drone flight, 25 May 2026'], [2.13, 'Drone flight, 24 July 2026'], [3.33, 'Drone flight, 17 August 2026'], [4.53, 'Drone flight, 29 August 2026'], [5.73, 'Drone flight, 15 September 2026'], [6.93, 'Drone flight, 22 September 2026'], [8.13, 'Drone flight, 9 October 2026'], [9.33, 'Drone flight, 16 October 2026'], [10.53, 'Drone flight, 9 November 2026'], [11.73, 'Drone flight, 7 May 2026']] }
+    ]
+  };
+
+  var S = REEL.slides;
+  var stage = root.querySelector('.hh-reel-stage'), vids = [].slice.call(stage.querySelectorAll('video'));
+  var cap = root.querySelector('.hh-reel-cap'), tag = root.querySelector('.hh-reel-new'), tabsBox = root.querySelector('.hh-reel-tabs');
+  var pauseBtn = root.querySelector('.hh-reel-pause'), info = root.querySelector('.hh-reel-info');
+  var title = root.querySelector('.hh-reel-title'), desc = root.querySelector('.hh-reel-desc'), go = root.querySelector('.hh-reel-go');
+  var mq = function (q) { return window.matchMedia ? window.matchMedia(q).matches : false; };
+  var frame = window.requestAnimationFrame ? function (f) { return window.requestAnimationFrame(f); } : function (f) { return setTimeout(function () { f(Date.now()); }, 50); };
+  var unframe = window.cancelAnimationFrame ? function (id) { window.cancelAnimationFrame(id); } : clearTimeout;
+  var clock = function () { return window.performance && performance.now ? performance.now() : Date.now(); };
+
+  /* cur: the dataset on show. active: the video given to it (0 or 1), started or not. front: the video that is visible. */
+  var tabs = [], cur = 0, active = -1, front = -1, token = 0, raf = 0, watchdog = 0, warmed = -1, lastT = -1, lastMove = 0;
+  /* a visitor who asked for reduced motion or to save data gets still pictures until they press play */
+  var wantPlay = !(mq('(prefers-reduced-motion: reduce)') || (navigator.connection && navigator.connection.saveData));
+  var inView = true, covered = false, shown = document.visibilityState !== 'hidden';
+  var fresh = !REEL.newUntil || Date.now() <= Date.parse(REEL.newUntil + 'T23:59:59+09:00');
+
+  function canPlay() { return wantPlay && inView && shown && !covered; }
+  function next() { show((cur + 1) % S.length); }
+  /* a loop that does not start or stops halfway (no network, a blocked file) must not hold the reel:
+     its still picture stays for a while, then the next dataset comes */
+  function arm(ms) { var my = ++token; clearTimeout(watchdog); watchdog = setTimeout(function () { if (my === token && canPlay()) next(); }, ms); }
+  function disarm() { token++; clearTimeout(watchdog); }
+  /* the loop to fetch: the larger one (if the dataset has one) where the picture is drawn on more than about 1100 screen pixels */
+  function file(s) { return s.wide && stage.clientWidth * (window.devicePixelRatio || 1) >= 1100 ? s.wide : s.media; }
+  function load(v, s) {
+    var f = file(s);
+    v.pause();
+    while (v.firstChild) v.removeChild(v.firstChild);
+    ['webm', 'mp4'].forEach(function (t, n) {
+      var e = document.createElement('source'); e.src = f + '.' + t; e.type = 'video/' + t;
+      /* the larger loop cannot be had (the last of its files has failed): the card's own loop instead, from now on */
+      if (n === 1 && f === s.wide) e.addEventListener('error', function () {
+        s.wide = '';
+        if (v.getAttribute('data-id') !== s.id) return;
+        load(v, s);
+        if (vids[active] === v && S[cur] === s && canPlay()) { arm(12000); play(active); }
+      });
+      v.appendChild(e);
+    });
+    v.setAttribute('data-id', s.id);
+    v.preload = 'auto';
+    v.load();
+  }
+  function caption(t) {
+    var list = S[cur].caps, txt = list.length ? list[0][1] : '';
+    for (var i = 0; i < list.length; i++) if (t >= list[i][0]) txt = list[i][1];
+    if (cap.textContent !== txt) cap.textContent = txt;
+  }
+  function bars(p) { tabs.forEach(function (b, i) { b.firstChild.style.transform = 'scaleX(' + (i < cur ? 1 : i === cur ? p : 0) + ')'; }); }
+
+  /* everything that does not move: which dataset, its words, its still picture, its link */
+  function paint(i) {
+    var s = S[i];
+    cur = i;
+    tabs.forEach(function (b, j) { if (j === i) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+    title.textContent = s.title; desc.textContent = s.desc;
+    go.setAttribute('href', s.href); stage.setAttribute('href', s.href);
+    go.setAttribute('aria-label', 'Open dataset: ' + s.title);
+    stage.style.backgroundImage = 'url("' + file(s) + '.jpg")';
+    tag.hidden = !(s.isNew && fresh);
+    info.classList.remove('is-in'); void info.offsetWidth; info.classList.add('is-in');
+    bars(0); caption(0);
+  }
+  function halt() {
+    disarm(); unframe(raf); raf = 0;
+    vids.forEach(function (v) { v.pause(); });
+  }
+  function tick() {
+    raf = frame(tick);
+    var v = vids[front], now = clock();
+    if (!v || v.getAttribute('data-id') !== S[cur].id || !v.duration) return;
+    bars(Math.min(1, v.currentTime / v.duration)); caption(v.currentTime);
+    if (v.duration - v.currentTime < 3) warm((cur + 1) % S.length);
+    if (v.currentTime !== lastT) { lastT = v.currentTime; lastMove = now; }
+    else if (now - lastMove > 8000 && front === active) { lastMove = now; next(); }
+  }
+  /* fetch the next loop into the video that is not showing, a few seconds before it is needed */
+  function warm(i) {
+    var back = vids[front === 0 ? 1 : 0];
+    if (warmed === i || front !== active || back.classList.contains('is-on')) return;
+    warmed = i;
+    (new Image()).src = file(S[i]) + '.jpg';
+    if (back.getAttribute('data-id') !== S[i].id) load(back, S[i]);
+  }
+  function play(k) {
+    var p = vids[k].play();
+    if (p && p.catch) p.catch(function (e) { if (e && e.name === 'NotAllowedError' && k === active && k !== front) arm(6000); });   /* playing refused: the stills in turn */
+  }
+  function start(i) {
+    var k = front === 0 ? 1 : 0, v = vids[k], s = S[i];
+    if (v.getAttribute('data-id') !== s.id) load(v, s);
+    try { v.currentTime = 0; } catch (e) {}
+    v.muted = true;
+    active = k;
+    arm(12000);
+    play(k);
+  }
+  /* the video given to the dataset on show has begun: bring it to the front */
+  function reveal(k) {
+    disarm();
+    if (front !== k) {
+      var old = vids[front];
+      vids[k].classList.add('is-on');
+      if (old) { old.classList.remove('is-on'); setTimeout(function () { if (front === k) old.pause(); }, 650); }
+      front = k; warmed = -1;
+    }
+    lastT = -1; lastMove = clock();
+    if (!raf) raf = frame(tick);
+  }
+  function show(i) {
+    paint(i);
+    if (canPlay()) start(i);
+    else { halt(); vids.forEach(function (v) { v.classList.remove('is-on'); }); active = front = -1; }
+  }
+  function button() {
+    pauseBtn.classList.toggle('is-paused', !wantPlay);
+    pauseBtn.setAttribute('aria-label', wantPlay ? 'Pause the pictures' : 'Play the pictures');
+  }
+  /* after a pause, a hidden tab or a scroll away: the same loop goes on if it is still there, otherwise it starts */
+  function sync() {
+    button();
+    if (!canPlay()) { halt(); return; }
+    var v = vids[active];
+    if (v && v.getAttribute('data-id') === S[cur].id && !v.ended) {
+      lastT = -1; lastMove = clock();        /* the time it stood still does not count as a stall */
+      if (active !== front) arm(12000);
+      else if (!raf) raf = frame(tick);
+      play(active);
+    } else start(cur);
+  }
+
+  S.forEach(function (s, i) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'hh-reel-tab';
+    b.setAttribute('aria-label', 'Show ' + s.title);
+    b.appendChild(document.createElement('i'));
+    var t = document.createElement('span');
+    if (s.isNew && fresh) t.appendChild(document.createElement('b'));
+    t.appendChild(document.createTextNode(s.label));
+    b.appendChild(t);
+    b.addEventListener('click', function () { show(i); });
+    tabsBox.insertBefore(b, pauseBtn);
+    tabs.push(b);
+  });
+  vids.forEach(function (v, k) {
+    v.addEventListener('playing', function () { if (k === active) reveal(k); });
+    v.addEventListener('ended', function () { if (k === front && k === active && canPlay()) next(); });
+  });
+  pauseBtn.addEventListener('click', function () { wantPlay = !wantPlay; sync(); });
+  document.addEventListener('visibilitychange', function () { shown = document.visibilityState !== 'hidden'; sync(); });
+  button();
+  show(0);
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) { var v = es[es.length - 1].isIntersecting; if (v !== inView) { inView = v; sync(); } }, { threshold: 0.2 }).observe(stage);
+  }
+  /* while the home page's announcement dialog (if the page has one) is open over the page, the pictures behind it wait */
+  function dialog() {
+    var ann = document.getElementById('ha-ann');
+    if (!ann || !('MutationObserver' in window)) return;
+    var look = function () { var c = ann.classList.contains('is-open'); if (c !== covered) { covered = c; sync(); } };
+    new MutationObserver(look).observe(ann, { attributes: true, attributeFilter: ['class'] });
+    look();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', dialog); else dialog();
+})();
+</script>
