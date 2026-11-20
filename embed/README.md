@@ -6,8 +6,8 @@ Three pieces for the lab's Webflow site are kept here:
 - three **blocks that remake the top of the home page** (**live since 2026-11-20**): the lab's datasets in
   motion on the first screen, news and papers that keep themselves up to date, and the long text cut down,
   with recruiting in one band. A **second round** (the satellites' picture behind the first screen, the
-  datasets in the order the lab head asked for, the Korean reworded) is in these files and saved in the
-  Webflow Designer since 2026-11-21, and **not yet published**: see “The second round” below;
+  datasets in the order the lab head asked for, the Korean reworded) is **live since 2026-11-21**: see
+  “The second round” below;
 - an **announcement** dialog for the home page (made 2026-11-19, **not used**: when the blocks went up the lab
   head decided against a popup, “올리고 팝업은 쓰지 말자”, 2026-11-20). The reel's water quality entry, marked
   “New”, announces the dataset instead.
@@ -185,15 +185,13 @@ and recent papers that appear by themselves; the long text shortened, with recru
 `embed/home/` holds them as three Webflow **Code Embeds**, each one self-contained (styles, markup, script).
 
 **Status: live on https://hydroai.net/ since 2026-11-20**, at the lab head's word (“올리고 팝업은 쓰지
-말자”), as the files of commit `011ae9c`: on that day the Home page's three Code Embeds held the three files
-byte for byte, and `check_home_new.py https://hydroai.net/` passed in Chromium, WebKit and Firefox (264
-checks).
-
-**The second round is not on the site yet.** After seeing the live page the lab head asked for three changes
-(“The second round” below); `hero.html` and `about.html` as they are here carry them and are saved in the
-Designer's two embeds since 2026-11-21, the lab head has said to publish (“우선올려”), and the publish itself
-is still to be done. Until then the site shows the files of `011ae9c`, the check as it is here fails on the
-live page (it expects the new order and the picture), and this section describes the files, not the site.
+말자”). **The site holds the three files as they are here** (commit `74650b6`) since the publish of
+2026-11-20 23:11 UTC, which is 21 November in Korea: after seeing the first round live the lab head asked
+for three changes (“The second round” below) and said to publish them (“우선올려”). After that publish the
+Home page's three Code Embeds held the three files byte for byte, and `check_home_new.py
+https://hydroai.net/` passed in Chromium, WebKit and Firefox (116 checks in each). From 2026-11-20 13:37 UTC
+until then the site held the first round, the files of commit `011ae9c` (264 checks passed on the live page
+that day).
 
 | File | What a visitor sees | What it takes the place of |
 |---|---|---|
@@ -347,8 +345,8 @@ bar at any moment, pause, a hidden tab, scrolling away, loops that cannot be fet
 lists against the two pages, and either page unreadable; the two languages, and every sentence of the
 replaced recruiting list still on the page; thirteen window sizes): 116 checks in each browser. It exits
 with the number of failures. **Run it on the live page too, not only on the preview**: the one defect so far
-showed only there (below). It describes the files as they are here, so it passes on the live page only once
-the site holds them.
+showed only there (below). It describes the files as they are here, so it passes on the live page only
+while the site holds them: between a change here and its publish it fails there, and that is not a defect.
 
 ### How it went onto the site (2026-11-20)
 
@@ -382,7 +380,7 @@ Two things then had to be put right, each with one more publish:
 Not changed, because not asked for: “technics” in the Home page's description (page settings; it shows in
 search results and link previews) and the Teaching page's tab title “Teching”.
 
-### The second round (2026-11-21): saved in the Designer, not yet published
+### The second round (live since 2026-11-21)
 
 After seeing the live page the lab head asked for three things:
 
@@ -401,15 +399,25 @@ WebKit and Firefox (116 each).
 
 In the Designer, on 2026-11-21, after the backup “Before the home page's second round (2026-11-21)”: the
 text of the first and of the third Code Embed was replaced with the two files and each embed was opened
-again and found equal to the pushed file. The lab head said to publish (“우선올려”). **The publish has not
-happened yet**: the browser connection used for the Designer was lost just before it (see step 4 of
-“Changing a block on the site”). The same publish will also send out what another session saved for the
-People page that night (the “Contact me” block removed, misspellings corrected, the “Visiting Scholars” tab
-made “Alumni”), which the lab head asked for there and was told of here.
+again and found equal to the pushed file. The lab head said to publish (“우선올려”); the browser connection
+used for the Designer was lost just before the click and came back seven hours later (step 4 of “Changing a
+block on the site”).
 
-After the publish, by whoever clicks it: fetch the pages and see that the home page is the page from before
-with these two embeds exchanged and that the pages nobody worked on are unchanged, run
-`check_home_new.py https://hydroai.net/`, and bring this section and the status above up to date.
+**Published on 2026-11-20 at 23:11:32 UTC (21 November, 08:11 in Korea), hydroai.net only, in one publish
+with the People page's changes.** Another session had saved those for the lab head that night (the “Contact
+me” block removed, misspellings corrected, the “Visiting Scholars” tab made “Alumni”) and had a new layout
+for that page ready as one Code Embed (`embed/people/`). By the morning the lab head had told this session
+to publish and had chosen, in the other one, to publish with the new layout; this session's word did not
+cover that layout, so instead of two publishes there was one, clicked by the other session after it had
+added its embed, with one session in the Designer at a time. Just before, the three Home embeds were opened
+once more and found equal to the files of `74650b6`, and the backups list showed nothing newer than the
+backup above.
+
+Seen after it: the three files are in the live home page byte for byte, each once; the home page is the
+page from before with the first and the third embed exchanged and nothing else; Events, Publications, Data,
+Projects, Teaching, Contact, Opportunities and About are as they were but for the publish stamp and the
+bundles' names; the People page changed as the other session meant it to (`embed/people/README.md`);
+`check_home_new.py https://hydroai.net/` passed in the three browsers (116 each).
 
 ### Changing a block on the site
 
@@ -424,9 +432,11 @@ with these two embeds exchanged and that the pages nobody worked on are unchange
    `cache: 'no-store'`); open the embed again and compare before publishing. Save a backup first
    (Cmd+Shift+S) and name it. **The Chrome extension answers only to sessions signed in to the claude.ai
    account it is signed in to**: on 2026-11-21 the session doing this was cut off between “Save & Close” and
-   the publish (apparently by a login under another account in another session), and no retry brings it
-   back (no browser is listed as connected); the lab head has to sign the session in again, or click
-   Publish.
+   the publish, because the sign-in that the sessions share had been moved to another account in another
+   session while the extension stayed with the earlier one. No retry brings it back (no browser is listed
+   as connected): the lab head signs the extension in with the sessions' account, or the sessions with the
+   extension's, or clicks Publish. Say which account each side is on when asking; “log in again” alone
+   does not say where.
 5. Publish with only hydroai.net ticked. Fetch the live page and see that the file is in it byte for byte,
    and that the pages nobody worked on are the same but for the publish stamp and the bundles' names, then
    run `check_home_new.py https://hydroai.net/`.
@@ -434,8 +444,10 @@ with these two embeds exchanged and that the pages nobody worked on are unchange
 **Going back.** To the first round's blocks: put `hero.html` and `about.html` of commit `011ae9c` back into
 the first and third embeds (`git show 011ae9c:embed/home/hero.html`). The Webflow backup “Before the home
 page's second round (2026-11-21)” is the site with the first round's blocks and with the People page edits
-saved by then; “Before the home page's new blocks (2026-11-20)” is the whole site as it was before any of
-this. Restoring a backup also undoes whatever anyone has changed on any page since, so ask first. By hand,
+saved by then; “Before the People page's new layout (2026-11-21)”, the other session's, is the site as it
+was published that morning without the People page's new block; “Before the home page's new blocks
+(2026-11-20)” is the whole site as it was before any of this. Restoring a backup also undoes whatever
+anyone has changed on any page since, so ask first. By hand,
 all the way back: delete the three embeds and build the old hero and paragraph again from
 `home/replaced-hero.html` and `home/replaced-paragraph.html`.
 

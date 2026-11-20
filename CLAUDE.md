@@ -17,8 +17,8 @@ charts; see “The paper's figures” below. **On hydroai.net/data since 2026-11
 (the lab head: “올려”, “데이터는 올려야 해”); see “The hydroai.net card” below. **On the lab's home page since
 2026-11-20**: three blocks made here that remake its top (the lab head: “올리고 팝업은 쓰지 말자”). The
 announcement dialog made the day before is **not used**, by that same decision. **A second round of the
-blocks (2026-11-21) is saved in Webflow and not yet published**: the lab head has said to publish (“우선올려”)
-and the click is still to be made. See the two sections on the home page below.
+blocks is live since 2026-11-21** (the satellites' picture behind the first screen, the datasets' order,
+the Korean reworded; the lab head: “우선올려”). See the two sections on the home page below.
 
 This portal follows the HDCA portal (`~/orca/projects/hdca/portal/`) in structure, look and dashboard
 wiring; read that folder's `CLAUDE.md` for the shared background (the dashboard's 연구자료 mechanism, the
@@ -252,14 +252,16 @@ lab head asked for a more dynamic first page (“좀 더 동적으로”) and ch
 byte for byte; the files are kept in this repository because the tools for previewing and checking the home
 page are here, not because they are about this dataset.
 
-**Which files the site holds (read this first).** Since 2026-11-20 13:37 UTC the site holds the files of
-commit `011ae9c`. `hero.html` and `about.html` as they are now (commit `74650b6`, the **second round** the
-lab head asked for after seeing the live page) are saved in the Designer's embeds since 2026-11-21 and **not
-published**: the lab head said “우선올려”, and the browser connection was lost before the click. That publish
-also sends out the People page edits another session saved that night; the lab head knows. Until it is done,
-`check_home_new.py https://hydroai.net/` does not pass (it describes the files as they are here). After it:
-compare the live pages with the files, run the check on the live page, and correct this paragraph and
-`embed/README.md` (“The second round”).
+**Which files the site holds (read this first).** Since the publish of 2026-11-20 23:11 UTC (21 November,
+08:11 in Korea) the site holds the three files as they are in commit `74650b6`: the **second round**, which
+the lab head asked for after seeing the first one live and said to publish (“우선올려”). Seen after that
+publish: the three files in the live home page byte for byte, nothing else on the home page changed, the
+other pages as they were except the People page, and `check_home_new.py https://hydroai.net/` passing in
+three browsers (116 checks in each). It was one publish with the People page's changes and new layout
+(`embed/people/`, another session's work for the lab head), clicked by that session; `embed/README.md`
+(“The second round”) says how the two were brought together. From 2026-11-20 13:37 UTC until then the site
+held the files of `011ae9c`. **When a file here changes and the site has not yet, write that here first**:
+until the publish the check fails on the live page, and the next reader must know why.
 
 - `hero.html`: the first screen. The title, one sentence and two buttons; beside them the lab's five open
   datasets in turn, each one's card loop playing once with its captions, in the order the lab head asked for
@@ -291,6 +293,12 @@ Things to keep when touching them:
 - **Publishing sends out everything saved in the Webflow Designer, on every page.** Publish with only
   hydroai.net ticked (the staging domain stays unpublished), save a backup first, and tell any other session
   working on the site before publishing (on 2026-11-20 another session was redoing the People page).
+  **When two sessions each have the lab head's word, make one publish, not two.** On 2026-11-21 the lab head
+  had told this session to publish and, minutes later, chosen in the other one to publish with a People
+  layout that was not yet in the Designer; a publish from here at once would have put live the very state
+  just declined there. Read what was chosen in the lab head's own words, not in the other session's
+  summary; keep one session in the Designer at a time; and let the session whose go-ahead names everything
+  that goes out make the click.
 - **A block file begins with its “block N of 3” comment and ends with its one script**: the preview finds a
   block on the live page by them.
 - **The lists follow the pages' order, not the entries' dates.** The dates on the Events page are when an
@@ -426,11 +434,15 @@ Things to keep when touching them:
   compare the published page with the preview afterwards.
 - **The Chrome extension answers to one claude.ai account.** On 2026-11-21 the session doing the home page
   lost its browser between saving the embeds and the publish click (“Browser extension is not connected”,
-  and the list of connected browsers empty, for hours). The likely cause, as the other session reported it
-  and not verified: an hour earlier the lab head had signed that session in under a different account, and
-  the extension is signed in to that one (the same happened on 2026-11-18). Retrying does not help: the lab
-  head signs the session in again, or clicks Publish. Never ask the other session to click for this one,
-  least of all when its own click was refused.
+  and the list of connected browsers empty, for seven hours). The cause, read afterwards from the session's
+  own transcript (its `attachment` rows of type `session_context` and `credential_org` show which account
+  it ran under, and when that changed): every session of the profile shares one sign-in, it had been moved
+  to another account in another session, and the extension stayed signed in to the earlier one; the list
+  emptied ten minutes after the change (the same had happened on 2026-11-18). Retrying does not help. Asked
+  only to “log in again”, the lab head did, and nothing changed; told which account each side was on, they
+  matched the two within minutes. So find the two accounts first, and say that either side can be moved to
+  the other, or that a click on Publish does it. Never ask the other session to click for this one, least
+  of all when its own click was refused.
 - **An `overflow: hidden` box can still be scrolled by script.** The dark pools behind the first screen's
   small text reach past the panel's foot, so the panel had something to scroll to: `scrollIntoView` on a link
   inside it shifted its contents against the picture behind them on a phone. The panel has `overflow: clip`
@@ -447,8 +459,6 @@ Things to keep when touching them:
 
 ## Not done yet
 
-- **The home page's second round is saved in the Webflow Designer and not published** (2026-11-21; see “The
-  home page's three blocks”). The lab head's word is given (“우선올려”); the click is not made.
 - On hydroai.net, “technics” in the Home page's description (page settings: search results, link previews)
   and the Teaching page's tab title “Teching” are still as they were. The lab head was told of both on
   2026-11-20 and did not ask for them to be changed.
