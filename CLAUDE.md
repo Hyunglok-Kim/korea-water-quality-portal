@@ -328,6 +328,36 @@ Things to keep when touching them:
   changed as little as possible and each change is reported one by one. Have a second reader go over Korean
   text before the lab head sees it (`embed/README.md`, “The words”).
 
+## The People page's block
+
+**Live on https://hydroai.net/people since 2026-11-21** (the publish of 2026-11-20 23:11 UTC), at the lab
+head's word. The lab head asked for the “Contact me” block to go and for a cleaner, more modern page, then
+for the misspellings corrected, an Alumni group shown briefly, the visiting scholar taken off and no head
+counts. One Webflow Code Embed on the People page, right after the navigation bar, holds
+`embed/people/people.html` byte for byte; like the home page's files it is kept here because the tools for
+previewing and checking the lab's Webflow pages are here.
+
+The block has no content of its own. It reads the people from the CMS lists in the page's tabs, and the group
+photographs and the motto from the block above them, and shows them its own way while the page's own section
+is not shown: the first group (the PI) as a wide card, the others as cards with a profile that opens over
+the page, a group whose tab is named “Alumni” as a name and one line (where the person is now). Whatever stops
+it leaves the page as it was. `embed/people/README.md` has what a visitor gets, how a person's text is read,
+how someone is moved to Alumni (`member_type` = `alumni`, Occupation = where they are now), how the block
+went onto the site, how a changed file goes there and how to go back. `embed/tools/people_preview.py`
+(port 8815) serves the live page with the file in the place of its embed; `embed/tools/check_people.py`
+checks the preview or the live page in three browsers (134 checks in each on the live page).
+
+Things to keep when touching it:
+
+- **No content in the block.** A person is entered once, in the People collection.
+- **Nothing a person wrote is dropped or cut without a way to the whole**; the check compares every word of
+  every card with the page's own content.
+- **The page must show without the block**, so the page's own section stays on the page.
+- **A change is not done until `check_people.py https://hydroai.net/people` has passed**, and a publish
+  sends out everything saved in the Designer (see the home page's list above).
+- **This repository is public.** What was corrected in whose text, and other remarks about named people,
+  are not written here; the lab head has that list.
+
 ## Rules that must survive any redesign
 
 - **Say what kind of layer each parameter is.** SS, Chl-a and TP are optical retrievals; TN is a
@@ -464,6 +494,10 @@ Things to keep when touching them:
   2026-11-20 and did not ask for them to be changed.
 - The other ideas for the home page were not chosen: the three research sections as one moving block, a
   “now” element (satellite positions or values from the validation site), a globe to drag.
+- On the People page, told to the lab head on 2026-11-21 and not asked to be changed: where the block does not
+  run, the page's own Alumni tab shows the item's whole card (and the page's source holds it); the icon links
+  that are “TBD”; the collection's template pages (`/people/<slug>`), which are the site template's “Teacher”
+  page and which nothing links to. `embed/people/README.md` lists them.
 - The manuscript's figures stay unpublished by the lab head's decision of 2026-11-18 (“그림 공개는 아직하지 말자”).
 - The dashboard's three files for this dataset (`gateway/research_datasets.json`, `gateway/static/wq-korea.html`,
   `gateway/static/shared/nav.js`) are in that repository's working tree, live, and were left uncommitted on
