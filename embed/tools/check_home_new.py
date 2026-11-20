@@ -7,7 +7,11 @@
 What it looks at, in each browser:
   the page      one <h1>; the three blocks are there and what they replace is gone; no script error; nothing wider than the window;
                 without scripts the words and still pictures remain and what needs scripts is left out
-  the reel      the first loop plays with its captions; each dataset follows the one before (all five, at speed);
+  the picture   the satellites behind the first screen: there, loaded, behind everything, not in the way of a click; the page
+                is whole without it; and at every size the words on it can be read (contrast against the brightest of what
+                lies behind each line, measured on a picture of the page with the letters taken out)
+  the reel      the datasets in the order the lab head asked for (soil moisture, ET, SMAP error, validation site, water quality),
+                the new one marked when it is on show; the first loop plays with its captions; each follows the one before;
                 the larger loop on a dense desktop screen, the card's own on a phone or when the larger cannot be fetched;
                 a click on a bar (also right after a change, on a loop slow to arrive, and back to the dataset just left),
                 pause and play, a hidden tab, scrolling away; loops that cannot be fetched do not hold it;
@@ -17,14 +21,16 @@ What it looks at, in each browser:
   the section   one language at a time, chosen by the browser's language, switched and remembered;
                 every sentence of the recruiting list that the block replaced is still on the page, in the folded call
   the sizes     thirteen window sizes from 2048 px down to a 320 px phone
-The exit status is the number of failures. Needs playwright with the three browsers installed.
+The exit status is the number of failures. Needs playwright with the three browsers installed, and Pillow.
 """
 import argparse
+import io
 import re
 import sys
 import time
 from pathlib import Path
 
+from PIL import Image
 from playwright.sync_api import sync_playwright
 
 ap = argparse.ArgumentParser()
@@ -37,8 +43,14 @@ URL = a.url if a.url.endswith("/") else a.url + "/"
 HOME = Path(__file__).resolve().parents[1] / "home"
 FAILS = 0
 
-SLIDES = [("wq", "Inland Water Quality of South Korea", "/data#wq"), ("et", "Global 30m-ET", "/data#et"), ("hdca", "Hybrid Dual-Channel Algorithm (HDCA)", "/data#hdca"),
-          ("tca", "SMAP Time-Variant Error", "/data#tca"), ("cvs", "NASA-GIST Core Validation Site", "/data#cvs")]
+# the reel's datasets in the page's order: id, title, link, the card loop's file, the larger loop's file, marked new
+SLIDES = [("hdca", "Hybrid Dual-Channel Algorithm (HDCA)", "/data#hdca", "hdca-v3", "hdca-wide-v1", False),
+          ("et", "Global 30m-ET", "/data#et", "et-v2", "et-wide-v1", False),
+          ("tca", "SMAP Time-Variant Error", "/data#tca", "tca-v2", "tca-wide-v1", False),
+          ("cvs", "NASA-GIST Core Validation Site", "/data#cvs", "cvs", "cvs-wide-v1", False),
+          ("wq", "Inland Water Quality of South Korea", "/data#wq", "wq-v1", "wq-wide-v1", True)]
+IDS = [x[0] for x in SLIDES]
+FIRST_CAPS = {"Soil moisture, 2015-2025 mean", "Into the Amazon basin", "Amazon basin: wet and dry seasons, 2015-2025"}     # the first dataset's
 SIZES = [(2048, 970), (1680, 1050), (1440, 900), (1280, 720), (1200, 800), (1100, 700), (1024, 768), (960, 600), (834, 1194), (768, 1024), (600, 900), (390, 844), (320, 568)]
 
 REEL = """() => {
@@ -88,6 +100,60 @@ def wait_reel(page, cond, timeout=15000):
         return False
 
 
+def luminance(rgb):
+    def lin(c):
+        c /= 255
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+    return 0.2126 * lin(rgb[0]) + 0.7152 * lin(rgb[1]) + 0.0722 * lin(rgb[2])
+
+
+LINES = """() => { const out = [], hb = document.querySelector('#hh-hero').getBoundingClientRect();
+  for (const s of ['.hh-eyebrow', '.hh-hero-title', '.hh-hero-lead', '.hh-btn-ghost', '.hh-reel-tab span', '.hh-reel-title', '.hh-reel-desc', '.hh-reel-go'])
+    for (const e of document.querySelectorAll(s)) {
+      const cs = getComputedStyle(e); if (cs.display === 'none' || !e.getClientRects().length) continue;
+      const m = cs.color.match(/[\\d.]+/g).map(Number), range = document.createRange(); range.selectNodeContents(e);
+      for (const r of range.getClientRects()) if (r.width > 3 && r.height > 3) out.push({ s, x: r.left - hb.left, y: r.top - hb.top, w: r.width, h: r.height, color: m, size: parseFloat(cs.fontSize), weight: +cs.fontWeight || 400 });
+    }
+  return { lines: out, width: hb.width }; }"""
+# for the measurement: the letters taken out (their shadows stay), the mark beside "new" and the site's fixed bar out of the way
+NO_LETTERS = "#hh-hero, #hh-hero * { -webkit-text-fill-color: transparent !important; } #hh-hero .hh-reel-tab b, .navbar { visibility: hidden !important; }"
+
+
+def unreadable(page):
+    """The lines of the first screen's words whose contrast against what lies behind them is under WCAG's 4.5 : 1 (3 : 1 for
+    large text): the block is pictured with the letters taken out, and each line's colour is compared with the brightest
+    of what its box holds (the 97th percentile, so that a single star does not decide it)."""
+    page.evaluate("window.scrollTo(0, 0)")
+    tag = page.add_style_tag(content=NO_LETTERS)
+    page.wait_for_timeout(120)
+    got = page.evaluate(LINES)
+    for attempt in range(3):                               # a large picture of a page sometimes fails once under software drawing
+        try:
+            im = Image.open(io.BytesIO(page.locator("#hh-hero").screenshot())).convert("RGB")
+            break
+        except Exception:
+            if attempt == 2:
+                raise
+            page.wait_for_timeout(500)
+    tag.evaluate("e => e.remove()")
+    k = im.width / got["width"]
+    low = []
+    for ln in got["lines"]:
+        x0, y0 = max(0, int(ln["x"] * k)), max(0, int(ln["y"] * k))
+        box = im.crop((x0, y0, min(im.width, max(x0 + 1, int((ln["x"] + ln["w"]) * k))), min(im.height, max(y0 + 1, int((ln["y"] + ln["h"]) * k)))))
+        data = sorted(box.getdata(), key=luminance)
+        if not data:
+            continue
+        back, mid = luminance(data[min(len(data) - 1, int(len(data) * 0.97))]), data[len(data) // 2]
+        al = ln["color"][3] if len(ln["color"]) > 3 else 1
+        text = luminance([ln["color"][i] * al + mid[i] * (1 - al) for i in range(3)])
+        ratio = (max(text, back) + 0.05) / (min(text, back) + 0.05)
+        need = 3.0 if ln["size"] >= 24 or (ln["size"] >= 18.66 and ln["weight"] >= 700) else 4.5
+        if ratio < need:
+            low.append((ln["s"], round(ratio, 2), need, int(ln["x"]), int(ln["y"])))
+    return low
+
+
 def without_scripts(br):
     print("  without scripts")
     ctx = br.new_context(viewport={"width": 1440, "height": 900}, java_script_enabled=False)
@@ -96,6 +162,11 @@ def without_scripts(br):
     seen = lambda sel: page.locator(sel).first.is_visible()
     ok("the title, the first dataset's still picture and words, and both languages of the section are there", seen(".hh-hero-title") and seen(".hh-reel-stage") and seen(".hh-reel-title") and seen('.hh-about-h2[data-l="en"]') and seen('.hh-about-h2[data-l="ko"]'))
     ok("what needs scripts is left out (the bars, the two lists, the language buttons)", not seen(".hh-reel-tabs") and not seen("#hh-latest") and not seen(".hh-lang"))
+    r = page.evaluate("""() => ({ title: document.querySelector('.hh-reel-title').textContent, href: document.querySelector('.hh-reel-go').getAttribute('href'),
+      stage: document.querySelector('.hh-reel-stage').getAttribute('href'), still: document.querySelector('.hh-reel-stage').getAttribute('style'),
+      isNew: !document.querySelector('.hh-reel-new').hidden, sky: (i => i.complete && i.naturalWidth > 0 && getComputedStyle(i).opacity === '1')(document.querySelector('.hh-hero-sky img')) })""")
+    ok("the words and still picture in the page itself are the first dataset's (soil moisture)", r["title"] == SLIDES[0][1] and r["href"] == SLIDES[0][2] and r["stage"] == SLIDES[0][2] and SLIDES[0][3] + ".jpg" in r["still"] and r["isNew"] == SLIDES[0][5], r)
+    ok("the picture of the satellites is there without scripts too", r["sky"], r)
     ctx.close()
 
 
@@ -130,10 +201,12 @@ def the_reel(br):
     print("  the reel")
     media = []
     ctx, page = open_page(br, route=lambda p: p.on("request", lambda q: media.append(q.url) if re.search(r"\.(webm|mp4)(\?|$)", q.url) else None))
-    ok("the first loop starts by itself", wait_reel(page, "s.front && s.front.id === 'wq' && !s.front.paused && s.front.t > 0.3", 12000))
+    ok("the first loop starts by itself", wait_reel(page, f"s.front && s.front.id === '{IDS[0]}' && !s.front.paused && s.front.t > 0.3", 12000))
     s = page.evaluate(REEL)
-    ok("five datasets, the first one on show, marked new", s["n"] == 5 and s["cur"] == 0 and s["isNew"] and s["title"] == SLIDES[0][1], s)
-    ok("its link and its still picture", s["href"] == "/data#wq" and s["stageHref"] == "/data#wq" and "wq-v1.jpg" in s["poster"], s)
+    ok("five datasets, soil moisture first, on show", s["n"] == 5 and s["cur"] == 0 and s["isNew"] == SLIDES[0][5] and s["title"] == SLIDES[0][1], s)
+    ok("its link and its still picture", s["href"] == SLIDES[0][2] and s["stageHref"] == SLIDES[0][2] and SLIDES[0][3] + ".jpg" in s["poster"], s)
+    names = page.evaluate("() => [...document.querySelectorAll('.hh-reel-tab')].map(t => [t.getAttribute('aria-label'), !!t.querySelector('b')])")
+    ok("the bars are in the order asked for, the new dataset's bar marked", names == [["Show " + x[1], x[5]] for x in SLIDES], names)
     ok("only the loop on show has been fetched", len({u.split("/")[-1].split(".")[0] for u in media}) == 1, media)
     seen = set()
     for _ in range(60):                                   # the captions over the first loop
@@ -142,17 +215,16 @@ def the_reel(br):
             break
         seen.add(st["cap"])
         page.wait_for_timeout(190)
-    want = {"Water temperature, 2016–2024 mean", "Suspended solids", "Dissolved oxygen", "Total nitrogen", "Total phosphorus", "Chlorophyll-a", "Into Daecheong Lake: 1 km cells", "Chlorophyll-a through the year"}
-    ok("every caption of the first loop is shown", want <= seen, sorted(want - seen))
-    ok("when it ends the second dataset comes, its loop playing", wait_reel(page, "s.cur === 1 && s.front && s.front.id === 'et' && !s.front.paused && s.front.t > 0.2", 16000))
+    ok("every caption of the first loop is shown", FIRST_CAPS <= seen, sorted(FIRST_CAPS - seen))
+    ok("when it ends the second dataset comes, its loop playing", wait_reel(page, f"s.cur === 1 && s.front && s.front.id === '{IDS[1]}' && !s.front.paused && s.front.t > 0.2", 16000))
     s = page.evaluate(REEL)
-    ok("its words, link and bars", s["title"] == SLIDES[1][1] and s["href"] == "/data#et" and not s["isNew"] and s["bars"][0] == 1 and 0 < s["bars"][1] < 1 and s["bars"][2] == 0, s)
+    ok("its words, link and bars", s["title"] == SLIDES[1][1] and s["href"] == SLIDES[1][2] and s["isNew"] == SLIDES[1][5] and s["bars"][0] == 1 and 0 < s["bars"][1] < 1 and s["bars"][2] == 0, s)
     ok("only one video is visible", sum(v["on"] for v in s["vids"]) == 1, s["vids"])
 
     page.click(".hh-reel-tab:nth-child(4)")                # a bar
-    ok("a click on the fourth bar shows the fourth dataset", wait_reel(page, "s.cur === 3 && s.front && s.front.id === 'tca' && !s.front.paused && s.front.t > 0.2", 12000))
+    ok("a click on the fourth bar shows the fourth dataset", wait_reel(page, f"s.cur === 3 && s.front && s.front.id === '{IDS[3]}' && !s.front.paused && s.front.t > 0.2", 12000))
     s = page.evaluate(REEL)
-    ok("with its words", s["title"] == SLIDES[3][1] and s["href"] == "/data#tca" and s["bars"][:3] == [1, 1, 1], s)
+    ok("with its words", s["title"] == SLIDES[3][1] and s["href"] == SLIDES[3][2] and s["bars"][:3] == [1, 1, 1], s)
 
     page.click(".hh-reel-pause")                           # pause, play
     page.wait_for_timeout(400)
@@ -161,17 +233,21 @@ def the_reel(br):
     s2 = page.evaluate(REEL)
     ok("pause stops the loop where it is", all(v["paused"] for v in s2["vids"]) and abs(s2["front"]["t"] - s1["front"]["t"]) < 0.05 and s2["button"] == "Play the pictures", (s1["front"], s2["front"], s2["button"]))
     page.click(".hh-reel-pause")
-    ok("play goes on from there, the same loop", wait_reel(page, f"s.cur === 3 && s.front && s.front.id === 'tca' && !s.front.paused && s.front.t > {s2['front']['t'] + 0.3}", 6000))
+    ok("play goes on from there, the same loop", wait_reel(page, f"s.cur === 3 && s.front && s.front.id === '{IDS[3]}' && !s.front.paused && s.front.t > {s2['front']['t'] + 0.3}", 6000))
     ok("the button says pause again", page.evaluate(REEL)["button"] == "Pause the pictures")
+    new = [i for i, x in enumerate(SLIDES) if x[5]][0]     # the new dataset is marked when it is on show, and only then
+    page.click(f".hh-reel-tab:nth-child({new + 1})")
+    ok("the new dataset, last in the row, is marked new when it is on show", wait_reel(page, f"s.cur === {new} && s.isNew && s.front && s.front.id === '{IDS[new]}' && !s.front.paused", 12000), page.evaluate(REEL))
     page.click(".hh-reel-tab:nth-child(2)")                # a long pause is not taken for a loop that has stalled
-    wait_reel(page, "s.cur === 1 && s.front && s.front.id === 'et' && !s.front.paused && s.front.t > 0.5", 12000)
+    wait_reel(page, f"s.cur === 1 && s.front && s.front.id === '{IDS[1]}' && !s.front.paused && s.front.t > 0.5", 12000)
+    ok("and the mark goes when another is", not page.evaluate(REEL)["isNew"])
     page.click(".hh-reel-pause")
     t0 = page.evaluate(REEL)["front"]["t"]
     page.wait_for_timeout(9500)
     page.click(".hh-reel-pause")
     page.wait_for_timeout(1200)
     s3 = page.evaluate(REEL)
-    ok("after a pause of ten seconds play goes on with the same dataset", s3["cur"] == 1 and s3["front"] and s3["front"]["id"] == "et" and not s3["front"]["paused"] and t0 < s3["front"]["t"] < t0 + 2.5, (t0, s3["cur"], s3["front"]))
+    ok("after a pause of ten seconds play goes on with the same dataset", s3["cur"] == 1 and s3["front"] and s3["front"]["id"] == IDS[1] and not s3["front"]["paused"] and t0 < s3["front"]["t"] < t0 + 2.5, (t0, s3["cur"], s3["front"]))
 
     page.evaluate("Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' }); document.dispatchEvent(new Event('visibilitychange'));")
     page.wait_for_timeout(500)
@@ -192,16 +268,16 @@ def the_reel(br):
     def late(route):
         time.sleep(1.0)
         route.continue_()
-    ctx, page = open_page(br, route=lambda p: p.route(re.compile(r"/tca-[^/]*\.(webm|mp4)"), late))
-    wait_reel(page, "s.front && s.front.id === 'wq' && !s.front.paused && s.front.t > 0.3", 12000)
+    ctx, page = open_page(br, route=lambda p: p.route(re.compile("/" + IDS[3] + r"[^/]*\.(webm|mp4)"), late))
+    wait_reel(page, f"s.front && s.front.id === '{IDS[0]}' && !s.front.paused && s.front.t > 0.3", 12000)
     quick = """([after, then]) => { let done = false; document.querySelectorAll('.hh-reel-stage video').forEach(v => v.addEventListener('playing', () => {
         if (!done && v.getAttribute('data-id') === after) { done = true; setTimeout(() => document.querySelectorAll('.hh-reel-tab')[then].click(), 200); } })); }"""
-    page.evaluate(quick, ["et", 3])                        # the second dataset, and 0.2 s after it shows, the fourth
+    page.evaluate(quick, [IDS[1], 3])                      # the second dataset, and 0.2 s after it shows, the fourth
     page.click(".hh-reel-tab:nth-child(2)")
-    ok("a bar clicked 0.2 s after a change gets its loop, though the loop is slow to arrive", wait_reel(page, "s.cur === 3 && s.front && s.front.id === 'tca' && !s.front.paused && s.front.t > 0.2", 10000), page.evaluate(REEL))
-    page.evaluate(quick, ["hdca", 3])                      # the third, and 0.2 s after it shows, back to the fourth, whose video is still fading out
+    ok("a bar clicked 0.2 s after a change gets its loop, though the loop is slow to arrive", wait_reel(page, f"s.cur === 3 && s.front && s.front.id === '{IDS[3]}' && !s.front.paused && s.front.t > 0.2", 10000), page.evaluate(REEL))
+    page.evaluate(quick, [IDS[2], 3])                      # the third, and 0.2 s after it shows, back to the fourth, whose video is still fading out
     page.click(".hh-reel-tab:nth-child(3)")
-    ok("and so does the bar of the dataset just left", wait_reel(page, "s.cur === 3 && s.front && s.front.id === 'tca' && !s.front.paused && s.front.t > 0.2 && s.vids.filter(v => v.on).length === 1", 10000), page.evaluate(REEL))
+    ok("and so does the bar of the dataset just left", wait_reel(page, f"s.cur === 3 && s.front && s.front.id === '{IDS[3]}' && !s.front.paused && s.front.t > 0.2 && s.vids.filter(v => v.on).length === 1", 10000), page.evaluate(REEL))
     ok("no script error", page.errors == [], page.errors[:3])
     ctx.close()
 
@@ -216,7 +292,7 @@ def the_reel(br):
             if len(order) == 6:
                 break
         page.wait_for_timeout(150)
-    ok("all five loops play in turn and the first comes round again", order == ["wq", "et", "hdca", "tca", "cvs", "wq"], order)
+    ok("all five loops play in turn, in the order asked for, and the first comes round again", order == IDS + IDS[:1], order)
     s = page.evaluate(REEL)
     ok("the bars start again with it", s["cur"] == 0 and s["bars"][1:] == [0, 0, 0, 0], s["bars"])
     heights = set()
@@ -229,20 +305,62 @@ def the_reel(br):
     ctx.close()
 
 
+SKY = """() => { const h = document.querySelector('#hh-hero'), box = document.querySelector('.hh-hero-sky'), i = box.querySelector('img');
+  const hb = h.getBoundingClientRect(), ib = i.getBoundingClientRect(), cs = getComputedStyle(box);
+  // a click in the middle of each of these must reach it, not the picture (each is brought into the window first)
+  const hit = (sel) => { const e = document.querySelector(sel); window.scrollTo(0, e.getBoundingClientRect().top + scrollY - innerHeight / 2); const b = e.getBoundingClientRect();
+    const t = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2); return !!t && t.closest(sel) !== null; };
+  const out = { loaded: i.complete && i.naturalWidth > 0, px: [i.naturalWidth, i.naturalHeight], src: i.currentSrc.split('/').pop(), alt: i.getAttribute('alt'), hidden: box.getAttribute('aria-hidden'),
+    opacity: getComputedStyle(i).opacity, z: cs.zIndex, events: cs.pointerEvents, covers: ib.left <= hb.left + 0.5 && ib.top <= hb.top + 0.5 && ib.right >= hb.right - 0.5,
+    reaches: (ib.bottom - hb.top) / hb.height, over: document.documentElement.scrollWidth - innerWidth,
+    bg: getComputedStyle(h).backgroundImage.includes('gradient'), clip: getComputedStyle(h).overflow,
+    hit: ['.hh-btn-primary', '.hh-btn-ghost', '.hh-reel-stage', '.hh-reel-tab', '.hh-reel-pause', '.hh-reel-go'].map(hit) };
+  // the pools behind the words reach past the panel's foot: asking for a link to be brought to the middle must not move the panel's own content
+  document.querySelector('.hh-reel-go').scrollIntoView({ block: 'center', behavior: 'instant' }); out.shifted = h.scrollTop + h.scrollLeft;
+  h.scrollTop = 0; h.scrollLeft = 0; window.scrollTo(0, 0); return out; }"""
+
+
+def the_sky(br):
+    print("  the picture behind the first screen")
+    asked = []
+    ctx, page = open_page(br, route=lambda p: p.on("request", lambda q: asked.append(q.url) if "home-sky" in q.url else None))
+    page.wait_for_function("(i => i.complete && i.naturalWidth > 0)(document.querySelector('.hh-hero-sky img'))", timeout=20000)
+    page.wait_for_timeout(1500)                            # it fades in
+    r = page.evaluate(SKY)
+    ok("the picture of the satellites is behind the first screen, loaded once, 1500 px wide", r["loaded"] and r["px"] == [1500, 1125] and len(asked) == 1 and r["opacity"] == "1", (r["px"], asked, r["opacity"]))
+    ok("it is decoration: no words for a screen reader, behind everything, not in the way of a click", r["alt"] == "" and r["hidden"] == "true" and r["z"] == "-1" and r["events"] == "none" and all(r["hit"]), r)
+    ok("the panel cannot be scrolled inside itself (it clips what reaches past it)", r["shifted"] == 0, r["shifted"])
+    ok("across the whole panel on a wide window, and it widens nothing", r["covers"] and r["reaches"] > 0.99 and r["over"] <= 0 and r["clip"] in ("clip", "hidden"), r)
+    page.set_viewport_size({"width": 390, "height": 844})
+    page.wait_for_timeout(300)
+    r = page.evaluate(SKY)
+    ok("on a phone: across the top, behind the words, gone before the pictures", r["covers"] and 0.4 < r["reaches"] < 0.75 and r["over"] <= 0 and all(r["hit"]) and r["shifted"] == 0, r)
+    ok("no script error", page.errors == [], page.errors[:3])
+    ctx.close()
+    ctx, page = open_page(br, route=lambda p: p.route(re.compile(r"home-sky"), lambda q: q.abort()))
+    page.wait_for_timeout(1500)
+    r = page.evaluate(SKY)
+    ok("the picture cannot be fetched: the panel is as it was, dark, and the reel goes on", (not r["loaded"]) and r["bg"] and wait_reel(page, "s.front && !s.front.paused && s.front.t > 0.2", 12000), r)
+    low = unreadable(page)
+    ok("and its words are still readable", low == [], low)
+    ok("no script error", page.errors == [], page.errors[:3])
+    ctx.close()
+
+
 def two_sizes(br):
     print("  the loops in two sizes")
     ctx, page = open_page(br, 1440, 900, device_scale_factor=2)
     ok("a dense desktop screen: the loop starts", wait_reel(page, "s.front && !s.front.paused && s.front.t > 0.2 && s.front.px > 0", 15000))
     s = page.evaluate(REEL)
-    ok("and it is the larger one (1536 px), with the larger still picture", s["front"] and s["front"]["src"].startswith("wq-wide-v1.") and s["front"]["px"] == 1536 and "wq-wide-v1.jpg" in s["poster"], (s["front"], s["poster"]))
+    ok("and it is the larger one (1536 px), with the larger still picture", s["front"] and s["front"]["src"].startswith(SLIDES[0][4] + ".") and s["front"]["px"] == 1536 and SLIDES[0][4] + ".jpg" in s["poster"], (s["front"], s["poster"]))
     ctx.close()
     ctx, page = open_page(br, 1440, 900, device_scale_factor=2, route=lambda p: p.route(re.compile(r"-wide-v\d+\.(webm|mp4)"), lambda r: r.abort()))
-    ok("the larger loop cannot be fetched: the card's own plays instead", wait_reel(page, "s.front && s.front.id === 'wq' && !s.front.paused && s.front.t > 0.2 && s.front.px === 768", 15000), page.evaluate(REEL)["vids"])
+    ok("the larger loop cannot be fetched: the card's own plays instead", wait_reel(page, f"s.front && s.front.id === '{IDS[0]}' && !s.front.paused && s.front.t > 0.2 && s.front.px === 768", 15000), page.evaluate(REEL)["vids"])
     ctx.close()
     ctx, page = open_page(br, 390, 844, device_scale_factor=3)
     ok("a phone: the loop starts", wait_reel(page, "s.front && !s.front.paused && s.front.t > 0.2 && s.front.px > 0", 15000))
     s = page.evaluate(REEL)
-    ok("and it is the card's own (768 px)", s["front"] and s["front"]["src"].startswith("wq-v1.") and s["front"]["px"] == 768, s["front"])
+    ok("and it is the card's own (768 px)", s["front"] and s["front"]["src"].startswith(SLIDES[0][3] + ".") and s["front"]["px"] == 768, s["front"])
     ctx.close()
 
 
@@ -251,7 +369,7 @@ def reel_without_loops(br):
     ctx, page = open_page(br, route=lambda p: p.route(re.compile(r"\.(webm|mp4)(\?|$)"), lambda r: r.abort()))
     page.wait_for_timeout(3000)
     s = page.evaluate(REEL)
-    ok("the first still picture stays", s["cur"] == 0 and "wq-v1.jpg" in s["poster"] and not s["front"], s)
+    ok("the first still picture stays", s["cur"] == 0 and SLIDES[0][3] + ".jpg" in s["poster"] and not s["front"], s)
     ok("then the next dataset comes anyway", wait_reel(page, "s.cur === 1", 16000))
     ok("no script error", page.errors == [], page.errors[:3])
     ctx.close()
@@ -263,16 +381,17 @@ def reduced_motion(br):
     ctx, page = open_page(br, reduced_motion="reduce", route=lambda p: p.on("request", lambda q: media.append(q.url) if re.search(r"\.(webm|mp4)(\?|$)", q.url) else None))
     page.wait_for_timeout(2500)
     s = page.evaluate(REEL)
-    ok("no video is fetched; the still picture and its words are there", media == [] and "wq-v1.jpg" in s["poster"] and s["title"] == SLIDES[0][1] and s["cap"] != "", (media, s))
+    ok("no video is fetched; the still picture and its words are there", media == [] and SLIDES[0][3] + ".jpg" in s["poster"] and s["title"] == SLIDES[0][1] and s["cap"] != "", (media, s))
     ok("the button offers to play", s["button"] == "Play the pictures")
     page.click(".hh-reel-tab:nth-child(3)")
     page.wait_for_timeout(600)
     s = page.evaluate(REEL)
-    ok("a bar still changes the dataset, as a still picture", s["cur"] == 2 and s["title"] == SLIDES[2][1] and "hdca-v3.jpg" in s["poster"] and media == [], (s, media))
+    ok("a bar still changes the dataset, as a still picture", s["cur"] == 2 and s["title"] == SLIDES[2][1] and SLIDES[2][3] + ".jpg" in s["poster"] and media == [], (s, media))
     page.click(".hh-reel-pause")
-    ok("pressing play starts that dataset's loop", wait_reel(page, "s.front && s.front.id === 'hdca' && !s.front.paused && s.front.t > 0.2", 12000))
-    r = page.evaluate("() => ({ anim: getComputedStyle(document.querySelector('.hh-hero-copy > *')).animationName, rise: !!document.querySelector('.hh-anim') })")
-    ok("nothing slides or rises in", r["anim"] == "none" and not r["rise"], r)
+    ok("pressing play starts that dataset's loop", wait_reel(page, f"s.front && s.front.id === '{IDS[2]}' && !s.front.paused && s.front.t > 0.2", 12000))
+    r = page.evaluate("""() => ({ anim: getComputedStyle(document.querySelector('.hh-hero-copy > *')).animationName, rise: !!document.querySelector('.hh-anim'),
+      words: getComputedStyle(document.querySelector('.hh-reel-info > *')).animationName, sky: parseFloat(getComputedStyle(document.querySelector('.hh-hero-sky img')).transitionDuration) })""")
+    ok("nothing slides, rises or fades in", r["anim"] == "none" and not r["rise"] and r["words"] == "none" and r["sky"] == 0, r)
     ok("no script error", page.errors == [], page.errors[:3])
     ctx.close()
 
@@ -344,16 +463,21 @@ def the_section(br):
     ok("any other browser gets English, and only English", r["lang"] == "en" and r["ko"] == 0 and r["en"] > 8 and r["pressed"] == "true,false", r)
     page.click('.hh-lang button[data-set="ko"]')
     r = page.evaluate(SEEN)
-    ok("the Korean button switches it", r["lang"] == "ko" and r["en"] == 0 and r["h2"] == ["지구 시스템을 관측하고 이해하고 예측하기 위한 AI"], r)
+    ok("the Korean button switches it", r["lang"] == "ko" and r["en"] == 0 and r["h2"] == ["지구 시스템을 관측하고 이해하고 예측하는 AI"], r)
     page.reload(wait_until="load")
     r = page.evaluate(SEEN)
     ok("and the browser remembers it", r["lang"] == "ko" and r["pressed"] == "false,true", r)
     page.click('.hh-lang button[data-set="en"]')
 
-    # nothing of the recruiting list was lost: each of its sentences is in the folded call
+    # nothing of the recruiting list was lost: each of its sentences is in the folded call. One Korean sentence reads
+    # differently since 2026-11-20, when the lab head had the Korean wording revised.
     old = (HOME / "replaced-paragraph.html").read_text(encoding="utf-8").replace("‍", "").replace("가족기숙자", "가족기숙사")
     bullets = [norm(re.sub(r"<[^>]+>", "", x).replace("&#x27;", "'").replace("&quot;", '"')) for x in old.split("<br/>") if "•" in x]
     ok("the replaced paragraph has its twelve recruiting sentences", len(bullets) == 12, len(bullets))
+    was = norm("위성 원격 탐사, 수치모델, 기후변화, 환경/원격탐사 분야 Domain Scientist로 AI/기계학습 방법론 적용 연구에 대한 열정을 가지고 있는 학부생 및 대학원 진학 예정 학생을 환영합니다.")
+    now = norm("위성 원격탐사, 수치모델, 기후변화, 환경/원격탐사 분야의 Domain Scientist로 AI/기계학습 방법론을 적용해 연구하고 싶은 학부생 및 대학원 진학 예정 학생을 환영합니다.")
+    ok("the one reworded sentence is among them as it was", sum(b == was for b in bullets) == 1, [b[:30] for b in bullets])
+    bullets = [now if b == was else b for b in bullets]
     r = page.evaluate("""() => { const d = document.querySelector('.hh-call'); const before = d.open; const call = d.textContent;
       document.querySelector('.hh-call summary').click();
       return { before, after: d.open, call, shown: [...d.querySelectorAll('ul')].filter(u => u.getClientRects().length).map(u => u.getAttribute('data-l')).join(),
@@ -361,7 +485,7 @@ def the_section(br):
         pics: [...document.querySelectorAll('.hh-pics img')].map(i => [i.naturalWidth, i.naturalHeight, +i.getAttribute('width'), +i.getAttribute('height')]) }; }""")
     call = norm(r["call"])
     missing = [b[:40] for b in bullets if b not in call]
-    ok("each of them is in the folded call, word for word", missing == [], missing)
+    ok("each of them is in the folded call, word for word (the one as reworded)", missing == [], missing)
     ok("the call is folded until asked for, then shows the chosen language", (not r["before"]) and r["after"] and r["shown"] == "en", r["shown"])
     ok("links to Projects, Opportunities and Contact", {"/projects", "/opportunities", "/contact"} <= set(r["links"]), sorted(set(r["links"])))
     page.evaluate("document.querySelector('.hh-pics').scrollIntoView()")
@@ -376,6 +500,7 @@ def the_sizes(br, name):
     print("  thirteen window sizes")
     ctx, page = open_page(br, 1440, 900, reduced_motion="reduce")      # still pictures, and nothing waiting to rise into place: what is measured is where things end up
     page.wait_for_function("document.querySelector('#hh-latest').dataset.pubs !== undefined", timeout=15000)
+    page.wait_for_function("(i => i.complete && i.naturalWidth > 0)(document.querySelector('.hh-hero-sky img'))", timeout=20000)
     for w, h in SIZES:
         page.set_viewport_size({"width": w, "height": h})
         page.evaluate("window.scrollTo(0, 0)")
@@ -399,6 +524,8 @@ def the_sizes(br, name):
                 and all(x <= y + 1 for x, y in zip(r["order"], r["order"][1:])) and r["join"][3] + 16 <= r["tile"][1])
         ok(f"{w} x {h}: fits the window, the buttons on the first screen (on the smallest phone, the first of them) and the top of the pictures (on any but a small phone), the blocks in order, nothing cut", good,
            {k: r[k] for k in ("over", "wide", "heights", "cut", "lines", "stage", "ctaBottom", "firstBottom", "stageTop", "order", "join", "tile")})
+        low = unreadable(page)
+        ok(f"{w} x {h}: every line of words on the first screen can be read against the picture behind it", low == [], low)
         if a.shots:
             Path(a.shots).mkdir(parents=True, exist_ok=True)
             page.screenshot(path=str(Path(a.shots) / f"{name}_{w}x{h}.png"))
@@ -412,6 +539,7 @@ with sync_playwright() as pw:
         br = getattr(pw, name).launch()
         the_page(br)
         without_scripts(br)
+        the_sky(br)
         the_reel(br)
         two_sizes(br)
         if not a.quick:

@@ -1,7 +1,8 @@
 <!--
   hydroai.net home page, block 1 of 3: the first screen.
   The lab's title, one sentence, two buttons, and beside them the lab's open datasets in turn: each dataset's
-  short silent loop plays once, with the words that go with it, then the next one comes.
+  short silent loop plays once, with the words that go with it, then the next one comes. Behind all of it, the
+  picture the lab's first page has always had: the Earth-observing satellites, the Moon and the Earth.
 
   Where it goes: one Webflow Code Embed, the only child of the hero's container (.teaching-detail-wrap.hero),
   in place of the old .hero-block and the two photographs under it.
@@ -9,24 +10,47 @@
   To change it:
     the title, sentence, buttons   the markup below
     the datasets and their order   REEL.slides in the script (label, title, one line, link, loop, captions);
-                                   media is the card's loop (768 px), wide a larger one of the same timeline for large screens
+                                   media is the card's loop (768 px), wide a larger one of the same timeline for large screens.
+                                   The order since 2026-11-20: soil moisture, ET, SMAP error, validation site, water
+                                   quality. The first dataset's words and still picture are also in the markup
+                                   (.hh-reel-stage, .hh-reel-title, .hh-reel-desc, .hh-reel-go): change both together.
     how long "New" is shown        REEL.newUntil (last day, Korean time); isNew marks the datasets it applies to
+    the picture behind             media/home-sky-v1.jpg, made by tools/home_sky.py from the site's own satellites.jpg
+                                   (the satellites' names taken out, saved smaller). The veil and the dark pools under the
+                                   small text are in the style sheet; tools/check_home_new.py measures at thirteen window
+                                   sizes that every line of words can be read against what lies behind it.
   The loops are the ones made for the cards on hydroai.net/data (media), and the same loops drawn larger for
   large screens (wide: made by tools/wide_loops.py from the cards' own tools, frame for frame the same timeline),
   so the caption times are the cards' data-caps. A re-made loop gets a new file name, both sizes are re-made
-  together, and its caption times change here as well as on the card.
+  together, and its caption times change here as well as on the card. Year ranges are written with a hyphen
+  here; the cards on the Data page have en dashes.
 -->
 <style>
-  .hh-hero { position: relative; isolation: isolate; overflow: hidden; box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr); align-items: center; column-gap: clamp(32px, 4.2vw, 68px); min-height: 543px; padding: clamp(36px, 3.4vw, 52px) clamp(28px, 4.4vw, 64px); border-radius: 18px; color: #fff; font-family: Satoshi, sans-serif; text-align: left;
+  .hh-hero { position: relative; isolation: isolate; overflow: hidden; overflow: clip; box-sizing: border-box; display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr); align-items: center; column-gap: clamp(32px, 4.2vw, 68px); min-height: 543px; padding: clamp(36px, 3.4vw, 52px) clamp(28px, 4.4vw, 64px); border-radius: 18px; color: #fff; font-family: Satoshi, sans-serif; text-align: left;
     background: radial-gradient(58% 78% at 80% 34%, rgba(117, 251, 146, 0.11) 0%, rgba(117, 251, 146, 0) 72%), linear-gradient(135deg, #1c3533 0%, #152a29 46%, #0d1b1b 100%); }
-  /* behind the words: orbits round a planet below the corner */
-  .hh-hero::before { content: ""; position: absolute; z-index: -1; left: 0; top: 0; right: 0; bottom: 0; pointer-events: none;
-    background: radial-gradient(circle at 6% 118%, rgba(255, 255, 255, 0.04) 0, rgba(255, 255, 255, 0.04) 239px, rgba(255, 255, 255, 0.13) 240px, rgba(255, 255, 255, 0) 241.5px, rgba(255, 255, 255, 0) 399px, rgba(255, 255, 255, 0.1) 400px, rgba(255, 255, 255, 0) 401.5px, rgba(255, 255, 255, 0) 589px, rgba(255, 255, 255, 0.075) 590px, rgba(255, 255, 255, 0) 591.5px, rgba(255, 255, 255, 0) 809px, rgba(255, 255, 255, 0.05) 810px, rgba(255, 255, 255, 0) 811.5px); }
+  /* behind everything: the picture the lab's first page has always had (the Earth-observing satellites, the Moon,
+     the Earth), across the whole panel, in a copy without the satellites' names (they would cross the page's own
+     words). A thin veil lies over all of it. */
+  .hh-hero-sky { position: absolute; z-index: -1; left: 0; top: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; }
+  .hh-hero-sky img { position: absolute; left: 0; top: 0; display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 30%; opacity: 1; transition: opacity 1.2s ease; }
+  .hh-hero-sky img.is-wait { opacity: 0; }
+  .hh-hero-sky::after { content: ""; position: absolute; left: 0; top: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, rgba(11, 30, 29, 0.3) 0%, rgba(11, 30, 29, 0.42) 50%, rgba(11, 30, 29, 0.6) 100%), linear-gradient(90deg, rgba(11, 30, 29, 0.6) 0%, rgba(11, 30, 29, 0) 42%); }
+  /* small text never sits on the picture itself: from the paragraph, and from the dataset's words, a soft dark pool
+     runs down to the foot of the panel. The title, the buttons, the pictures and the bars lie above the pools.
+     (The pools reach past the panel, which is why the panel clips and does not hide: a hidden box can be scrolled.) */
+  .hh-eyebrow, .hh-hero-title, .hh-hero-actions, .hh-reel-stage, .hh-reel-tabs { position: relative; z-index: 1; }
+  .hh-hero-lead, .hh-reel-info { position: relative; z-index: 0; }
+  .hh-hero-lead::before, .hh-reel-info::before { content: ""; position: absolute; z-index: -1; pointer-events: none; }
+  .hh-hero-lead::before { left: -80px; right: -44px; top: -22px; bottom: -420px; background: linear-gradient(180deg, rgba(10, 27, 26, 0) 0, rgba(10, 27, 26, 0.62) 36px, rgba(10, 27, 26, 0.72) calc(100% - 90px), rgba(10, 27, 26, 0) 100%);
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 80%, rgba(0, 0, 0, 0) 100%); mask-image: linear-gradient(90deg, #000 0, #000 80%, rgba(0, 0, 0, 0) 100%); }
+  .hh-reel-info::before { left: -34px; right: -80px; top: -74px; bottom: -220px; background: linear-gradient(180deg, rgba(10, 27, 26, 0) 0, rgba(10, 27, 26, 0.7) 30px, rgba(10, 27, 26, 0.8) 100%);
+    -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0) 0, #000 9%, #000 100%); mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0) 0, #000 9%, #000 100%); }
   .hh-hero * { box-sizing: border-box; }
   .hh-hero-copy { min-width: 0; max-width: 620px; }
-  .hh-eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; font-size: 13px; font-weight: 500; line-height: 1.3; letter-spacing: 0.14em; text-transform: uppercase; color: #75fb92; }
+  .hh-eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; font-size: 13px; font-weight: 500; line-height: 1.3; letter-spacing: 0.14em; text-transform: uppercase; color: #75fb92; text-shadow: 0 0 10px rgba(8, 22, 21, 0.95), 0 0 3px rgba(8, 22, 21, 0.8); }
   .hh-eyebrow::before { content: ""; flex: none; width: 26px; height: 2px; border-radius: 2px; background: currentColor; }
-  .hh-hero-title { margin: 0; font-family: "Plus Jakarta", sans-serif; font-size: clamp(34px, 3.42vw, 50px); font-weight: 600; line-height: 1.2; letter-spacing: -0.012em; color: #fff; text-wrap: balance; }
+  .hh-hero-title { margin: 0; font-family: "Plus Jakarta", sans-serif; font-size: clamp(34px, 3.42vw, 50px); font-weight: 600; line-height: 1.2; letter-spacing: -0.012em; color: #fff; text-wrap: balance; text-shadow: 0 2px 22px rgba(8, 22, 21, 0.6); }
   .hh-hero-lead { margin: 22px 0 0; max-width: 33em; font-size: clamp(17px, 1.4vw, 20px); font-weight: 400; line-height: 1.55; color: rgba(255, 255, 255, 0.86); }
   .hh-hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
   .hh-btn { display: inline-flex; align-items: center; justify-content: center; gap: 9px; height: 54px; padding: 0 26px 1px; border-radius: 12px; font-family: "Plus Jakarta", sans-serif; font-size: 17px; font-weight: 600; line-height: 1; white-space: nowrap; text-decoration: none; transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s; }
@@ -65,7 +89,7 @@
   .hh-reel-pause .hh-i-play, .hh-reel-pause.is-paused .hh-i-pause { display: none; }
   .hh-reel-pause.is-paused .hh-i-play { display: block; }
   .hh-reel-info { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; min-height: 78px; margin-top: 10px; }
-  .hh-reel-info.is-in { animation: hhInfo 0.45s ease both; }
+  .hh-reel-info.is-in > * { animation: hhInfo 0.45s ease both; }
   @keyframes hhInfo { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   .hh-reel-title { margin: 0; font-family: "Plus Jakarta", sans-serif; font-size: 20px; font-weight: 600; line-height: 1.3; color: #fff; }
   .hh-reel-desc { margin: 5px 0 0; font-size: 15px; font-weight: 400; line-height: 1.45; color: rgba(255, 255, 255, 0.72); }
@@ -102,6 +126,10 @@
   /* one column: the words, then the pictures */
   @media (max-width: 959px) {
     .hh-hero { grid-template-columns: minmax(0, 1fr); row-gap: 34px; min-height: 0; padding: 44px 40px 32px; }
+    /* the picture behind the words at the top; under the pictures below it the panel is plain */
+    .hh-hero-sky { bottom: auto; height: 58%; -webkit-mask-image: linear-gradient(180deg, #000 0, #000 70%, rgba(0, 0, 0, 0) 100%); mask-image: linear-gradient(180deg, #000 0, #000 70%, rgba(0, 0, 0, 0) 100%); }
+    .hh-hero-sky img { object-position: 60% 20%; }
+    .hh-hero-lead::before { bottom: -190px; }
     .hh-hero-copy { max-width: 680px; }
     .hh-hero-title { font-size: clamp(32px, 5vw, 42px); }
     .hh-hero-lead { font-size: 19px; }
@@ -134,14 +162,17 @@
     .hh-hero-actions { margin-top: 20px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .hh-hero-copy > *, .hh-reel, .hh-reel-info.is-in, .hh-reel-new::before { animation: none; }
-    .hh-reel-stage video, .hh-btn, .hh-btn span, .hh-reel-go span { transition: none; }
+    .hh-hero-copy > *, .hh-reel, .hh-reel-info.is-in > *, .hh-reel-new::before { animation: none; }
+    .hh-reel-stage video, .hh-btn, .hh-btn span, .hh-reel-go span, .hh-hero-sky img { transition: none; }
   }
-  @media print { .hh-reel-tabs, .hh-reel-new { display: none; } }
+  @media print { .hh-reel-tabs, .hh-reel-new, .hh-hero-sky { display: none; } }
 </style>
 <noscript><style>.hh-reel-tabs { display: none; }</style></noscript>
 
 <section class="hh-hero" id="hh-hero" aria-labelledby="hh-hero-title">
+  <div class="hh-hero-sky" aria-hidden="true">
+    <img src="https://hyunglok-kim.github.io/korea-water-quality-portal/embed/media/home-sky-v1.jpg" width="1500" height="1125" alt="" decoding="async">
+  </div>
   <div class="hh-hero-copy">
     <p class="hh-eyebrow">HydroAI Lab at GIST</p>
     <h1 class="hh-hero-title" id="hh-hero-title">Hydrology with AI and <br>Remote Sensing</h1>
@@ -153,7 +184,7 @@
   </div>
 
   <div class="hh-reel" id="hh-reel" role="group" aria-roledescription="carousel" aria-label="Open datasets from the lab">
-    <a class="hh-reel-stage" href="/data#wq" tabindex="-1" aria-hidden="true" style="background-image: url('https://hyunglok-kim.github.io/korea-water-quality-portal/embed/media/wq-v1.jpg');">
+    <a class="hh-reel-stage" href="/data#hdca" tabindex="-1" aria-hidden="true" style="background-image: url('https://hyunglok-kim.github.io/hdca-data-portal/embed/media/hdca-v3.jpg');">
       <video muted playsinline preload="none" tabindex="-1"></video>
       <video muted playsinline preload="none" tabindex="-1"></video>
       <span class="hh-reel-new" hidden>New dataset</span>
@@ -167,10 +198,10 @@
     </div>
     <div class="hh-reel-info">
       <div>
-        <p class="hh-reel-title">Inland Water Quality of South Korea</p>
-        <p class="hh-reel-desc">Six water quality parameters for rivers and reservoirs on a 1 km grid, with uncertainty, 2016&ndash;2024.</p>
+        <p class="hh-reel-title">Hybrid Dual-Channel Algorithm (HDCA)</p>
+        <p class="hh-reel-desc">Global L-band soil moisture, vegetation optical depth and scattering albedo from SMAP, daily since 2015.</p>
       </div>
-      <a class="hh-reel-go" href="/data#wq">Open dataset <span aria-hidden="true">&rarr;</span></a>
+      <a class="hh-reel-go" href="/data#hdca">Open dataset <span aria-hidden="true">&rarr;</span></a>
     </div>
   </div>
 </section>
@@ -182,36 +213,45 @@
   if (!root || root.getAttribute('data-ready')) return;
   root.setAttribute('data-ready', '1');
 
+  /* the picture behind the words comes in softly when it arrives (without scripts it is simply there) */
+  var sky = document.querySelector('#hh-hero .hh-hero-sky img');
+  if (sky && !sky.complete) {
+    var skyIn = function () { sky.className = ''; };
+    sky.className = 'is-wait';
+    sky.addEventListener('load', skyIn);
+    sky.addEventListener('error', skyIn);
+  }
+
   var PAGES = 'https://hyunglok-kim.github.io/';
   var HERE = 'https://hyunglok-kim.github.io/korea-water-quality-portal/embed/media/';     /* this dataset's loops, and the larger loops of all five */
   var REEL = {
     newUntil: '2027-02-28',
     slides: [
-      { id: 'wq', label: 'Water quality', isNew: true, href: '/data#wq',
-        title: 'Inland Water Quality of South Korea',
-        desc: 'Six water quality parameters for rivers and reservoirs on a 1 km grid, with uncertainty, 2016\u20132024.',
-        media: HERE + 'wq-v1', wide: HERE + 'wq-wide-v1',
-        caps: [[0, 'Water temperature, 2016\u20132024 mean'], [1.04, 'Suspended solids'], [1.75, 'Dissolved oxygen'], [2.46, 'Total nitrogen'], [3.17, 'Total phosphorus'], [3.88, 'Chlorophyll-a'], [4.38, 'Into Daecheong Lake: 1 km cells'], [6.04, 'Chlorophyll-a through the year'], [10.04, 'Water temperature, 2016\u20132024 mean']] },
-      { id: 'et', label: '30 m ET', href: '/data#et',
-        title: 'Global 30m-ET',
-        desc: 'Monthly evapotranspiration at 30 m from Landsat and Sentinel-2, with a geospatial foundation model.',
-        media: PAGES + 'hdca-data-portal/embed/media/et-v2', wide: HERE + 'et-wide-v1',
-        caps: [[0, 'Global background: MODIS ET (MOD16A2GF)'], [3.7, 'Korean Peninsula: Prithvi-OpenET, available now'], [6.0, 'Mean annual ET, 2016\u20132024'], [8.3, 'A 30 m sample area: Pyeongchang'], [12.6, 'Global background: MODIS ET (MOD16A2GF)']] },
       { id: 'hdca', label: 'Soil moisture', href: '/data#hdca',
         title: 'Hybrid Dual-Channel Algorithm (HDCA)',
         desc: 'Global L-band soil moisture, vegetation optical depth and scattering albedo from SMAP, daily since 2015.',
         media: PAGES + 'hdca-data-portal/embed/media/hdca-v3', wide: HERE + 'hdca-wide-v1',
-        caps: [[0, 'Soil moisture, 2015\u20132025 mean'], [1.67, 'Into the Amazon basin'], [3.33, 'Amazon basin: wet and dry seasons, 2015\u20132025'], [9.96, 'Soil moisture, 2015\u20132025 mean']] },
+        caps: [[0, 'Soil moisture, 2015-2025 mean'], [1.67, 'Into the Amazon basin'], [3.33, 'Amazon basin: wet and dry seasons, 2015-2025'], [9.96, 'Soil moisture, 2015-2025 mean']] },
+      { id: 'et', label: '30 m ET', href: '/data#et',
+        title: 'Global 30m-ET',
+        desc: 'Monthly evapotranspiration at 30 m from Landsat and Sentinel-2, with a geospatial foundation model.',
+        media: PAGES + 'hdca-data-portal/embed/media/et-v2', wide: HERE + 'et-wide-v1',
+        caps: [[0, 'Global background: MODIS ET (MOD16A2GF)'], [3.7, 'Korean Peninsula: Prithvi-OpenET, available now'], [6.0, 'Mean annual ET, 2016-2024'], [8.3, 'A 30 m sample area: Pyeongchang'], [12.6, 'Global background: MODIS ET (MOD16A2GF)']] },
       { id: 'tca', label: 'SMAP error', href: '/data#tca',
         title: 'SMAP Time-Variant Error',
         desc: 'The random error of every SMAP soil moisture retrieval, from triple collocation and machine learning.',
         media: PAGES + 'smap-tca-error-portal/embed/media/tca-v2', wide: HERE + 'tca-wide-v1',
-        caps: [[0, 'SMAP soil-moisture error \u03c3, 2015\u20132023 mean'], [1.67, 'Into the western United States'], [3.33, 'Western US: the error, month by month'], [9.0, 'SMAP soil-moisture error \u03c3, 2015\u20132023 mean']] },
+        caps: [[0, 'SMAP soil-moisture error \u03c3, 2015-2023 mean'], [1.67, 'Into the western United States'], [3.33, 'Western US: the error, month by month'], [9.0, 'SMAP soil-moisture error \u03c3, 2015-2023 mean']] },
       { id: 'cvs', label: 'Validation site', href: '/data#cvs',
         title: 'NASA-GIST Core Validation Site',
         desc: 'South Korea\u2019s first Core Validation Site: a 1 km cell measured from the ground, drones and satellites.',
         media: PAGES + 'hdca-data-portal/embed/media/cvs', wide: HERE + 'cvs-wide-v1',
-        caps: [[0, 'Drone flight, 7 May 2026'], [0.93, 'Drone flight, 25 May 2026'], [2.13, 'Drone flight, 24 July 2026'], [3.33, 'Drone flight, 17 August 2026'], [4.53, 'Drone flight, 29 August 2026'], [5.73, 'Drone flight, 15 September 2026'], [6.93, 'Drone flight, 22 September 2026'], [8.13, 'Drone flight, 9 October 2026'], [9.33, 'Drone flight, 16 October 2026'], [10.53, 'Drone flight, 9 November 2026'], [11.73, 'Drone flight, 7 May 2026']] }
+        caps: [[0, 'Drone flight, 7 May 2026'], [0.93, 'Drone flight, 25 May 2026'], [2.13, 'Drone flight, 24 July 2026'], [3.33, 'Drone flight, 17 August 2026'], [4.53, 'Drone flight, 29 August 2026'], [5.73, 'Drone flight, 15 September 2026'], [6.93, 'Drone flight, 22 September 2026'], [8.13, 'Drone flight, 9 October 2026'], [9.33, 'Drone flight, 16 October 2026'], [10.53, 'Drone flight, 9 November 2026'], [11.73, 'Drone flight, 7 May 2026']] },
+      { id: 'wq', label: 'Water quality', isNew: true, href: '/data#wq',
+        title: 'Inland Water Quality of South Korea',
+        desc: 'Six water quality parameters for rivers and reservoirs on a 1 km grid, with uncertainty, 2016-2024.',
+        media: HERE + 'wq-v1', wide: HERE + 'wq-wide-v1',
+        caps: [[0, 'Water temperature, 2016-2024 mean'], [1.04, 'Suspended solids'], [1.75, 'Dissolved oxygen'], [2.46, 'Total nitrogen'], [3.17, 'Total phosphorus'], [3.88, 'Chlorophyll-a'], [4.38, 'Into Daecheong Lake: 1 km cells'], [6.04, 'Chlorophyll-a through the year'], [10.04, 'Water temperature, 2016-2024 mean']] }
     ]
   };
 
