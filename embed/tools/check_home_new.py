@@ -2,14 +2,15 @@
 """check_home_new.py [URL] [--browsers chromium,webkit,firefox] [--shots DIR] [--quick] — the home page's three new blocks, checked.
 
     python embed/tools/check_home_new.py                         # the local preview (home_new_preview.py, port 8814)
-    python embed/tools/check_home_new.py https://hydroai.net/    # the live page, once the blocks are on it
+    python embed/tools/check_home_new.py https://hydroai.net/    # the live page (the blocks are on it since 2026-11-20)
 
 What it looks at, in each browser:
   the page      one <h1>; the three blocks are there and what they replace is gone; no script error; nothing wider than the window;
                 without scripts the words and still pictures remain and what needs scripts is left out
   the reel      the first loop plays with its captions; each dataset follows the one before (all five, at speed);
                 the larger loop on a dense desktop screen, the card's own on a phone or when the larger cannot be fetched;
-                a click on a bar, pause and play, a hidden tab, scrolling away; loops that cannot be fetched do not hold it;
+                a click on a bar (also right after a change, on a loop slow to arrive, and back to the dataset just left),
+                pause and play, a hidden tab, scrolling away; loops that cannot be fetched do not hold it;
                 with reduced motion no video is fetched until play is pressed; the block keeps its height as datasets change
   the lists     three news entries and three papers, the same as the first entries of /events and /publication;
                 either page unreadable -> that list is left out; both -> the block is
@@ -21,6 +22,7 @@ The exit status is the number of failures. Needs playwright with the three brows
 import argparse
 import re
 import sys
+import time
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -181,6 +183,25 @@ def the_reel(br):
     ok("scrolled away, it stops", wait_reel(page, "s.vids.every(v => v.paused)", 6000))
     page.evaluate("window.scrollTo(0, 0)")
     ok("scrolled back, it plays", wait_reel(page, "s.front && !s.front.paused", 6000))
+    ok("no script error", page.errors == [], page.errors[:3])
+    ctx.close()
+
+    # a bar clicked while the change before it is still dissolving (the picture before takes 0.65 s to go) must get its
+    # loop all the same. On the live page on 2026-11-20 such a click, on a loop that took longer than that to arrive,
+    # left the loop before it playing under the new words; so the fourth dataset's loop is held back a second here.
+    def late(route):
+        time.sleep(1.0)
+        route.continue_()
+    ctx, page = open_page(br, route=lambda p: p.route(re.compile(r"/tca-[^/]*\.(webm|mp4)"), late))
+    wait_reel(page, "s.front && s.front.id === 'wq' && !s.front.paused && s.front.t > 0.3", 12000)
+    quick = """([after, then]) => { let done = false; document.querySelectorAll('.hh-reel-stage video').forEach(v => v.addEventListener('playing', () => {
+        if (!done && v.getAttribute('data-id') === after) { done = true; setTimeout(() => document.querySelectorAll('.hh-reel-tab')[then].click(), 200); } })); }"""
+    page.evaluate(quick, ["et", 3])                        # the second dataset, and 0.2 s after it shows, the fourth
+    page.click(".hh-reel-tab:nth-child(2)")
+    ok("a bar clicked 0.2 s after a change gets its loop, though the loop is slow to arrive", wait_reel(page, "s.cur === 3 && s.front && s.front.id === 'tca' && !s.front.paused && s.front.t > 0.2", 10000), page.evaluate(REEL))
+    page.evaluate(quick, ["hdca", 3])                      # the third, and 0.2 s after it shows, back to the fourth, whose video is still fading out
+    page.click(".hh-reel-tab:nth-child(3)")
+    ok("and so does the bar of the dataset just left", wait_reel(page, "s.cur === 3 && s.front && s.front.id === 'tca' && !s.front.paused && s.front.t > 0.2 && s.vids.filter(v => v.on).length === 1", 10000), page.evaluate(REEL))
     ok("no script error", page.errors == [], page.errors[:3])
     ctx.close()
 

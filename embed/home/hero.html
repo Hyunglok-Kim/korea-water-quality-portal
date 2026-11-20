@@ -307,6 +307,7 @@
   function start(i) {
     var k = front === 0 ? 1 : 0, v = vids[k], s = S[i];
     if (v.getAttribute('data-id') !== s.id) load(v, s);
+    else v.pause();   /* it may still be fading out from the change before: stopped first, it reports 'playing' again when it starts */
     try { v.currentTime = 0; } catch (e) {}
     v.muted = true;
     active = k;
@@ -319,7 +320,8 @@
     if (front !== k) {
       var old = vids[front];
       vids[k].classList.add('is-on');
-      if (old) { old.classList.remove('is-on'); setTimeout(function () { if (front === k) old.pause(); }, 650); }
+      /* the picture before fades out, then stops; not if a bar was clicked meanwhile and that video now has the next dataset to show */
+      if (old) { old.classList.remove('is-on'); setTimeout(function () { if (front === k && active === k) old.pause(); }, 650); }
       front = k; warmed = -1;
     }
     lastT = -1; lastMove = clock();

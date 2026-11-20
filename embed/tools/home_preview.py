@@ -40,7 +40,8 @@ if a.page:
 else:
     HOME = urllib.request.urlopen(urllib.request.Request("https://hydroai.net/", headers={"User-Agent": UA}), timeout=30).read().decode("utf-8")
 assert HOME.count("</body>") == 1, "the home page has no single </body>"
-assert "ha-ann" not in HOME, "the home page already carries the announcement: preview a saved copy from before (--page)"
+# the block's own element, not the name alone: the home page's first block mentions it in its script (it waits behind the dialog)
+assert 'id="ha-ann"' not in HOME, "the home page already carries the announcement: preview a saved copy from before (--page)"
 HOME = re.sub(r"(<head[^>]*>)", r'\1<base href="https://hydroai.net/">', HOME, count=1)
 
 
