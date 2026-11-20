@@ -13,21 +13,22 @@ After seeing the preview the lab head asked for four more things (the same night
 명인지도 지워.”): the misspellings in people's texts corrected; an **Alumni** group that shows a name and where
 the person is now, nothing more; the visiting scholar taken off; no head counts on the groups.
 
-**Status (2026-11-21, 08:10 KST): going up; nothing of this is on hydroai.net yet.** The lab head chose
-on the morning of 21 November to publish, the new layout included. The live People page is still as it was
-published on 20 November, 13:37 UTC.
+**Status: live on https://hydroai.net/people since 2026-11-21, 08:11 KST** (published 2026-11-20, 23:11:32
+UTC), at the lab head's word: asked that morning, with what a publish would send out listed, he chose to
+publish, the new layout included.
 
-- **Saved in Webflow, unpublished** (it goes out with the next publish of the site, by whoever makes it):
-  the “Contact me” block deleted from the People page; the fourth tab renamed “Alumni”, its list taking
-  `member_type` = `alumni`; ten People items queued (the corrections listed at the end of this file, and
-  Seongjun Lee's move to Alumni). Published with the page's own layout, the Alumni tab shows his whole card
-  with the institute as his role line; the brief display is the block's. Backups: “Before the People page
-  changes (2026-11-20)” is the site before any of this.
-- **Not in Webflow yet: the block** (the new layout, with the brief Alumni display and without head counts).
-  It is made and checked on a local copy of the page with the saved content changes made on it (0 failures
-  in Chromium, WebKit and Firefox). Putting it up takes a push of this repository (this commit), one Code
-  Embed and a publish (“Putting it on the site” below); until the check has passed on the live page it is
-  not done.
+- **The block:** one Code Embed on the People page, right after the navigation bar, holds `people.html` of
+  commit 15a6c87 byte for byte. `check_people.py https://hydroai.net/people` passes on the live page in
+  Chromium, WebKit and Firefox (134 checks in each, 0 failures), and the page was looked at at 2048, 1440 and
+  390 px.
+- **The content changes** saved in Webflow the night before went out with the same publish: the “Contact me”
+  block gone from the People page (the other pages keep theirs); the fourth tab “Alumni”, its list taking
+  `member_type` = `alumni`; the corrections in ten People items and one former student's move to Alumni
+  (the end of this file). So did the home page's second round (`../README.md`). The other eight pages of the
+  site are as they were, but for the publish stamp and the names of the style and script bundles.
+- **Backups in Webflow:** “Before the People page changes (2026-11-20)” is the site before any of this;
+  “Before the People page's new layout (2026-11-21)” is the site with the content changes saved and without
+  the block.
 
 | File | What it is |
 |---|---|
@@ -83,8 +84,10 @@ still says `visiting_scholar`; one student's says `stdd`), and stays in the CMS.
 
 **When someone leaves the lab:** in their item set `member_type` to `alumni` and write where they are now in
 **Occupation** (for example “National Institute of Forest Science (국립산림과학원)”); queue or publish the item.
-The rest of the item (photograph, texts) can stay: the block does not show it for alumni. Without the block
-(or without scripts) the page's own Alumni tab shows the item's whole card.
+The rest of the item (photograph, texts) can stay: the block does not show it for alumni. Where the block
+does not run (a browser without `<dialog>`; the block taken off the page), the page's own Alumni tab shows
+the item's whole card, in the design the visiting scholars' tab had: with the headings “Education” and
+“Experiences” even when the item has nothing under them. The whole card is also in the page's source.
 
 If the block cannot do its work (no scripts; a browser from before 2022, which has no `<dialog>`; the page
 rebuilt so that nobody can be read from it), the page shows as it always did, and in the last case the
@@ -127,16 +130,18 @@ the groups; a profile and every way in and out of it; the photographs; falling b
 places; the page with changed content (a person without photograph, a filled-in link, a second PI, an emptied
 group …); thirteen window sizes. It exits with the number of failures. **Run it on the live page too.**
 
-## Putting it on the site
+## How it went onto the site (2026-11-21), and how a changed file goes there
 
 In the Webflow Designer, on the People page (`data-wf-page` 640cbd423ecaf8bd443aa54e), after telling any
-other session that works on hydroai.net (a publish sends out everything saved in the Designer) and saving a
-backup (Cmd+Shift+S):
+other session that works on hydroai.net (a publish sends out everything saved in the Designer, on every
+page) and saving a backup (Cmd+Shift+S):
 
 1. Push, so that `people.html` is on the portal's GitHub Pages site (the Designer page fetches it from there).
-2. Select **Navbar** in the Navigator, add a **Code Embed** (Cmd+E, “Code Embed”, Enter): it lands right after
-   the navigation bar, before the page's section. Put the file's text in it, Save & Close, open it again and
-   compare.
+2. The first time: **Navbar** selected in the Navigator, a **Code Embed** added (Cmd+E, “Code Embed”, Enter).
+   The navigation bar is a component, so the embed lands right after it, before the page's section (Body >
+   Navbar, Code Embed, Section). For a change: select that Code Embed and press Enter. Put the file's text
+   in the editor, Save & Close, open it again and compare. (On the Designer's canvas the embed is an empty
+   box and the page looks as it always did: the Designer does not run scripts.)
 3. Publish with only hydroai.net ticked.
 4. Fetch the live page and see that the file is in it byte for byte; run
    `check_people.py https://hydroai.net/people`; look at it.
@@ -145,7 +150,9 @@ The block works wherever it is put on the page (the check tries it first and las
 the page's section is nothing of the old layout ever drawn first. The embed may hold 50,000 characters;
 the file has about 48,000. If it must grow, the comment at its head can go.
 
-**Going back:** delete the Code Embed and publish. Nothing else was changed, so the page is then as it was.
+**Going back to the page's own layout:** delete the Code Embed and publish. The block changes nothing else on
+the page, so the page's own section then shows again, with the content as it is now (no “Contact me” block,
+the Alumni tab with the item's whole card).
 
 ## Changing it later
 
@@ -173,9 +180,9 @@ the file has about 48,000. If it must grow, the comment at its head can go.
 
 **Corrected in the CMS on 2026-11-20/21 at the lab head's word** (“오타 등 고쳐”): misspellings and missing
 spaces in the texts and role lines of ten People items (two journals' names, a paper's title, a link's label,
-a space before a year in brackets, a doubled comma and the like). Each item was queued and goes out with the
-site's publish. The item-by-item list was given to the lab head; it is not kept in this repository, which is
-public.
+a space before a year in brackets, a doubled comma and the like). Each item was queued and went out with the
+site's publish of 2026-11-21; none of the old spellings is on the live page. The item-by-item list was given
+to the lab head; it is not kept in this repository, which is public.
 
 In the Designer, on the People page: the fourth tab “Visiting Scholars” was renamed “Alumni” (its label and
 its name) and its list now takes `member_type` = `alumni`; the “Contact me” block was deleted from the page.
