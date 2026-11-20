@@ -17,6 +17,8 @@ What it looks at, in each browser:
                 pause and play, a hidden tab, scrolling away; loops that cannot be fetched do not hold it;
                 with reduced motion no video is fetched until play is pressed; the block keeps its height as datasets change
   the lists     three news entries and three papers, the same as the first entries of /events and /publication;
+                every picture whole and in its own proportions, its frame the picture's own, nothing behind it
+                (at three widths), and a quiet box where a picture cannot be fetched;
                 either page unreadable -> that list is left out; both -> the block is
   the section   one language at a time, chosen by the browser's language, switched and remembered;
                 every sentence of the recruiting list that the block replaced is still on the page, in the folded call
@@ -141,7 +143,7 @@ def unreadable(page):
     for ln in got["lines"]:
         x0, y0 = max(0, int(ln["x"] * k)), max(0, int(ln["y"] * k))
         box = im.crop((x0, y0, min(im.width, max(x0 + 1, int((ln["x"] + ln["w"]) * k))), min(im.height, max(y0 + 1, int((ln["y"] + ln["h"]) * k)))))
-        data = sorted(box.getdata(), key=luminance)
+        data = sorted(box.get_flattened_data() if hasattr(box, "get_flattened_data") else box.getdata(), key=luminance)     # Pillow 12.1 renamed it
         if not data:
             continue
         back, mid = luminance(data[min(len(data) - 1, int(len(data) * 0.97))]), data[len(data) // 2]
@@ -164,8 +166,13 @@ def without_scripts(br):
     ok("what needs scripts is left out (the bars, the two lists, the language buttons)", not seen(".hh-reel-tabs") and not seen("#hh-latest") and not seen(".hh-lang"))
     r = page.evaluate("""() => ({ title: document.querySelector('.hh-reel-title').textContent, href: document.querySelector('.hh-reel-go').getAttribute('href'),
       stage: document.querySelector('.hh-reel-stage').getAttribute('href'), still: document.querySelector('.hh-reel-stage').getAttribute('style'),
-      isNew: !document.querySelector('.hh-reel-new').hidden, sky: (i => i.complete && i.naturalWidth > 0 && getComputedStyle(i).opacity === '1')(document.querySelector('.hh-hero-sky img')) })""")
-    ok("the words and still picture in the page itself are the first dataset's (soil moisture)", r["title"] == SLIDES[0][1] and r["href"] == SLIDES[0][2] and r["stage"] == SLIDES[0][2] and SLIDES[0][3] + ".jpg" in r["still"] and r["isNew"] == SLIDES[0][5], r)
+      isNew: !document.querySelector('.hh-reel-new').hidden, sky: (i => i.complete && i.naturalWidth > 0 && getComputedStyle(i).opacity === '1')(document.querySelector('.hh-hero-sky img')),
+      desc: document.querySelector('.hh-reel-desc').textContent.trim(), script: document.querySelector('#hh-hero').parentNode.querySelector('script').textContent })""")
+    ok("the words and still picture in the page itself are the first dataset's (soil moisture)", r["title"] == SLIDES[0][1] and r["href"] == SLIDES[0][2] and r["stage"] == SLIDES[0][2] and SLIDES[0][3] + ".jpg" in r["still"] and r["isNew"] == SLIDES[0][5],
+       {k: v for k, v in r.items() if k != "script"})
+    listed = re.search(r"id: 'hdca'.*?desc: '([^']*)'", r["script"], re.S)
+    ok("its line says the data are over dense vegetation, the same words in the page itself and in the reel's list", "over dense vegetation" in r["desc"] and listed is not None and listed.group(1) == r["desc"],
+       (r["desc"], listed.group(1) if listed else None))
     ok("the picture of the satellites is there without scripts too", r["sky"], r)
     ctx.close()
 
@@ -405,6 +412,26 @@ def first_entries(br, path, js):
     return out
 
 
+# the lists' pictures: the room a picture has (a square of the column's width), and each frame with what it holds
+THUMBS = """() => { const col = parseFloat(getComputedStyle(document.querySelector('#hh-latest')).getPropertyValue('--hh-t'));
+  return { col, behind: document.querySelectorAll('#hh-latest .hh-thumb-bg').length,
+    pics: [...document.querySelectorAll('#hh-latest .hh-item:not(.hh-wait) .hh-thumb')].map(t => { const i = t.querySelector('img'), b = t.getBoundingClientRect(), ib = i ? i.getBoundingClientRect() : null, row = t.closest('.hh-row');
+      return { nat: i ? [i.naturalWidth, i.naturalHeight] : [0, 0], box: [b.width, b.height], img: ib ? [ib.width, ib.height] : [0, 0], left: b.left - row.getBoundingClientRect().left - parseFloat(getComputedStyle(row).paddingLeft),
+        kids: t.children.length, back: getComputedStyle(t).backgroundImage, none: t.classList.contains('is-none') }; }) }; }"""
+
+
+def whole(t):
+    """Is every picture of the two lists shown whole: its frame the picture's own proportions and size, the longer side
+    the column's width, flush with the list's left edge, nothing else in the frame or behind it?"""
+    def one(p):
+        (nw, nh), (bw, bh), (iw, ih) = p["nat"], p["box"], p["img"]
+        if not (nw > 0 and nh > 0 and bh > 0):
+            return False
+        return (abs(bw - iw) <= 0.6 and abs(bh - ih) <= 0.6 and abs(bw / bh - nw / nh) <= 0.02 * nw / nh and abs(max(bw, bh) - t["col"]) <= 0.6
+                and min(bw, bh) <= t["col"] + 0.6 and abs(p["left"]) <= 0.6 and p["kids"] == 1 and p["back"] == "none" and not p["none"])
+    return t["behind"] == 0 and len(t["pics"]) == 6 and all(one(p) for p in t["pics"])
+
+
 def the_lists(br):
     print("  news and publications")
     news = first_entries(br, "events", """() => [...(document.querySelector('.w-tab-pane') || document).querySelectorAll('.w-dyn-item')].slice(0, 3).map(it => ({
@@ -428,6 +455,19 @@ def the_lists(br):
     ok("a paper with an address opens it in a new tab; one without leads to the Publications page", good, [(x["href"], x["target"]) for x in r["pubs"]])
     ok("every entry has its date and its picture", all(x["meta"] and x["img"] > 0 for x in r["news"] + r["pubs"]), [(x["meta"], x["img"]) for x in r["news"] + r["pubs"]])
     ok("the waiting rows are gone and the entries are visible", r["waiting"] == 0 and not r["hidden"] and all(x["seen"] == "1" for x in r["news"] + r["pubs"]), r["waiting"])
+    pictures = page.evaluate("[...document.querySelectorAll('#hh-latest .hh-thumb img')].map(i => i.currentSrc || i.src)")
+    for w, h in ((1440, 900), (1024, 768), (390, 844)):
+        page.set_viewport_size({"width": w, "height": h})
+        page.evaluate("document.querySelector('#hh-latest').scrollIntoView()")
+        try:
+            page.wait_for_function("(t => t.length === 6 && t.every(e => e.classList.contains('is-wide') || e.classList.contains('is-tall')))([...document.querySelectorAll('#hh-latest .hh-item:not(.hh-wait) .hh-thumb')])", timeout=15000)
+        except Exception:
+            pass
+        page.wait_for_timeout(300)
+        t = page.evaluate(THUMBS)
+        ok(f"{w} px wide: every picture is whole and in its own proportions, its frame the picture's, nothing behind it", whole(t),
+           (t["col"], t["behind"], [([round(v, 1) for v in p["box"]], p["nat"], round(p["left"], 1), p["kids"], p["back"][:20]) for p in t["pics"]]))
+    page.set_viewport_size({"width": 1440, "height": 900})
     ok("each of the two pages was read once", len(asked) == 2, asked)
     page.reload(wait_until="load")
     page.wait_for_function("document.querySelector('#hh-latest').dataset.news === '3'", timeout=15000)
@@ -439,6 +479,21 @@ def the_lists(br):
     page.wait_for_function("document.querySelector('#hh-latest').dataset.news !== undefined && document.querySelector('#hh-latest').dataset.pubs !== undefined", timeout=15000)
     r = page.evaluate("() => ({ news: document.querySelector('[data-hh=news]').hidden, pubs: document.querySelectorAll('[data-hh=pubs] .hh-item:not(.hh-wait)').length, single: document.querySelector('.hh-latest-wrap').classList.contains('is-single'), block: document.querySelector('#hh-latest').hidden })")
     ok("the Events page unreadable: the news list is left out, the papers stay", r["news"] and r["pubs"] == 3 and r["single"] and not r["block"], r)
+    ok("no script error", page.errors == [], page.errors[:3])
+    ctx.close()
+
+    names = {u.split("?")[0].rsplit("/", 1)[-1] for u in pictures if u}
+    ctx, page = open_page(br, route=lambda p: p.route(lambda u: u.split("?")[0].rsplit("/", 1)[-1] in names, lambda q: q.abort()))
+    page.wait_for_function("document.querySelector('#hh-latest').dataset.news !== undefined && document.querySelector('#hh-latest').dataset.pubs !== undefined", timeout=15000)
+    page.evaluate("document.querySelector('#hh-latest').scrollIntoView()")
+    try:
+        page.wait_for_function("document.querySelectorAll('#hh-latest .hh-thumb.is-none').length === 6", timeout=15000)
+    except Exception:
+        pass
+    t = page.evaluate(THUMBS)
+    r = page.evaluate("() => [...document.querySelectorAll('#hh-latest .hh-item:not(.hh-wait) .hh-title')].map(e => e.getBoundingClientRect().width > 50).length")
+    quiet = len(names) == 6 and len(t["pics"]) == 6 and all(p["none"] and abs(p["box"][0] - t["col"]) <= 0.6 and abs(p["box"][1] - 0.75 * t["col"]) <= 0.6 and p["back"] == "none" for p in t["pics"])
+    ok("the pictures cannot be fetched: a quiet box in each one's place, the six entries stay", quiet and r == 6, (sorted(names)[:2], [([round(v, 1) for v in p["box"]], p["none"]) for p in t["pics"]], r))
     ok("no script error", page.errors == [], page.errors[:3])
     ctx.close()
     ctx, page = open_page(br, route=lambda p: p.route(re.compile(r"/(events|publication)$"), lambda q: q.fulfill(status=200, content_type="text/html", body="<html><body><p>rebuilt</p></body></html>")))
@@ -512,7 +567,7 @@ def the_sizes(br, name):
           for (const t of tabs) { t.click(); await new Promise(r => setTimeout(r, 25)); heights.push(Math.round(hero.getBoundingClientRect().height));
             const s = t.querySelector('span'); if (getComputedStyle(s).display !== 'none' && t.scrollWidth > t.clientWidth + 1) cut.push(s.textContent); }
           tabs[0].click();
-          const wide = [...document.querySelectorAll('#hh-hero, #hh-hero *, #hh-latest, #hh-latest *, #hh-about, #hh-about *')].filter(e => { const b = e.getBoundingClientRect(); return b.width > 0 && (b.right > innerWidth + 0.5 || b.left < -0.5) && !e.classList.contains('hh-thumb-bg') && (!e.checkVisibility || e.checkVisibility()); }).map(e => e.className).slice(0, 4);
+          const wide = [...document.querySelectorAll('#hh-hero, #hh-hero *, #hh-latest, #hh-latest *, #hh-about, #hh-about *')].filter(e => { const b = e.getBoundingClientRect(); return b.width > 0 && (b.right > innerWidth + 0.5 || b.left < -0.5) && (!e.checkVisibility || e.checkVisibility()); }).map(e => e.className).slice(0, 4);
           const title = document.querySelector('.hh-hero-title'), cta = document.querySelector('.hh-hero-actions'), stage = document.querySelector('.hh-reel-stage'), first = cta.querySelector('a');
           const sr = stage.getBoundingClientRect();
           return { over: document.documentElement.scrollWidth - innerWidth, heights, cut, wide, hero: box('.hh-hero'), stage: [sr.width, sr.height],

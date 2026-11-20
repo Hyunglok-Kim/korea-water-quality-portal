@@ -263,6 +263,14 @@ three browsers (116 checks in each). It was one publish with the People page's c
 held the files of `011ae9c`. **When a file here changes and the site has not yet, write that here first**:
 until the publish the check fails on the live page, and the next reader must know why.
 
+**Ahead of the site since 2026-11-21 (the commit after `09acf1e`): `hero.html` and `latest.html`.** Having
+seen the second round live, the lab head asked for two corrections: the lists' pictures looked cut, with
+“another picture” behind them (“News랑 publication 사진이 잘려서... 다른 그림으로 채워져 있는데 백그라운드가. 이거
+고쳐줘”), and the soil moisture dataset's line must stress that the data are over dense vegetation (“설명을 over
+dense vegetation에서 자료라고 강조해야 함”). Both are in the files and pass the check on the preview (122 checks
+in each browser); they are **not in the Designer and not published**, which waits for the lab head's word.
+Until then four of the check's lines about the pictures and one about that line fail on the live page.
+
 - `hero.html`: the first screen. The title, one sentence and two buttons; beside them the lab's five open
   datasets in turn, each one's card loop playing once with its captions, in the order the lab head asked for
   (soil moisture, ET, SMAP error, validation site, water quality; water quality marked “New” until
