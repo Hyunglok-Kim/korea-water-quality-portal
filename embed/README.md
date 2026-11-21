@@ -7,8 +7,8 @@ Three pieces for the lab's Webflow site are kept here:
   motion on the first screen, news and papers that keep themselves up to date, and the long text cut down,
   with recruiting in one band. A **second round** (the satellites' picture behind the first screen, the
   datasets in the order the lab head asked for, the Korean reworded) is **live since 2026-11-21**, and so
-  are two corrections of the same morning (the lists' pictures shown whole, the soil moisture line): see
-  “The second round” and “The third round” below;
+  are two corrections of the same morning (the lists' pictures shown whole, the soil moisture line) and the
+  ET loop with France: see “The second round”, “The third round” and “The fourth round” below;
 - an **announcement** dialog for the home page (made 2026-11-19, **not used**: when the blocks went up the lab
   head decided against a popup, “올리고 팝업은 쓰지 말자”, 2026-11-20). The reel's water quality entry, marked
   “New”, announces the dataset instead.
@@ -25,10 +25,15 @@ dataset's portal, and a small routing script. Its text is kept in the HDCA porta
 `CLAUDE.md` and `embed/tools/README.md`. Several sessions edit that one embed, each for its own card.
 
 This folder holds the fifth card, for the water quality portal. **It has been live at
-https://hydroai.net/data#wq since 2026-11-18**, published at the lab head's word (“올려”). The embed as it is
-now: 33,673 characters, SHA-1 `911d4393a1a8a7da5ebc13bfd967f34680c5ff6e`; the Designer's editor, the live page
-and the HDCA repository's copy (`hdca-data-portal` fe99a9b) were compared and are equal. `check_captions.py`
-and `check_playback.py` of the HDCA repository pass on the live page with all five cards.
+https://hydroai.net/data#wq since 2026-11-18**, published at the lab head's word (“올려”). The embed as it
+was then: 33,673 characters, SHA-1 `911d4393a1a8a7da5ebc13bfd967f34680c5ff6e`; the Designer's editor, the live
+page and the HDCA repository's copy (`hdca-data-portal` fe99a9b) were compared and were equal, and
+`check_captions.py` and `check_playback.py` of the HDCA repository passed on the live page with all five
+cards. **Since 2026-11-21 02:59 UTC it is 33,831 characters, SHA-1
+`a61a64eaa949339440216b41acaa377070d0b8a1`**: the ET portal's session changed the ET card (the loop with
+France, `et-v3`, its captions and four sentences). Compared on the live page, the sixteen places that differ
+all lie in the ET card, and this card's markup is unchanged. Whoever edits the embed next takes its length
+and hash from the live page or from the HDCA repository's copy, not from this paragraph.
 
 | File | What it is |
 |---|---|
@@ -186,9 +191,9 @@ and recent papers that appear by themselves; the long text shortened, with recru
 `embed/home/` holds them as three Webflow **Code Embeds**, each one self-contained (styles, markup, script).
 
 **Status: live on https://hydroai.net/ since 2026-11-20**, at the lab head's word (“올리고 팝업은 쓰지
-말자”). **The site holds the three files as they are here** (commit `8eb0eda`) since the publish of
-2026-11-21 00:54 UTC (09:54 in Korea). After it the Home page's three Code Embeds held the three files byte
-for byte, and `check_home_new.py https://hydroai.net/` passed in Chromium, WebKit and Firefox (122 checks in
+말자”). **The site holds the three files as they are here** (commit `0ef0994`) since the publish of
+2026-11-21 02:55 UTC (11:55 in Korea). After it the Home page's three Code Embeds held the three files byte
+for byte, and `check_home_new.py https://hydroai.net/` passed in Chromium, WebKit and Firefox (126 checks in
 each). The rounds so far, the last one being what the site holds:
 
 | From (UTC) | Files of commit | What |
@@ -196,6 +201,7 @@ each). The rounds so far, the last one being what the site holds:
 | 2026-11-20 13:37 | `011ae9c` | the first round |
 | 2026-11-20 23:11 | `74650b6` | the second round: the satellites' picture, the datasets' order, the Korean (“The second round” below) |
 | 2026-11-21 00:54 | `8eb0eda` | the third: the lists' pictures shown whole, the soil moisture line (“The third round” below) |
+| 2026-11-21 02:55 | `0ef0994` | the fourth: the reel's ET entry on the loop with France; with it, widths for three of the page's own pictures (“The fourth round” below) |
 
 | File | What a visitor sees | What it takes the place of |
 |---|---|---|
@@ -295,7 +301,8 @@ dense screen), it fetches a larger version of the same loop instead (`wide`), al
 | File | Size | Made with |
 |---|---|---|
 | `media/wq-wide-v1.*` | 1536 × 864, 10.5 s, 1.0–1.3 MB | `tools/cap_wq.py … size=960x540 scale=1.6` |
-| `media/et-wide-v1.*` | 1536 × 864, 13.7 s, 2.0–2.6 MB | `tools/wide_loops.py et_cap` (the ET preview on the public copy of the tiles) |
+| `media/et-wide-v2.*` | 1536 × 864, 17.7 s, 2.9–3.5 MB | `tools/wide_loops.py et_cap_v3` (the ET preview on the public tiles of both regions); the reel plays this one since 2026-11-21 |
+| `media/et-wide-v1.*` | 1536 × 864, 13.7 s, 2.0–2.6 MB | `tools/wide_loops.py et_cap`: the loop without France (`et-v2`), kept, no longer played |
 | `media/hdca-wide-v1.*` | 1536 × 864, 10.5 s, 2.4–2.7 MB | `tools/wide_loops.py hdca_cap`, `hdca_compose` |
 | `media/tca-wide-v1.*` | 1536 × 864, 9.5 s, 1.9–2.3 MB | `tools/wide_loops.py tca_cap`, `tca_compose` |
 | `media/cvs-wide-v1.*` | 1280 × 720, 12 s, 1.0–1.4 MB (the drone mosaic is 1 m, no finer) | `tools/wide_loops.py cvs` |
@@ -361,8 +368,9 @@ screen, and that the words on it can be read; the reel through all five datasets
 bar at any moment, pause, a hidden tab, scrolling away, loops that cannot be fetched, reduced motion; the two
 lists against the two pages, their pictures' frames measured at three widths, pictures that cannot be
 fetched, and either page unreadable; the two languages, and every sentence of the replaced recruiting list
-still on the page; thirteen window sizes): 122 checks in each browser. It exits with the number of
-failures. **Run it on the live page too, not only on the preview**: the one defect so far showed only there
+still on the page; thirteen window sizes; and, of the page's own sections below the blocks, that every
+picture keeps its width whatever its `sizes` value says): 126 checks in each browser. It exits with the
+number of failures. **Run it on the live page too, not only on the preview**: the one defect so far showed only there
 (below). It describes the files as they are here, so it passes on the live page only while the site holds
 them: between a change here and its publish it fails there, and that is not a defect.
 
@@ -470,6 +478,62 @@ before with the first and the second embed exchanged and nothing else; the nine 
 among them, as they were but for the publish stamp and the bundles' names;
 `check_home_new.py https://hydroai.net/` passed in the three browsers (122 each).
 
+### The fourth round (live since 2026-11-21): the ET loop with France, and the page's own pictures
+
+**The loop.** The lab head put the France maps of the 30 m ET dataset up on 2026-11-21 and asked for the
+website to follow; the session that keeps that portal re-made the Data page card's loop (`et-v3`: the
+globe, France, the Korean Peninsula, Pyeongchang; 17.7 s) and left `et-v2` in place for the home page. Asked
+here whether the home page should follow, the lab head said “홈도 바꿔줘”, and then “그냥 바로 올려 올라오면”:
+publish it as soon as the loop is there. The reel's ET entry now plays `et-v3` and, on large screens,
+`et-wide-v2`, made with `wide_loops.py et_cap_v3` from the same tool at 1.6 times the density (425 frames,
+the same timeline), with the card's seven captions; the caption naming the background product is on all
+three times the globe shows. `et-v2` and `et-wide-v1` stay in their folders and are no longer played.
+
+**The pictures.** An hour earlier a publish by another session (the students' project pages) had carried
+three changed `sizes` values on the Home page, and two figures of the page's own sections had shrunk on the
+live site: “Machine Learning Applications” from 462 px to 31 px wide, “Land Surface Models” from 635 px
+to 108 px. Neither had a width of its own. A picture with `srcset` and `sizes` and no CSS width is laid out
+as wide as its `sizes` value says (clamped by its container), and Webflow writes those values itself, from
+what it measures on the Designer's canvas. It had measured anew while the Home page was open in the
+Designer that morning (for the third round), saved the result after that round's publish, and the next
+publish sent it out. Nothing in the three blocks was involved, and the check, which looked only at the
+blocks, passed.
+
+Put right in the Designer (backup first: “Before the home page's picture widths (2026-11-21)”) by giving
+the pictures widths of their own, the ones they had been shown at:
+
+| Picture | Class | Width |
+|---|---|---|
+| `main_ML-min.png` (Machine Learning Applications) | `image-19` | 462px; 356px from 991 px down; 48vw from 767 px down |
+| `main_LSM-min.png` (Land Surface Models) | `image-33` (new) | 100vw, under the `max-width: 100%` every picture has: the width of its column |
+| `satellite.png` (the 30 px icon of the Satellite Remote Sensing tile) | `image-34` (new) | 100% of its 30 px box |
+
+Laid over the live page before anything was changed, these widths gave the earlier layout to within 1 px in
+Chromium, WebKit and Firefox at fifteen window widths. With widths of their own the pictures no longer
+follow `sizes`, and a wrong value can only make a browser fetch a larger or smaller file than it needs.
+**Do not take these three widths away, and give any picture added to the page's own sections a width.**
+
+**Published at 02:55:21 UTC (11:55 in Korea), hydroai.net only**: the hero embed (`hero.html` of commit
+`0ef0994`, read back and equal) and the three widths, the two other sessions told before the Designer was
+opened and before the click. The loop went out at the lab head's word above. The widths went out with it:
+the lab head had been told of the defect and of the fix an hour before and had not yet answered; they
+restore what the page showed until that morning.
+
+Seen after it: the three files in the live home page byte for byte; outside the hero block the home page
+differs from before only in the three pictures' classes and `sizes` values, which are again the ones the
+page had for months; the stylesheet has the four width rules; the nine other pages are unchanged but for the
+stamp and the bundles' names; the two figures are 462 px and the width of their column at twelve window
+sizes and densities in three browsers.
+
+The check has a part for this now (“the page's own pictures”): every picture of the page's own sections
+that carries a `sizes` value is given `sizes="1px"` and must keep its width, at three window widths, and the
+two figures must have their full size. On the page as it was that morning these four lines failed in each
+browser; after the publish `check_home_new.py https://hydroai.net/` passed with them (126 each, 378 in all).
+
+Four minutes later the ET portal's session published the Data page's card with the same loop (02:59 UTC).
+Compared again after it: the home page as it was but for the stamp and the bundles' names, and no picture's
+`sizes` value changed, although the Designer had opened on the Home page for half a minute on its way.
+
 ### Changing a block on the site
 
 1. Edit the file; look at it in the preview; run the check on the preview. Keep the file's first comment
@@ -495,6 +559,8 @@ among them, as they were but for the publish stamp and the bundles' names;
 **Going back.** Each round's blocks are the three files of its commit (`git show <commit>:embed/home/hero.html`
 and so on), put back into the three embeds: the second round's are those of `74650b6` (only `hero.html` and
 `latest.html` differ from now), the first round's those of `011ae9c`. The Webflow backups, newest first:
+“Before the home page's picture widths (2026-11-21)” is the site as published at 01:41 UTC on 21 November,
+with the students' project pages and with the two figures shrunk;
 “Before the home page's third round (2026-11-21)” is the site as it was published at 23:11 UTC on 20
 November; “Before the People page's new layout (2026-11-21)”, the other session's, is that without the
 People page's new block; “Before the home page's second round (2026-11-21)” is the site with the first

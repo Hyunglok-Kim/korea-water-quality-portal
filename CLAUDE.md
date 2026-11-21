@@ -222,8 +222,12 @@ editing it in that folder's `CLAUDE.md` and `embed/tools/README.md`).
 Daecheong Lake, chlorophyll-a there through the year), the tool that makes it (`tools/cap_wq.py`) and the
 patch that was applied (`data-page-wq.patch.json`: the card, its panel with the HydroAI and GIST logo bar, its
 routing, and the hub's columns for five cards: three across from 1700 px, five across from 2000 px). The
-embed is now 33,673 characters, SHA-1 `911d4393…`; editor, live page and the HDCA repository's copy (fe99a9b)
-are equal, and that repository's `check_captions.py` and `check_playback.py` pass on the live page.
+embed was then 33,673 characters, SHA-1 `911d4393…`; editor, live page and the HDCA repository's copy
+(fe99a9b) were equal, and that repository's `check_captions.py` and `check_playback.py` passed on the live
+page. **Since 2026-11-21 02:59 UTC the embed is 33,831 characters, SHA-1 `a61a64ea…`**: the session that
+keeps the ET portal changed the ET card (its loop with France, `et-v3`, and four sentences); the water
+quality card in it is unchanged, compared on the live page. The embed is shared: read its present length and
+hash from the live page or from the HDCA repository's copy before editing it, never from here.
 `embed/README.md` has the details and how to change the card later.
 
 **The card's facts repeat this portal's own** (1 km; 1,012 clear overpass dates, January 2016 to December
@@ -254,19 +258,24 @@ lab head asked for a more dynamic first page (“좀 더 동적으로”) and ch
 byte for byte; the files are kept in this repository because the tools for previewing and checking the home
 page are here, not because they are about this dataset.
 
-**Which files the site holds (read this first).** Since the publish of 2026-11-21 00:54 UTC (09:54 in
-Korea) the site holds the three files as they are in commit `8eb0eda`. Seen after that publish: the three
-files in the live home page byte for byte, nothing else on the home page changed, the nine other pages as
-they were, and `check_home_new.py https://hydroai.net/` passing in three browsers (122 checks in each).
-Before it: the files of `011ae9c` from 2026-11-20 13:37 UTC (the first round) and of `74650b6` from 23:11
-UTC (the **second round**, which the lab head asked for after seeing the first one live: “우선올려”; one
-publish with the People page's changes and new layout, `embed/people/`, clicked by the session that made
-those). The **third round** is two corrections the lab head sent within the hour after that publish: the
-lists' pictures looked cut, with “another picture” behind them (“News랑 publication 사진이 잘려서... 다른
-그림으로 채워져 있는데 백그라운드가. 이거 고쳐줘”), and the soil moisture dataset's line had to stress that the
-data are over dense vegetation (“설명을 over dense vegetation에서 자료라고 강조해야 함”). `embed/README.md` has
-each round. **When a file here changes and the site has not yet, write that here first**: until the publish
-the check fails on the live page, and the next reader must know why.
+**Which files the site holds (read this first).** Since the publish of 2026-11-21 02:55 UTC (11:55 in
+Korea) the site holds the three files as they are in commit `0ef0994`. Seen after that publish: the three
+files in the live home page byte for byte, the nine other pages as they were, and `check_home_new.py
+https://hydroai.net/` passing in three browsers. The rounds before it, each asked for by the lab head and
+each in `embed/README.md`: the first (`011ae9c`, 2026-11-20 13:37 UTC); the second (`74650b6`, 23:11 UTC:
+the satellites' picture, the datasets' order, the Korean; “우선올려”; one publish with the People page's
+changes, clicked by the session that made those); the third (`8eb0eda`, 2026-11-21 00:54 UTC: the lists'
+pictures shown whole, “News랑 publication 사진이 잘려서... 다른 그림으로 채워져 있는데 백그라운드가. 이거
+고쳐줘”, and the soil moisture line saying “over dense vegetation”, “설명을 over dense vegetation에서 자료라고
+강조해야 함”); the fourth (`0ef0994`, 02:55 UTC: the reel's ET entry on the loop with France, “홈도 바꿔줘”,
+“그냥 바로 올려 올라오면”). **When a file here changes and the site has not yet, write that here first**: until
+the publish the check fails on the live page, and the next reader must know why.
+
+**Three of the page's own pictures have widths that were set for a reason (2026-11-21).** In the Webflow
+Designer, on the Home page: `image-19` (the Machine Learning figure: 462px, 356px from 991 px down, 48vw
+from 767 px down), `image-33` (the Land Surface Models figure: 100vw) and `image-34` (the satellite icon:
+100%). Without them those pictures take their size from Webflow's `sizes` value, and on that day a publish
+carried `sizes="31px"` for the first: it was 31 px wide on the live page for an hour. See “Gotchas”.
 
 - `hero.html`: the first screen. The title, one sentence and two buttons; beside them the lab's five open
   datasets in turn, each one's card loop playing once with its captions, in the order the lab head asked for
@@ -275,7 +284,8 @@ the check fails on the live page, and the next reader must know why.
   Earth-observing satellites (`embed/media/home-sky-v1.jpg`, the site's own picture with the satellites'
   names taken out by `embed/tools/home_sky.py`). It takes the place of the old hero block and the two
   photographs. The soil moisture dataset's line says the data are over dense vegetation, at the lab head's
-  word.
+  word. The ET entry plays the loop with France (`et-v3`, and `et-wide-v2` on large screens) since the Data
+  page's card got it.
 - `latest.html`: “News” and “Recent publications”, the first three entries of `/events` and `/publication`,
   read from those pages when the home page opens. Nobody edits the home page for them. Each entry's picture
   is shown whole, in its own proportions, in a frame that is the picture's own.
@@ -507,6 +517,23 @@ Things to keep when touching it:
   for it and it passed every check; it was live from the first round, and when the lab head looked at the
   lists the next morning it was reported as pictures cut and “filled with another picture”. Show a picture
   plainly; and a check that passes says nothing about a choice nobody looked at.
+- **Webflow writes every picture's `sizes` value itself, and can write a wrong one.** It measures the
+  pictures on the Designer's canvas, at moments of its own choosing, while a page is open there, and saves
+  what it finds without a word; the next publish by anyone sends it out. A picture with `srcset`, `sizes`
+  and no CSS width is laid out as wide as `sizes` says. On 2026-11-21 the Home page had been open in the
+  Designer for the third round; the values saved afterwards said “31px” for a figure shown 462 px wide and
+  “108px” for one shown 635 px; another session's publish an hour later carried them, and both figures
+  shrank on the live page. The blocks were byte for byte right and the check passed, because it looked
+  only at the blocks. What it takes: (1) after any publish compare the `sizes` of the pictures of every
+  page that was open in the Designer, between the copies from before and after, and look at the page
+  below the blocks too; (2) a picture's size belongs in CSS: the three widths above, and one for any
+  picture added; (3) the check's part “the page's own pictures” sets `sizes="1px"` on each and asserts
+  that nothing moves. To see which file a browser really takes, read `currentSrc`, not `naturalWidth`
+  (with `sizes` that is the density-corrected width, not the file's).
+- **A comparison that says “only the blocks changed” says nothing about the next publish.** After the third
+  round the home page was the page from before with two embeds exchanged, and it was; the changed values
+  sat in the Designer, saved after that publish. Compare again after the next publish of the site, whoever
+  makes it (a watcher on the “Last Published” stamp does it unattended).
 - **Thirteen window sizes are samples.** One candidate for the soil moisture dataset's line fitted at all
   thirteen sizes of the check and overflowed only from 480 to 488 px, where the first screen would have
   changed height as the datasets turned. `reel_room.py` goes through every width; the wording that went live
