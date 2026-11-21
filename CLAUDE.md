@@ -20,7 +20,8 @@ announcement dialog made the day before is **not used**, by that same decision. 
 blocks is live since 2026-11-21** (the satellites' picture behind the first screen, the datasets' order,
 the Korean reworded; the lab head: “우선올려”), **and a third since later that morning** (the lists' pictures
 shown whole, the soil moisture line saying “over dense vegetation”; “짧은 버전. 올려.”). See the two sections
-on the home page below.
+on the home page below. **The People page is remade since 2026-11-21, and each student's main project has a
+page of its own since the same day** (“The People page's block”, “The project pages' block”).
 
 This portal follows the HDCA portal (`~/orca/projects/hdca/portal/`) in structure, look and dashboard
 wiring; read that folder's `CLAUDE.md` for the shared background (the dashboard's 연구자료 mechanism, the
@@ -384,6 +385,50 @@ Things to keep when touching it:
 - **This repository is public.** What was corrected in whose text, and other remarks about named people,
   are not written here; the lab head has that list.
 
+## The project pages' block
+
+**Live on https://hydroai.net/project/… since 2026-11-21**, at the lab head's word. He asked for a page on
+each student's main project, with figures and a good design, linked from the People cards (“main project 이제
+만들어서 연결할거야 …”), then for broad descriptions only (“메인 프로젝트를 브로드하게만 설명하는 식으로 하자”, “올려”:
+the publish of 01:41:15 UTC), and in the evening for no method detail at all and figures made from public data
+(“지금 학생들 연구 방법 등 너무 구체적인 방법론은 나오지 않게 해. 그대신 좀 더 브로드한 개념으로 설명하고 필요하면 위성 및
+모델 재분석 등 자료써서 네가 그림 만들어”; “용량은 적당히 조절하고 디자인 퀄리티는 매우 좋아야해”: the publish of
+09:29:53 UTC). Three things are on the site: one Webflow Code Embed on the Projects *template* page, right
+after the navigation bar, which holds `embed/project/project.html` byte for byte and so shows every project
+page, old or new, the same way; twelve items of the Projects collection; and the line “[Main Project Link]”
+in thirteen People items.
+
+The block has no content of its own. It reads the title, the date, the text and the pictures from the page
+(the item's fields in the template), the other projects from the template's list, and whose project it is
+from the People page: it fetches `/people` and names everyone whose card links to the page as “Main Project
+Link”. Whatever stops it leaves the page in the template's own layout. `embed/project/README.md` has what a
+visitor gets, how a project's text is read (first paragraph, “At a glance”, “Links”, figures), how the
+items, the embed and the links went onto the site, how to change a page or add one, and how to go back.
+`embed/tools/project_preview.py` (port 8816, `--site` a folder outside this repository) shows an edited page
+on the live template before the item is changed; `embed/tools/check_project.py` checks the preview or live
+pages in three browsers (621 checks on the twelve pages and two older ones).
+
+Things to keep when touching it:
+
+- **A project page explains a broad idea, not a student's method** (the lab head, 2026-11-21): what the
+  project is about, why it is hard, what the lab works on in general words, why it matters. No model or
+  technique names, no experiment design, no findings, no state of a manuscript, no journal, no co-author.
+- **Its figures are made for the page from public data** (satellite products, reanalysis, public imagery),
+  say so in the caption, and are illustrations: nothing from a manuscript or from a student's notes. One look
+  for all of them, a moderate file size (2000 px WebP, 50 to 450 kB), and design that is worth showing.
+- **The pages are written outside this repository**, in `~/.hydroai/web/projects/` on the lab head's machine
+  (`src/` the pages, `figures/` the figures with their data and scripts, `NOTES.md`). The folder also holds
+  the earlier versions and their sources, which rest on unpublished work and must never come here.
+- **A person is entered once.** The link in the People item is what names them on the project page.
+- **Nothing a project's text says is dropped**, and no figure; the check compares every word and picture.
+- **A change is not done until `check_project.py https://hydroai.net/project/<slug>` has passed**, and a
+  publish sends out everything saved in the Designer, on every page (see the home page's list above).
+  `embed/tools/site_snapshot.py fetch DIR` right before the click and again after it, then `compare`. Both
+  publishes for these pages sent out wrong `sizes` for three of Home's own pictures, though Home was not
+  opened in the session that published; the second time the layout held and only the chosen file was too
+  small. **The cause is not known** (`embed/project/README.md`, “Seen on the way”, has the record): compare
+  after every publish and tell the session that looks after Home at once.
+
 ## Rules that must survive any redesign
 
 - **Say what kind of layer each parameter is.** SS, Chl-a and TP are optical retrievals; TN is a
@@ -550,6 +595,14 @@ Things to keep when touching it:
   run, the page's own Alumni tab shows the item's whole card (and the page's source holds it); the icon links
   that are “TBD”; the collection's template pages (`/people/<slug>`), which are the site template's “Teacher”
   page and which nothing links to. `embed/people/README.md` lists them.
+- On the project pages, told to the lab head on 2026-11-21 and not decided: the Projects tab itself is to be
+  remade later (his word; the twelve cards stand first there in the tab's own style); a former member whose
+  card keeps a main project link is named on that project's page; every project page's title for search
+  engines and link previews is only “HydroAI” (the template's page settings, as before). Decided by him that
+  evening: the eight addresses that changed stay 404, without a redirect; the 34 pictures of the morning's
+  version were deleted from the site's Assets panel. Their files, and the copies Webflow made for the
+  collection, still answer at their addresses: Webflow takes a file off its CDN only on a request to its
+  support, and no such request has been made. `embed/project/README.md` has these.
 - The manuscript's figures stay unpublished by the lab head's decision of 2026-11-18 (“그림 공개는 아직하지 말자”).
 - The dashboard's three files for this dataset (`gateway/research_datasets.json`, `gateway/static/wq-korea.html`,
   `gateway/static/shared/nav.js`) are in that repository's working tree, live, and were left uncommitted on

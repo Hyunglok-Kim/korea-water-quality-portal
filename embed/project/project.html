@@ -1,0 +1,537 @@
+<!--
+  hydroai.net project pages (/project/...), shown in a cleaner layout by one block.
+  The title with who leads the project, the first picture large, the facts as a row of tiles, then the text
+  section by section with its figures (a click enlarges one; arrows step through them), the links, and other
+  projects of the lab.
+
+  Where it goes: one Webflow Code Embed on the Projects template page, right after the navigation bar.
+  It has no content of its own. The title, the date, the text and the pictures are read from the page (the
+  project's item in the Projects collection); whose project it is is read from the People page: everyone whose
+  card there links to this page as "Main Project Link". Those stay where they are, are edited in Webflow as
+  before, and are not shown while this block runs. Without scripts, in a browser from before 2022, or if the
+  page cannot be read, the page shows as it always did.
+
+  How a project's text is read (whoever writes one can rely on these):
+    the first paragraph                     the opening line under the title
+    a heading                               a section; a long heading is set above its text, a short one beside it
+    a picture with its caption              a figure; the first one of the page is shown large under the title
+    the heading "At a glance", then a list  tiles: "Data: SMAP, ASCAT" (a bold label or the words before the colon)
+    in that list, "Status: ..."             the green mark beside the name
+    a quote                                 the key sentence, set apart
+    the heading "More figures"              its pictures side by side
+    the heading "Links", then links         buttons at the foot of the text
+    empty lines                             left out
+  To change the words on the buttons: T in the script.
+-->
+<style>
+  /* the page's own sections stay on the page (they are edited in Webflow) and are not shown while this block is on */
+  html.hj-js .section.project-detail, html.hj-js .section.project-post-content, html.hj-js [data-hj-old] { display: none !important; }
+  html.hj-lock { overflow: hidden; scrollbar-gutter: stable; }
+  .hj { --ink: #1c3533; --ink2: rgba(28, 53, 51, 0.86); --ink3: rgba(28, 53, 51, 0.64); --line: rgba(28, 53, 51, 0.13); --edge: rgba(28, 53, 51, 0.09); --fill: rgba(28, 53, 51, 0.07);
+    --green: #219653; --deep: #14622f; --mint: #75fb92; --card: #fcfbf9; --head: "Plus Jakarta", sans-serif;
+    display: none; box-sizing: border-box; padding: 132px 0 96px; font-family: Satoshi, sans-serif; font-size: 16px; line-height: 1.5; color: var(--ink); text-align: left; }
+  .hj[data-state="on"] { display: block; }
+  .hj *, .hj *::before, .hj *::after { box-sizing: border-box; }
+  .hj [hidden] { display: none !important; }
+  .hj-wrap { max-width: 1348px; margin: 0 auto; padding: 0 24px; }
+  .hj a { color: var(--deep); text-decoration: underline; text-decoration-color: rgba(33, 150, 83, 0.45); text-underline-offset: 3px; }
+  .hj a:hover { text-decoration-color: currentColor; }
+  .hj a:focus-visible, .hj button:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; border-radius: 6px; }
+
+  /* the top: where we are, the title, the opening line, who and how far */
+  .hj-kicker { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0; font-size: 13px; font-weight: 500; line-height: 1.3; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); }
+  .hj-kicker::before { content: ""; flex: none; width: 26px; height: 2px; border-radius: 2px; background: currentColor; }
+  .hj .hj-kicker a { color: inherit; text-decoration: none; }
+  .hj .hj-kicker a:hover { text-decoration: underline; }
+  .hj-kicker span::before { content: "/"; margin-right: 10px; opacity: 0.55; }
+  .hj-title { max-width: 22em; margin: 14px 0 0; font-family: var(--head); font-size: clamp(31px, 3.4vw, 50px); font-weight: 600; line-height: 1.12; letter-spacing: -0.022em; color: var(--ink); text-wrap: balance; }
+  .hj-lede { max-width: 43em; margin: 20px 0 0; font-size: clamp(18px, 1.42vw, 20.5px); line-height: 1.56; color: var(--ink2); }
+  .hj-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; min-height: 60px; margin-top: 24px; }
+  .hj-meta:empty { display: none; }
+  .hj .hj-person { display: grid; grid-template-columns: 52px minmax(0, 1fr); column-gap: 13px; align-items: center; color: var(--ink); text-decoration: none; }
+  .hj-face { position: relative; display: block; width: 52px; height: 60px; border-radius: 11px; overflow: hidden; background: #e6e1d8; box-shadow: inset 0 0 0 1px var(--edge); }
+  .hj-face img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 22%; }
+  .hj-by { display: block; font-size: 11.5px; font-weight: 500; line-height: 1.3; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); }
+  .hj-who { display: block; margin-top: 2px; font-family: var(--head); font-size: 17.5px; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; }
+  .hj-role { display: block; margin-top: 1px; font-size: 13.5px; line-height: 1.35; color: var(--ink3); }
+  .hj-role::after { content: " \2192"; font-family: Arial, sans-serif; }
+  .hj .hj-person:hover .hj-role { color: var(--deep); }
+  .hj-chip { display: inline-flex; align-items: center; gap: 9px; min-height: 34px; padding: 5px 14px 6px 12px; border-radius: 999px; background: rgba(117, 251, 146, 0.3); color: var(--ink); font-size: 14.5px; font-weight: 500; line-height: 1.3; }
+  .hj-chip::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+  .hj-date { font-size: 14.5px; color: var(--ink3); }
+
+  /* a figure: the picture on white, its caption under it; a click enlarges it */
+  .hj-fig { min-width: 0; margin: 0; }
+  .hj-shot { position: relative; display: block; width: 100%; margin: 0; padding: clamp(10px, 1.5vw, 22px); border: 0; border-radius: 18px; background: #fff; box-shadow: inset 0 0 0 1px var(--edge); font: inherit; color: inherit; text-align: center; -webkit-appearance: none; appearance: none; cursor: zoom-in; transition: box-shadow 0.25s; }
+  .hj-shot img { display: block; width: auto; height: auto; max-width: 100%; max-height: min(82vh, 820px); margin: 0 auto; }
+  .hj-zoom { position: absolute; right: 12px; bottom: 12px; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; background: rgba(28, 53, 51, 0.82); color: #fff; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+  .hj-zoom svg { display: block; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .hj-shot:hover, .hj-shot:focus-visible { box-shadow: inset 0 0 0 1px rgba(33, 150, 83, 0.5), 0 14px 34px rgba(28, 53, 51, 0.1); }
+  .hj-shot:hover .hj-zoom, .hj-shot:focus-visible .hj-zoom { opacity: 1; }
+  .hj-cap { max-width: 62em; margin: 11px 2px 0; font-size: 14.5px; line-height: 1.52; color: var(--ink3); }
+  .hj-hero { margin-top: 30px; }
+  .hj-hero .hj-shot { border-radius: 22px; }
+  .hj-hero .hj-shot img { max-height: min(76vh, 760px); }
+  .hj-figs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+  .hj-video { position: relative; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: #111; }
+  .hj-video iframe { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; }
+
+  /* the facts: a card beside the title */
+  .hj-top.has-facts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 392px); column-gap: 56px; align-items: start; }
+  .hj-lead { min-width: 0; }
+  .hj-facts { align-self: end; min-width: 0; margin: 0; padding: 5px 20px; border-radius: 18px; background: var(--card); box-shadow: inset 0 0 0 1px var(--edge); }
+  .hj-fact { min-width: 0; padding: 13px 0 14px; border-top: 1px solid var(--line); }
+  .hj-fact:first-child { border-top: 0; }
+  .hj-fact dt { margin: 0; font-size: 12px; font-weight: 500; line-height: 1.3; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); }
+  .hj-fact dd { margin: 4px 0 0; font-size: 15.5px; line-height: 1.45; color: var(--ink); overflow-wrap: anywhere; }
+
+  /* the text, section by section */
+  .hj-body { margin-top: 50px; }
+  .hj-sec { display: grid; grid-template-columns: 248px minmax(0, 1fr); column-gap: 52px; padding: 38px 0 40px; border-top: 1px solid var(--line); }
+  .hj-sec.is-open { display: block; padding-top: 0; border-top: 0; }
+  .hj-h { position: sticky; top: 108px; align-self: start; margin: 0; font-family: var(--head); font-size: 23px; font-weight: 600; line-height: 1.27; letter-spacing: -0.012em; color: var(--ink); text-wrap: balance; }
+  .hj-sec.is-long { display: block; }
+  .hj-sec.is-long .hj-h { position: static; max-width: 30em; margin-bottom: 18px; font-size: 25px; }
+  .hj-cnt { min-width: 0; }
+  .hj-cnt > * { margin-top: 0; margin-bottom: 18px; }
+  .hj-cnt > .hj-fig, .hj-cnt > .hj-figs { margin-top: 26px; margin-bottom: 28px; }
+  .hj-cnt > :first-child { margin-top: 0; }
+  .hj-cnt > :last-child { margin-bottom: 0; }
+  .hj-p, .hj-list { max-width: 43em; font-size: 17.5px; line-height: 1.64; color: var(--ink2); }
+  .hj-list { padding-left: 1.25em; }
+  .hj-list li { margin: 0 0 7px; padding-left: 3px; }
+  .hj-list li::marker { color: var(--green); }
+  .hj-quote { max-width: 36em; padding: 3px 0 3px 22px; border: 0; border-left: 3px solid var(--mint); font-family: var(--head); font-size: clamp(19px, 1.6vw, 23px); font-weight: 500; line-height: 1.46; letter-spacing: -0.008em; color: var(--ink); }
+
+  /* the links, and other projects */
+  .hj-links { display: flex; flex-wrap: wrap; gap: 10px; padding: 30px 0 0; border-top: 1px solid var(--line); }
+  .hj .hj-pill { display: inline-flex; align-items: center; gap: 9px; min-height: 42px; padding: 8px 18px 9px; border-radius: 999px; color: var(--ink); font-size: 15.5px; font-weight: 500; line-height: 1.25; text-decoration: none; box-shadow: inset 0 0 0 1px rgba(28, 53, 51, 0.2); transition: background-color 0.2s, color 0.2s, box-shadow 0.2s; }
+  .hj-pill::after, .hj-all::after { content: "\2192"; font-family: Arial, sans-serif; transition: transform 0.2s; }
+  .hj .hj-pill:hover { background: var(--ink); color: #fff; box-shadow: none; }
+  .hj-pill:hover::after, .hj-all:hover::after { transform: translateX(3px); }
+  .hj .hj-pill.is-go { background: rgba(117, 251, 146, 0.3); box-shadow: none; }
+  .hj .hj-pill.is-go:hover { background: var(--mint); color: var(--ink); }
+  .hj-more { margin-top: 76px; }
+  .hj-more-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px 24px; margin-bottom: 20px; }
+  .hj-mh { margin: 0; font-family: var(--head); font-size: 26px; font-weight: 600; line-height: 1.25; letter-spacing: -0.014em; color: var(--ink); }
+  .hj .hj-all { display: inline-flex; gap: 8px; color: var(--ink); font-size: 15.5px; font-weight: 500; white-space: nowrap; text-decoration: none; }
+  .hj .hj-all:hover { color: var(--deep); }
+  .hj-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .hj .hj-card { display: flex; flex-direction: column; min-width: 0; border-radius: 18px; overflow: hidden; background: var(--card); box-shadow: inset 0 0 0 1px var(--edge); color: var(--ink); text-decoration: none; transition: box-shadow 0.25s, transform 0.25s; }
+  .hj-thumb { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; background: #e6e1d8; }
+  .hj-thumb img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .hj-ct { display: block; padding: 16px 18px 18px; }
+  .hj-cby { display: block; margin-bottom: 5px; font-size: 12px; font-weight: 500; line-height: 1.3; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); }
+  .hj-cn { display: block; font-family: var(--head); font-size: 17.5px; font-weight: 600; line-height: 1.32; letter-spacing: -0.01em; }
+  @media (hover: hover) {
+    .hj .hj-card:hover { box-shadow: inset 0 0 0 1px rgba(33, 150, 83, 0.42), 0 16px 36px rgba(28, 53, 51, 0.1); transform: translateY(-2px); }
+    .hj-card:hover .hj-thumb img { transform: scale(1.04); }
+  }
+
+  /* a figure, enlarged */
+  .hj-lb { width: 100vw; max-width: 100vw; height: 100vh; height: 100dvh; max-height: 100vh; max-height: 100dvh; margin: 0; padding: 18px; border: 0; background: transparent; color: #fff; overflow: hidden; }
+  .hj-lb::backdrop { background: rgba(14, 26, 25, 0.9); }
+  .hj-lb[open] { display: flex; align-items: center; justify-content: center; }
+  .hj-big { display: flex; flex-direction: column; align-items: center; width: 100%; max-height: 100%; margin: 0; animation: hjUp 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .hj-big img { display: block; flex: 0 1 auto; min-height: 0; width: auto; height: auto; max-width: 100%; max-height: calc(100vh - 176px); max-height: calc(100dvh - 176px); object-fit: contain; border-radius: 12px; background: #fff; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4); }
+  .hj-lb-cap { flex: none; max-width: 70em; max-height: 4.6em; margin: 12px 0 0; overflow: auto; font-size: 14.5px; line-height: 1.5; color: rgba(255, 255, 255, 0.86); text-align: center; }
+  .hj .hj-lb-cap a, .hj .hj-lb-bar a { color: #fff; }
+  .hj-lb-bar { display: flex; flex: none; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 14px; min-height: 56px; padding-top: 8px; color: #fff; font-size: 14.5px; font-variant-numeric: tabular-nums; }
+  .hj-lb-bar button { min-width: 40px; height: 40px; margin: 0; padding: 0 14px; border: 0; border-radius: 999px; background: rgba(255, 255, 255, 0.14); color: #fff; font: inherit; cursor: pointer; transition: background-color 0.2s; }
+  .hj-lb-bar button:hover { background: rgba(255, 255, 255, 0.28); }
+  .hj-lb-bar [data-step] { padding: 0; font: 400 20px/1 Arial, sans-serif; }
+  .hj-lb button:focus-visible, .hj-lb a:focus-visible { outline-color: var(--mint); }
+
+  /* arriving */
+  @keyframes hjUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  .hj-anim .hj-top, .hj-anim .hj-hero { animation: hjUp 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .hj-anim .hj-hero { animation-delay: 0.08s; }
+  .hj-anim .hj-rise { opacity: 0; transform: translateY(16px); }
+  .hj-anim .hj-rise.is-in { opacity: 1; transform: none; transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+
+  @media (max-width: 1099px) {
+    .hj-top.has-facts { display: block; }
+    .hj-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 32px; margin-top: 26px; }
+    .hj-fact:nth-child(2) { border-top: 0; }
+    .hj-sec { grid-template-columns: 200px minmax(0, 1fr); column-gap: 36px; }
+    .hj-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 899px) {
+    .hj { padding: 112px 0 72px; }
+    .hj-sec, .hj-sec.is-long { display: block; padding: 30px 0 32px; }
+    .hj-h, .hj-sec.is-long .hj-h { position: static; max-width: none; margin-bottom: 14px; font-size: 23px; }
+    .hj-body { margin-top: 40px; }
+    .hj-more { margin-top: 60px; }
+  }
+  @media (max-width: 699px) {
+    .hj-figs { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+    .hj-zoom { display: none; }
+  }
+  @media (max-width: 559px) {
+    .hj { padding: 96px 0 60px; }
+    .hj-wrap { padding: 0 16px; }
+    .hj-title { margin-top: 12px; }
+    .hj-lede { margin-top: 16px; }
+    .hj-meta { gap: 12px 16px; margin-top: 20px; }
+    .hj-hero { margin-top: 24px; }
+    .hj-facts { display: block; margin-top: 22px; padding: 3px 16px; }
+    .hj-fact:nth-child(2) { border-top: 1px solid var(--line); }
+    .hj-shot, .hj-hero .hj-shot { padding: 8px; border-radius: 14px; }
+    .hj-p, .hj-list { font-size: 16.5px; }
+    .hj-h, .hj-sec.is-long .hj-h { font-size: 21.5px; }
+    .hj-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+    .hj-mh { font-size: 23px; }
+    .hj-lb { padding: 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hj-big, .hj-anim .hj-top, .hj-anim .hj-hero { animation: none; }
+    .hj-card, .hj-thumb img, .hj-shot { transition: none; }
+  }
+  @media print {
+    .hj-more, .hj-links, .hj-zoom, .hj-lb { display: none !important; }
+    .hj-anim .hj-rise { opacity: 1; transform: none; }
+    .hj-h { position: static; }
+  }
+</style>
+
+<article class="hj" id="hj-project" aria-labelledby="hj-title">
+  <div class="hj-wrap">
+    <header class="hj-top" data-hj="top">
+      <div class="hj-lead">
+        <p class="hj-kicker"><a href="/projects">Projects</a><span data-hj="kind" hidden></span></p>
+        <h1 class="hj-title" id="hj-title" data-hj="title"></h1>
+        <p class="hj-lede" data-hj="lede"></p>
+        <div class="hj-meta" data-hj="meta"></div>
+      </div>
+      <dl class="hj-facts" data-hj="facts" hidden></dl>
+    </header>
+    <div class="hj-hero" data-hj="hero" hidden></div>
+    <div class="hj-body" data-hj="body"></div>
+    <nav class="hj-links" data-hj="links" aria-label="Links of this project" hidden></nav>
+    <section class="hj-more" data-hj="more" aria-labelledby="hj-more-h" hidden>
+      <div class="hj-more-top">
+        <h2 class="hj-mh" id="hj-more-h" data-hj="more-h"></h2>
+        <a class="hj-all" href="/projects" data-hj="all"></a>
+      </div>
+      <div class="hj-grid" data-hj="grid"></div>
+    </section>
+  </div>
+  <dialog class="hj-lb" data-hj="lb" aria-label="Figure, enlarged">
+    <figure class="hj-big">
+      <img alt="">
+      <figcaption class="hj-lb-cap" data-hj="lb-cap"></figcaption>
+      <div class="hj-lb-bar">
+        <button type="button" data-step="-1" aria-label="Previous figure">&#8592;</button>
+        <span data-hj="lb-n"></span>
+        <button type="button" data-step="1" aria-label="Next figure">&#8594;</button>
+        <a data-hj="lb-full" target="_blank" rel="noopener"></a>
+        <button type="button" data-close autofocus>Close</button>
+      </div>
+    </figure>
+  </dialog>
+</article>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.getElementById('hj-project'), html = document.documentElement, here = window.location;
+  if (!root || root.getAttribute('data-state')) return;
+  root.setAttribute('data-state', 'wait');
+  /* a browser from before 2022 (no <dialog>) keeps the page as it was */
+  if (!window.HTMLDialogElement || !window.MutationObserver) { root.setAttribute('data-state', 'off'); return; }
+  html.classList.add('hj-js');      /* from here the page's own sections are not shown; fail() brings them back */
+
+  var T = { main: 'Main project', profile: 'View profile', more: 'More projects', all: 'All projects', contact: 'Contact the lab', zoom: 'Enlarge the figure', full: 'Open full size' };
+  var FACTS = /^(at a glance|key facts|facts|in brief)$/i;      /* a heading that begins the tiles */
+  var LINKS = /^(links|read more|related links|resources)$/i;   /* a heading that begins the buttons */
+  var GRID = /^(more figures|figures|gallery)$/i;               /* a heading whose pictures are set as a grid */
+  var STATUS = /^status$/i, MAIN = /main\s+pro\w*\s+link/i;     /* on the People page: "[Main Project Link]", however it is spelt */
+  var LONG = 44;      /* a heading longer than this is set above its text instead of beside it */
+  var MORE = 6;       /* other projects shown at the foot of the page */
+
+  var C = String.fromCharCode;
+  var ZW = new RegExp('[' + C(0x200b) + '-' + C(0x200d) + C(0xfeff) + ']', 'g'), WORD = new RegExp('[^a-z0-9' + C(0xc0) + '-' + C(0xffff) + ']+', 'g');
+  var HON = /^((prof|dr|mr|ms|mrs|miss|mx)\.?\s+)+/i;
+  var KEEP = { A: 'a', B: 'strong', STRONG: 'strong', I: 'em', EM: 'em', SUP: 'sup', SUB: 'sub', CODE: 'code', BR: 'br' };
+  var ZOOM = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>';
+  var clean = function (s) { return (s || '').replace(ZW, '').replace(/\s+/g, ' ').trim(); };
+  var slug = function (s) { return clean(s).toLowerCase().replace(WORD, '-').replace(/^-+|-+$/g, ''); };
+  var each = function (list, fn) { [].forEach.call(list, fn); };
+  var part = function (name) { return root.querySelector('[data-hj="' + name + '"]'); };
+  var site = function (h) { return (h || '').replace(/^www\./, ''); };
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function fail(e) {
+    html.classList.remove('hj-js', 'hj-lock'); root.setAttribute('data-state', 'off');
+    each(document.querySelectorAll('[data-hj-old]'), function (x) { x.removeAttribute('data-hj-old'); });
+    if (window.console) console.warn('hydroai project block: the page is shown as it was', e);
+  }
+  /* the path of an address on this site, or '' for an address elsewhere */
+  function path(href) {
+    try { var u = new URL(href, here.href); return site(u.hostname) === site(here.hostname) || site(u.hostname) === 'hydroai.net' ? u.pathname.replace(/\/+$/, '') : ''; } catch (e) { return ''; }
+  }
+  var self = path(here.href);
+
+  /* words with their links and emphasis, and nothing else of the markup they came in */
+  function inline(src, into) {
+    each(src.childNodes, function (n) {
+      var k, e, h, t;
+      if (n.nodeType === 3) { t = n.nodeValue.replace(ZW, ''); if (t) into.appendChild(document.createTextNode(t)); return; }
+      if (n.nodeType !== 1 || n.tagName === 'FIGCAPTION') return;
+      k = KEEP[n.tagName];
+      if (!k) { inline(n, into); return; }
+      e = el(k);
+      if (k === 'a') {
+        h = n.getAttribute('href') || '';
+        if (!/^(https?:|mailto:|\/|#)/i.test(h)) { inline(n, into); return; }
+        e.href = h;
+        if (/^https?:/i.test(h) && !path(h)) { e.target = '_blank'; e.rel = 'noopener'; }
+      }
+      if (k !== 'br') inline(n, e);
+      into.appendChild(e);
+    });
+    return into;
+  }
+
+  /* the page's text, piece by piece */
+  function figure(n) {
+    var img = n.querySelector('img'), fr = n.querySelector('iframe'), cap = n.querySelector('figcaption');
+    cap = cap && clean(cap.textContent) ? cap : null;
+    if (img && img.getAttribute('src')) return { t: 'fig', src: img.getAttribute('src'), srcset: img.getAttribute('srcset') || '', alt: clean(img.getAttribute('alt')), cap: cap };
+    if (fr && /^https:/i.test(fr.getAttribute('src') || '')) return { t: 'video', src: fr.getAttribute('src'), title: clean(fr.getAttribute('title')), cap: cap };
+    return null;
+  }
+  function read(rich) {
+    var out = [];
+    each(rich.children, function (n) {
+      var tag = n.tagName, f;
+      if (/^H[1-6]$/.test(tag)) { if (clean(n.textContent)) out.push({ t: 'h', text: clean(n.textContent) }); }
+      else if (tag === 'UL' || tag === 'OL') { if (clean(n.textContent)) out.push({ t: 'list', node: n, ord: tag === 'OL' }); }
+      else if (tag === 'BLOCKQUOTE') { if (clean(n.textContent)) out.push({ t: 'quote', node: n }); }
+      else if (n.querySelector('img, iframe')) { f = figure(n); if (f) out.push(f); }
+      else if (clean(n.textContent)) out.push({ t: 'p', node: n });
+    });
+    return out;
+  }
+  /* "Data: SMAP, ASCAT": a bold label, or the words before the colon */
+  function fact(li, s) {
+    var b = li.firstElementChild, first = li.firstChild, label = '', val = el('dd'), c, t, i;
+    if (b && /^(B|STRONG)$/.test(b.tagName) && (first === b || (first.nodeType === 3 && !clean(first.nodeValue)))) {
+      label = clean(b.textContent).replace(/\s*:\s*$/, '');
+      c = li.cloneNode(true); c.removeChild(c.firstElementChild); inline(c, val);
+      if (val.firstChild && val.firstChild.nodeType === 3) val.firstChild.nodeValue = val.firstChild.nodeValue.replace(/^\s*:\s*/, '');
+    } else {
+      t = clean(li.textContent); i = t.indexOf(':');
+      if (i > 0 && i < 30) { label = t.slice(0, i); val.textContent = clean(t.slice(i + 1)); } else val.textContent = t;
+    }
+    if (!clean(val.textContent)) return;
+    if (STATUS.test(label)) s.status = clean(val.textContent); else s.facts.push({ label: label, val: val });
+  }
+  function shape(blocks) {
+    var open = { title: '', items: [] }, secs = [open], cur = open, s = { lede: null, facts: [], status: '', links: [], hero: null };
+    blocks.forEach(function (b) { if (b.t === 'h') { cur = { title: b.text, items: [] }; secs.push(cur); } else cur.items.push(b); });
+    if (open.items.length && open.items[0].t === 'p') s.lede = open.items.shift().node;
+    /* the tiles and the buttons take their lists; whatever else stands under those headings stays in the text */
+    secs.forEach(function (sec) {
+      var facts = FACTS.test(sec.title), links = LINKS.test(sec.title);
+      if (!facts && !links) return;
+      sec.title = '';
+      sec.items = sec.items.filter(function (b) {
+        if (facts && b.t === 'list') { each(b.node.children, function (li) { fact(li, s); }); return false; }
+        if (links && b.node && b.node.querySelector('a[href]')) { each(b.node.querySelectorAll('a[href]'), function (a) { if (clean(a.textContent)) s.links.push(a); }); return false; }
+        return true;
+      });
+    });
+    /* the first picture of the page is shown large under the title */
+    secs.some(function (sec) { return sec.items.some(function (b, i) { if (b.t !== 'fig') return false; s.hero = b; sec.items.splice(i, 1); return true; }); });
+    s.secs = secs.filter(function (sec) { return sec.items.length; });
+    return s;
+  }
+
+  var figs = [];      /* every picture of the page in order: the enlarged view steps through them */
+  function shot(f, eager) {
+    var fig = el('figure', 'hj-fig'), b = el('button', 'hj-shot'), img = el('img'), z = el('span', 'hj-zoom');
+    b.type = 'button'; b.setAttribute('data-fig', figs.length); b.setAttribute('aria-label', T.zoom);
+    img.alt = f.alt || (f.cap ? clean(f.cap.textContent) : ''); img.decoding = 'async';
+    if (!eager) img.loading = 'lazy';
+    if (f.srcset) { img.sizes = '(max-width: 1396px) 94vw, 1300px'; img.srcset = f.srcset; }
+    img.src = f.src;
+    z.innerHTML = ZOOM;
+    b.appendChild(img); b.appendChild(z); fig.appendChild(b);
+    if (f.cap) fig.appendChild(inline(f.cap, el('figcaption', 'hj-cap')));
+    figs.push({ src: f.src, alt: img.alt, cap: f.cap });
+    return fig;
+  }
+  function content(items, into, grid) {
+    var row = null;
+    items.forEach(function (b) {
+      var e = null, w, fr;
+      if (b.t === 'fig') {
+        if (grid && !row) { row = el('div', 'hj-figs'); into.appendChild(row); }
+        (row || into).appendChild(shot(b));
+        return;
+      }
+      row = null;
+      if (b.t === 'p') e = inline(b.node, el('p', 'hj-p'));
+      else if (b.t === 'quote') e = inline(b.node, el('blockquote', 'hj-quote'));
+      else if (b.t === 'list') {
+        e = el(b.ord ? 'ol' : 'ul', 'hj-list');
+        each(b.node.children, function (li) { if (li.tagName === 'LI' && clean(li.textContent)) e.appendChild(inline(li, el('li'))); });
+      } else if (b.t === 'video') {
+        e = el('figure', 'hj-fig'); w = el('div', 'hj-video'); fr = el('iframe');
+        fr.src = b.src; fr.title = b.title || 'Video'; fr.loading = 'lazy'; fr.allowFullscreen = true;
+        fr.setAttribute('allow', 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+        w.appendChild(fr); e.appendChild(w);
+        if (b.cap) e.appendChild(inline(b.cap, el('figcaption', 'hj-cap')));
+      }
+      if (e) into.appendChild(e);
+    });
+  }
+
+  function build(old, post) {
+    var rich = post.querySelector('.w-richtext'), h1 = old.querySelector('h1'), title = clean(h1 && h1.textContent);
+    if (!rich || !title) throw new Error('the project page has no title or no text');
+    var date = clean((old.querySelector('.text-medium') || {}).textContent), bg = /url\((['"]?)(.*?)\1\)/.exec(old.style.backgroundImage || '');
+    var s = shape(read(rich)), body = part('body'), meta = part('meta'), list = post.nextElementSibling, cta = post.querySelector('a.cta[href]');
+    var others = [], seen = {}, after = 0, e;
+    if (!s.hero && bg && bg[2]) s.hero = { src: bg[2], srcset: '', alt: '', cap: null };
+
+    part('title').textContent = title;
+    if (s.lede) inline(s.lede, part('lede')); else part('lede').hidden = true;
+    if (s.status) meta.appendChild(el('span', 'hj-chip', s.status));
+    if (date) meta.appendChild(el('span', 'hj-date', date));
+    if (s.hero) { e = part('hero'); e.appendChild(shot(s.hero, true)); e.hidden = false; }
+    if (s.facts.length) {
+      e = part('facts');
+      s.facts.forEach(function (f) { var d = el('div', 'hj-fact'); if (f.label) d.appendChild(el('dt', '', f.label)); d.appendChild(f.val); e.appendChild(d); });
+      e.hidden = false; part('top').classList.add('has-facts');
+    }
+    s.secs.forEach(function (sec) {
+      var x = el('section', 'hj-sec hj-rise' + (sec.title ? (sec.title.length > LONG ? ' is-long' : '') : ' is-open')), cnt = el('div', 'hj-cnt');
+      if (sec.title) x.appendChild(el('h2', 'hj-h', sec.title));
+      content(sec.items, cnt, GRID.test(sec.title));
+      x.appendChild(cnt); body.appendChild(x);
+    });
+    e = part('links');
+    s.links.forEach(function (a, i) {
+      var p = el('a', 'hj-pill' + (i ? '' : ' is-go'), clean(a.textContent)), h = a.getAttribute('href');
+      if (!/^(https?:|mailto:|\/|#)/i.test(h)) return;
+      p.href = h; if (/^https?:/i.test(h) && !path(h)) { p.target = '_blank'; p.rel = 'noopener'; }
+      e.appendChild(p);
+    });
+    if (cta && path(cta.getAttribute('href'))) e.appendChild(el('a', 'hj-pill', T.contact)).href = path(cta.getAttribute('href'));
+    e.hidden = !e.firstChild;
+
+    /* the other projects: the list at the foot of the page */
+    if (list && list.querySelector('.w-dyn-item a[href]')) {
+      each(list.querySelectorAll('.w-dyn-item'), function (it) {
+        var a = it.querySelector('a[href]'), im = it.querySelector('img'), t = it.querySelector('.text-block-h3-style, h3, h2'), p = a && path(a.getAttribute('href'));
+        if (!p || seen[p]) return;
+        seen[p] = true;
+        if (p === self) { after = others.length; return; }
+        if (t && clean(t.textContent)) others.push({ path: p, title: clean(t.textContent), src: im && im.getAttribute('src'), srcset: im && im.getAttribute('srcset') });
+      });
+      list.setAttribute('data-hj-old', '');
+    }
+    others = others.slice(after).concat(others.slice(0, after));      /* each page begins with the projects that follow it */
+
+    /* a figure, enlarged */
+    var lb = part('lb'), lbImg = lb.querySelector('img'), lbCap = part('lb-cap'), lbN = part('lb-n'), lbFull = part('lb-full'), at = 0;
+    function light(i) {
+      var f = figs[at = (i + figs.length) % figs.length];
+      lbImg.removeAttribute('src'); lbImg.alt = f.alt; lbImg.src = f.src;
+      lbCap.textContent = ''; if (f.cap) inline(f.cap, lbCap);
+      lbCap.hidden = !f.cap; lbN.textContent = (at + 1) + ' / ' + figs.length; lbFull.href = f.src;
+      if (!lb.open) { lb.showModal(); html.classList.add('hj-lock'); }
+    }
+    lbFull.textContent = T.full;
+    root.addEventListener('click', function (ev) {
+      var b = ev.target.closest('[data-fig], [data-step], [data-close]');
+      if (b && b.hasAttribute('data-fig')) light(+b.getAttribute('data-fig'));
+      else if (b && b.hasAttribute('data-step')) light(at + (+b.getAttribute('data-step')));
+      else if (b || ev.target === lb) lb.close();
+    });
+    lb.addEventListener('close', function () { html.classList.remove('hj-lock'); });
+    lb.addEventListener('keydown', function (ev) { if (ev.key === 'ArrowLeft') light(at - 1); else if (ev.key === 'ArrowRight') light(at + 1); });
+    if (figs.length < 2) each(lb.querySelectorAll('[data-step], [data-hj="lb-n"]'), function (b) { b.hidden = true; });
+
+    old.setAttribute('data-hj-old', ''); post.setAttribute('data-hj-old', '');
+    root.setAttribute('data-figs', figs.length); root.setAttribute('data-secs', s.secs.length);
+    root.setAttribute('data-state', 'on');
+    if (/^hydroai$/i.test(clean(document.title))) document.title = title + ' | HydroAI';
+
+    /* the sections rise as they come into view (not for a visitor who asked for reduced motion) */
+    if (!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) && 'IntersectionObserver' in window) {
+      root.classList.add('hj-anim');
+      var io = new IntersectionObserver(function (es) {
+        es.forEach(function (x) {
+          var t = x.target;
+          if (!x.isIntersecting) return;
+          io.unobserve(t); t.classList.add('is-in');
+          window.setTimeout(function () { t.classList.remove('hj-rise', 'is-in'); }, 1100);
+        });
+      }, { rootMargin: '0px 0px -6% 0px' });
+      each(root.querySelectorAll('.hj-rise'), function (x) { io.observe(x); });
+    }
+
+    /* who leads it, and which other projects are somebody's main project: the People page says */
+    function people(all) {
+      var mine = all[self] || [], box = part('more'), grid = part('grid'), k = part('kind');
+      mine.slice().reverse().forEach(function (p) {
+        var a = el('a', 'hj-person'), f = el('span', 'hj-face'), t = el('span'), img;
+        a.href = '/people#' + p.slug; a.setAttribute('data-person', p.slug);
+        if (p.src) { img = el('img'); img.alt = ''; if (p.srcset) { img.sizes = '52px'; img.srcset = p.srcset; } img.src = p.src; f.appendChild(img); }
+        if (p.role) t.appendChild(el('span', 'hj-by', p.role));
+        t.appendChild(el('span', 'hj-who', p.name)); t.appendChild(el('span', 'hj-role', T.profile));
+        a.appendChild(f); a.appendChild(t); meta.insertBefore(a, meta.firstChild);
+      });
+      if (mine.length) { k.textContent = T.main; k.hidden = false; }
+      others.filter(function (o) { return all[o.path]; }).concat(others.filter(function (o) { return !all[o.path]; })).slice(0, MORE).forEach(function (o) {
+        var a = el('a', 'hj-card hj-rise'), th = el('span', 'hj-thumb'), t = el('span', 'hj-ct'), img, who = (all[o.path] || []).map(function (p) { return p.name.replace(HON, ''); }).join(', ');
+        a.href = o.path;
+        if (o.src) { img = el('img'); img.alt = ''; img.loading = 'lazy'; if (o.srcset) { img.sizes = '(max-width: 559px) 94vw, (max-width: 1099px) 46vw, 420px'; img.srcset = o.srcset; } img.src = o.src; th.appendChild(img); }
+        if (who) t.appendChild(el('span', 'hj-cby', who));
+        t.appendChild(el('span', 'hj-cn', o.title));
+        a.appendChild(th); a.appendChild(t); grid.appendChild(a);
+        if (root.classList.contains('hj-anim') && io) io.observe(a); else a.classList.remove('hj-rise');
+      });
+      if (grid.firstChild) { part('more-h').textContent = T.more; part('all').textContent = T.all; box.hidden = false; }
+      root.setAttribute('data-people', mine.length);
+    }
+    function ask() {
+      return fetch('/people', { credentials: 'same-origin' }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); }).then(function (t) {
+        var d = new DOMParser().parseFromString(t, 'text/html'), all = {};
+        each(d.querySelectorAll('.people-card'), function (card) {
+          var a = [].filter.call(card.querySelectorAll('.w-richtext a[href]'), function (x) { return MAIN.test(x.textContent); })[0], p = a && path(a.getAttribute('href'));
+          var h = card.querySelector('.name h2') || card.querySelector('h2'), name = clean(h && h.textContent), img = card.querySelector('.people-image-wrap img');
+          if (!p || !name) return;
+          (all[p] = all[p] || []).push({ name: name, slug: slug(name.replace(HON, '')), role: clean((card.querySelector('.subtext') || {}).textContent),
+            src: img && img.getAttribute('src'), srcset: img && img.getAttribute('srcset') });
+        });
+        return all;
+      });
+    }
+    (window.fetch && window.DOMParser ? ask() : Promise.reject()).catch(function () { return {}; }).then(people).catch(function () { root.setAttribute('data-people', 0); });
+  }
+
+  /* the page is read as soon as the browser has all of it, whether this block comes before or after it */
+  var done = false, mo = null;
+  function whole(post) {      /* true once something follows the part of the page that holds the project */
+    var n = post;
+    while (n.parentNode && n.parentNode !== document.body) n = n.parentNode;
+    if (n !== post) return !!n.nextElementSibling;
+    for (n = post.nextElementSibling; n; n = n.nextElementSibling) if (n.tagName === 'SCRIPT') return true;
+    return false;
+  }
+  function start() {
+    if (done) return;
+    var old = document.querySelector('.section.project-detail'), post = document.querySelector('.section.project-post-content');
+    if (document.readyState === 'loading' && !(post && whole(post))) return;
+    done = true;
+    if (mo) mo.disconnect();
+    try { if (!old || !post) throw new Error('this is not a project page'); build(old, post); } catch (e) { fail(e); }
+  }
+  if (document.body) { mo = new MutationObserver(start); mo.observe(document.body, { childList: true }); }
+  document.addEventListener('DOMContentLoaded', start);
+  start();
+})();
+</script>
