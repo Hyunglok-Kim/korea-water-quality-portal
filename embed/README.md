@@ -6,8 +6,9 @@ Three pieces for the lab's Webflow site are kept here:
 - three **blocks that remake the top of the home page** (**live since 2026-11-20**): the lab's datasets in
   motion on the first screen, news and papers that keep themselves up to date, and the long text cut down,
   with recruiting in one band. A **second round** (the satellites' picture behind the first screen, the
-  datasets in the order the lab head asked for, the Korean reworded) is **live since 2026-11-21**: see
-  “The second round” below;
+  datasets in the order the lab head asked for, the Korean reworded) is **live since 2026-11-21**, and so
+  are two corrections of the same morning (the lists' pictures shown whole, the soil moisture line): see
+  “The second round” and “The third round” below;
 - an **announcement** dialog for the home page (made 2026-11-19, **not used**: when the blocks went up the lab
   head decided against a popup, “올리고 팝업은 쓰지 말자”, 2026-11-20). The reel's water quality entry, marked
   “New”, announces the dataset instead.
@@ -185,13 +186,16 @@ and recent papers that appear by themselves; the long text shortened, with recru
 `embed/home/` holds them as three Webflow **Code Embeds**, each one self-contained (styles, markup, script).
 
 **Status: live on https://hydroai.net/ since 2026-11-20**, at the lab head's word (“올리고 팝업은 쓰지
-말자”). **The site holds the three files as they are here** (commit `74650b6`) since the publish of
-2026-11-20 23:11 UTC, which is 21 November in Korea: after seeing the first round live the lab head asked
-for three changes (“The second round” below) and said to publish them (“우선올려”). After that publish the
-Home page's three Code Embeds held the three files byte for byte, and `check_home_new.py
-https://hydroai.net/` passed in Chromium, WebKit and Firefox (116 checks in each). From 2026-11-20 13:37 UTC
-until then the site held the first round, the files of commit `011ae9c` (264 checks passed on the live page
-that day).
+말자”). **The site holds the three files as they are here** (commit `8eb0eda`) since the publish of
+2026-11-21 00:54 UTC (09:54 in Korea). After it the Home page's three Code Embeds held the three files byte
+for byte, and `check_home_new.py https://hydroai.net/` passed in Chromium, WebKit and Firefox (122 checks in
+each). The rounds so far, the last one being what the site holds:
+
+| From (UTC) | Files of commit | What |
+|---|---|---|
+| 2026-11-20 13:37 | `011ae9c` | the first round |
+| 2026-11-20 23:11 | `74650b6` | the second round: the satellites' picture, the datasets' order, the Korean (“The second round” below) |
+| 2026-11-21 00:54 | `8eb0eda` | the third: the lists' pictures shown whole, the soil moisture line (“The third round” below) |
 
 | File | What a visitor sees | What it takes the place of |
 |---|---|---|
@@ -235,6 +239,13 @@ or is rebuilt so that nothing can be found in it, its list is left out, and if b
 the check below says so when it happens. **Adding an entry to the Events or Publications page in Webflow is
 all it takes for the home page to show it.**
 
+**Their pictures.** Each entry's picture is the one its page shows, in the smallest file Webflow has that is
+still sharp. It is shown **whole and in its own proportions**: its longer side takes the width of the
+pictures' column (`--hh-t`: 132 px; 112 px in a window 901 to 1100 px wide; 92 px up to 479 px), its frame is the
+picture's own, and nothing is put behind it. So pictures in one list differ in height, and a row reserves
+the tallest a picture can be, which keeps the list still when a picture arrives. Until it has arrived, and
+where it cannot be fetched or an entry has none, a quiet 4:3 box stands in its place.
+
 **The section in two languages.** A visitor sees Korean if the browser's language is Korean and English
 otherwise, can switch with the two buttons, and the browser remembers the choice (`localStorage`,
 `hydroai-home-lang`). Without scripts both languages show, one after the other. The recruiting list that was
@@ -255,6 +266,11 @@ page.
 - The datasets' names and one-line descriptions repeat the Data page's cards. When a card changes, change
   its entry in `REEL.slides`. Year ranges are written with a hyphen here (“2015-2025”); the cards have en
   dashes.
+- **The soil moisture dataset's line says that the data are over dense vegetation**: “SMAP L-band soil
+  moisture, optical depth and scattering albedo over dense vegetation: global, daily since 2015.” The lab
+  head asked for that emphasis (“설명을 over dense vegetation에서 자료라고 강조해야 함”) and chose this shorter
+  wording over one that kept “vegetation optical depth” and needed more room. The line is in the markup and
+  in `REEL.slides`, the same words in both; the check holds them together.
 - **The Korean was reworded on 2026-11-20**, when the lab head found that it did not read as a Korean
   researcher's own writing and asked for that to be put right. It is not a line-for-line translation of the
   English any more, and what was taken out shows what to keep out: dashes set into a sentence; “~하기 위한
@@ -333,6 +349,7 @@ what the lab is (satellites, Earth observation), not only its data.**
 ~/.venvs/hydroai/bin/python embed/tools/home_new_preview.py --local-media   # this repository's loops from embed/media/ (for a loop that is not pushed yet)
 ~/miniconda3/bin/python embed/tools/check_home_new.py                       # the preview, in Chromium, WebKit and Firefox
 ~/miniconda3/bin/python embed/tools/check_home_new.py https://hydroai.net/  # the live page
+~/miniconda3/bin/python embed/tools/reel_room.py [--browser webkit]         # the room for each dataset's words, at every width
 ```
 
 `home_new_preview.py` fetches the live home page with its Events and Publications pages and puts this
@@ -342,11 +359,16 @@ byte for byte. `/?live` shows the page as it is on the site, `/?lang=ko` or `en`
 `check_home_new.py` lists what it checks in its docstring (the page's structure; the picture behind the first
 screen, and that the words on it can be read; the reel through all five datasets in their order, a click on a
 bar at any moment, pause, a hidden tab, scrolling away, loops that cannot be fetched, reduced motion; the two
-lists against the two pages, and either page unreadable; the two languages, and every sentence of the
-replaced recruiting list still on the page; thirteen window sizes): 116 checks in each browser. It exits
-with the number of failures. **Run it on the live page too, not only on the preview**: the one defect so far
-showed only there (below). It describes the files as they are here, so it passes on the live page only
-while the site holds them: between a change here and its publish it fails there, and that is not a defect.
+lists against the two pages, their pictures' frames measured at three widths, pictures that cannot be
+fetched, and either page unreadable; the two languages, and every sentence of the replaced recruiting list
+still on the page; thirteen window sizes): 122 checks in each browser. It exits with the number of
+failures. **Run it on the live page too, not only on the preview**: the one defect so far showed only there
+(below). It describes the files as they are here, so it passes on the live page only while the site holds
+them: between a change here and its publish it fails there, and that is not a defect.
+
+`reel_room.py` goes through every window width from 320 to 2048 px, shows each dataset in turn and says
+where a name and line need more room than the first screen reserves. Run it when a title or line of the
+reel changes: the check looks at thirteen sizes, and a longer line can overflow only between them.
 
 ### How it went onto the site (2026-11-20)
 
@@ -419,6 +441,35 @@ Projects, Teaching, Contact, Opportunities and About are as they were but for th
 bundles' names; the People page changed as the other session meant it to (`embed/people/README.md`);
 `check_home_new.py https://hydroai.net/` passed in the three browsers (116 each).
 
+### The third round (live since 2026-11-21): the lists' pictures and the soil moisture line
+
+Within the hour after the second round went live the lab head asked for two corrections.
+
+- “지금 News랑 publication 사진이 잘려서... 다른 그림으로 채워져 있는데 백그라운드가. 이거 고쳐줘”: a picture in
+  the two lists stood whole inside a 4:3 box, and what was left of the box was filled with a blurred, enlarged
+  copy of the same picture. On the page that read as a cut picture with another one behind it. Now a
+  picture's frame is the picture's own (“Their pictures” above); the blurred copy is gone (`latest.html`).
+- “설명을 over dense vegetation에서 자료라고 강조해야 함”, of the soil moisture dataset's line under the
+  pictures: the line now says so (“The words” above; `hero.html`). Of two wordings the lab head took the
+  shorter (“짧은 버전”), which fits the room every width reserves. The longer one, with “vegetation optical
+  depth” kept, needed a line more from 320 to 352 px, 480 to 530, 960 to 1002 and 1200 to 1252: the second of
+  these bands lies between the sizes the check looks at, which is why `reel_room.py` exists.
+
+The check got the pictures' frames at three widths, the case of pictures that cannot be fetched, and the
+line's words in the markup and in the reel's list (122 checks in each browser). Run against the page as it
+was, the four new lines about the pictures failed and every older line passed: they measure what was wrong.
+
+In the Designer, on 2026-11-21, after the backup “Before the home page's third round (2026-11-21)”: the text
+of the first and of the second Code Embed was replaced with `hero.html` and `latest.html` of commit
+`8eb0eda`, each opened again and found equal to the pushed file; the third was read and is unchanged. The
+other session had nothing saved or queued and stayed out of the Designer. **Published at 00:54:57 UTC (09:54
+in Korea), hydroai.net only**, at the lab head's word (“짧은 버전. 올려.”).
+
+Seen after it: the three files in the live home page byte for byte, each once; the home page is the page from
+before with the first and the second embed exchanged and nothing else; the nine other pages, the People page
+among them, as they were but for the publish stamp and the bundles' names;
+`check_home_new.py https://hydroai.net/` passed in the three browsers (122 each).
+
 ### Changing a block on the site
 
 1. Edit the file; look at it in the preview; run the check on the preview. Keep the file's first comment
@@ -441,15 +492,16 @@ bundles' names; the People page changed as the other session meant it to (`embed
    and that the pages nobody worked on are the same but for the publish stamp and the bundles' names, then
    run `check_home_new.py https://hydroai.net/`.
 
-**Going back.** To the first round's blocks: put `hero.html` and `about.html` of commit `011ae9c` back into
-the first and third embeds (`git show 011ae9c:embed/home/hero.html`). The Webflow backup “Before the home
-page's second round (2026-11-21)” is the site with the first round's blocks and with the People page edits
-saved by then; “Before the People page's new layout (2026-11-21)”, the other session's, is the site as it
-was published that morning without the People page's new block; “Before the home page's new blocks
+**Going back.** Each round's blocks are the three files of its commit (`git show <commit>:embed/home/hero.html`
+and so on), put back into the three embeds: the second round's are those of `74650b6` (only `hero.html` and
+`latest.html` differ from now), the first round's those of `011ae9c`. The Webflow backups, newest first:
+“Before the home page's third round (2026-11-21)” is the site as it was published at 23:11 UTC on 20
+November; “Before the People page's new layout (2026-11-21)”, the other session's, is that without the
+People page's new block; “Before the home page's second round (2026-11-21)” is the site with the first
+round's blocks and with the People page edits saved by then; “Before the home page's new blocks
 (2026-11-20)” is the whole site as it was before any of this. Restoring a backup also undoes whatever
-anyone has changed on any page since, so ask first. By hand,
-all the way back: delete the three embeds and build the old hero and paragraph again from
-`home/replaced-hero.html` and `home/replaced-paragraph.html`.
+anyone has changed on any page since, so ask first. By hand, all the way back: delete the three embeds and
+build the old hero and paragraph again from `home/replaced-hero.html` and `home/replaced-paragraph.html`.
 
 ### Changing it later
 

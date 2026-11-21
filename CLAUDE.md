@@ -18,7 +18,9 @@ charts; see “The paper's figures” below. **On hydroai.net/data since 2026-11
 2026-11-20**: three blocks made here that remake its top (the lab head: “올리고 팝업은 쓰지 말자”). The
 announcement dialog made the day before is **not used**, by that same decision. **A second round of the
 blocks is live since 2026-11-21** (the satellites' picture behind the first screen, the datasets' order,
-the Korean reworded; the lab head: “우선올려”). See the two sections on the home page below.
+the Korean reworded; the lab head: “우선올려”), **and a third since later that morning** (the lists' pictures
+shown whole, the soil moisture line saying “over dense vegetation”; “짧은 버전. 올려.”). See the two sections
+on the home page below.
 
 This portal follows the HDCA portal (`~/orca/projects/hdca/portal/`) in structure, look and dashboard
 wiring; read that folder's `CLAUDE.md` for the shared background (the dashboard's 연구자료 mechanism, the
@@ -252,24 +254,19 @@ lab head asked for a more dynamic first page (“좀 더 동적으로”) and ch
 byte for byte; the files are kept in this repository because the tools for previewing and checking the home
 page are here, not because they are about this dataset.
 
-**Which files the site holds (read this first).** Since the publish of 2026-11-20 23:11 UTC (21 November,
-08:11 in Korea) the site holds the three files as they are in commit `74650b6`: the **second round**, which
-the lab head asked for after seeing the first one live and said to publish (“우선올려”). Seen after that
-publish: the three files in the live home page byte for byte, nothing else on the home page changed, the
-other pages as they were except the People page, and `check_home_new.py https://hydroai.net/` passing in
-three browsers (116 checks in each). It was one publish with the People page's changes and new layout
-(`embed/people/`, another session's work for the lab head), clicked by that session; `embed/README.md`
-(“The second round”) says how the two were brought together. From 2026-11-20 13:37 UTC until then the site
-held the files of `011ae9c`. **When a file here changes and the site has not yet, write that here first**:
-until the publish the check fails on the live page, and the next reader must know why.
-
-**Ahead of the site since 2026-11-21 (the commit after `09acf1e`): `hero.html` and `latest.html`.** Having
-seen the second round live, the lab head asked for two corrections: the lists' pictures looked cut, with
-“another picture” behind them (“News랑 publication 사진이 잘려서... 다른 그림으로 채워져 있는데 백그라운드가. 이거
-고쳐줘”), and the soil moisture dataset's line must stress that the data are over dense vegetation (“설명을 over
-dense vegetation에서 자료라고 강조해야 함”). Both are in the files and pass the check on the preview (122 checks
-in each browser); they are **not in the Designer and not published**, which waits for the lab head's word.
-Until then four of the check's lines about the pictures and one about that line fail on the live page.
+**Which files the site holds (read this first).** Since the publish of 2026-11-21 00:54 UTC (09:54 in
+Korea) the site holds the three files as they are in commit `8eb0eda`. Seen after that publish: the three
+files in the live home page byte for byte, nothing else on the home page changed, the nine other pages as
+they were, and `check_home_new.py https://hydroai.net/` passing in three browsers (122 checks in each).
+Before it: the files of `011ae9c` from 2026-11-20 13:37 UTC (the first round) and of `74650b6` from 23:11
+UTC (the **second round**, which the lab head asked for after seeing the first one live: “우선올려”; one
+publish with the People page's changes and new layout, `embed/people/`, clicked by the session that made
+those). The **third round** is two corrections the lab head sent within the hour after that publish: the
+lists' pictures looked cut, with “another picture” behind them (“News랑 publication 사진이 잘려서... 다른
+그림으로 채워져 있는데 백그라운드가. 이거 고쳐줘”), and the soil moisture dataset's line had to stress that the
+data are over dense vegetation (“설명을 over dense vegetation에서 자료라고 강조해야 함”). `embed/README.md` has
+each round. **When a file here changes and the site has not yet, write that here first**: until the publish
+the check fails on the live page, and the next reader must know why.
 
 - `hero.html`: the first screen. The title, one sentence and two buttons; beside them the lab's five open
   datasets in turn, each one's card loop playing once with its captions, in the order the lab head asked for
@@ -277,9 +274,11 @@ Until then four of the check's lines about the pictures and one about that line 
   `REEL.newUntil`, 2027-02-28). Behind the whole panel, the picture the old first screen had: the
   Earth-observing satellites (`embed/media/home-sky-v1.jpg`, the site's own picture with the satellites'
   names taken out by `embed/tools/home_sky.py`). It takes the place of the old hero block and the two
-  photographs.
+  photographs. The soil moisture dataset's line says the data are over dense vegetation, at the lab head's
+  word.
 - `latest.html`: “News” and “Recent publications”, the first three entries of `/events` and `/publication`,
-  read from those pages when the home page opens. Nobody edits the home page for them.
+  read from those pages when the home page opens. Nobody edits the home page for them. Each entry's picture
+  is shown whole, in its own proportions, in a frame that is the picture's own.
 - `about.html`: the lab in a paragraph with its two axes and the two photographs, then a recruiting band
   with the full call folded away; English or Korean, one at a time. It takes the place of the long paragraph
   above the green tiles, which is kept as `replaced-paragraph.html` (the old hero as `replaced-hero.html`).
@@ -330,6 +329,15 @@ Things to keep when touching them:
   satellites' names) are taken out because they crossed the page's.
 - **The order of the reel is the lab head's** (soil moisture, ET, SMAP error, validation site, water
   quality). The first dataset's words and still are in the markup as well as in `REEL.slides`.
+- **The soil moisture line says “over dense vegetation”.** That is what the dataset is for the lab head
+  (“설명을 over dense vegetation에서 자료라고 강조해야 함”); the check asserts the words, the same in the markup
+  and in `REEL.slides`. Whoever shortens or rewrites the line keeps them.
+- **A dataset's name and line must fit the room every width reserves.** After changing one, run
+  `embed/tools/reel_room.py` (every width from 320 to 2048 px) in the three browsers, not only the check:
+  its thirteen sizes miss the bands between them.
+- **A picture in the two lists is shown whole, and nothing is put behind or around it.** Its frame takes the
+  picture's own proportions. No cropping to a common shape and no filling of a common box: the lab head read
+  a blurred copy behind a picture as “another picture” and the picture as cut.
 - **Korean text under the lab's name.** No dashes; sentences in 합니다체 with plain verbs; short lines as
   notes with noun endings; no “차세대”, “핵심”, “열정을 가진”, “~하기 위한 …” headings or labels translated
   word for word; never the same thing under a heading and again below it. The lab head's own sentences are
@@ -494,6 +502,15 @@ Things to keep when touching it:
 - **A hit test needs its target inside the window.** `elementFromPoint` gives nothing for a point below the
   fold, so the check brings each button to the middle of the window (`window.scrollTo`) before asking what a
   click there would reach.
+- **A device that needs explaining reads as a defect.** The lists' pictures first stood whole in a 4:3 box
+  over a blurred, enlarged copy of themselves, a common way to fill a box without cropping. Nobody had asked
+  for it and it passed every check; it was live from the first round, and when the lab head looked at the
+  lists the next morning it was reported as pictures cut and “filled with another picture”. Show a picture
+  plainly; and a check that passes says nothing about a choice nobody looked at.
+- **Thirteen window sizes are samples.** One candidate for the soil moisture dataset's line fitted at all
+  thirteen sizes of the check and overflowed only from 480 to 488 px, where the first screen would have
+  changed height as the datasets turned. `reel_room.py` goes through every width; the wording that went live
+  fits all of them in the three browsers.
 
 ## Not done yet
 
