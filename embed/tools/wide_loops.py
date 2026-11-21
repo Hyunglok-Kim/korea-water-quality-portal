@@ -14,6 +14,7 @@ and frame counts are the tools' own, so a wide loop has its card loop's timeline
     hdca_cap        hdca/portal/embed/tools/cap_hdca_amazon.py                     the HDCA preview (port 8792)
     hdca_compose    hdca/portal/embed/tools/compose_hdca_amazon.py
     et_cap          hdca/portal/embed/tools/cap_et.py                              the ET preview on the PUBLIC copy of the tiles (port 8791)
+    et_cap_v3       hdca/portal/embed/tools/cap_et_v3.py  (the loop with France)   the ET preview with both regions' public tiles
     cvs             hdca/portal/embed/tools/make_cvs.py  (1280 x 720: the drone mosaic is 1 m, no finer)
 
     W=frames                                                   # any scratch folder
@@ -31,6 +32,9 @@ and frame counts are the tools' own, so a wide loop has its card loop's timeline
     # ET: the preview must serve the public copy (dev_server.py --data <public-tiles> --port 8791), as for the card
     python embed/tools/wide_loops.py et_cap "http://127.0.0.1:8791/?data=/data/prithvi-openet-tiles-1/&intro=0" $W/et
     embed/tools/encode.sh $W/et et-wide-v1 embed/media 31 44 1536 24
+    # ET with France (et-v3, 2026-11-21): the preview must serve the public tiles of both regions; the tool checks that it does
+    python embed/tools/wide_loops.py et_cap_v3 "http://127.0.0.1:8853/?data=/data/prithvi-openet-tiles-1/&intro=0" $W/et3
+    embed/tools/encode.sh $W/et3 et-wide-v2 embed/media 31 44 1536 24
     # the validation site
     CVS_FPS=15 CVS_HOLD=10 CVS_FADE=8 python embed/tools/wide_loops.py cvs ~/orca/projects/hampyeong-cal-val $W/cvs
     embed/tools/encode.sh $W/cvs cvs-wide-v1 embed/media 29 42 1280 15
@@ -72,6 +76,7 @@ TOOLS = {
     "hdca_cap": (REPOS / "hdca/portal/embed/tools/cap_hdca_amazon.py", CAPTURE + TIMELINE),
     "hdca_compose": (REPOS / "hdca/portal/embed/tools/compose_hdca_amazon.py", COMPOSE),
     "et_cap": (REPOS / "hdca/portal/embed/tools/cap_et.py", CAPTURE),
+    "et_cap_v3": (REPOS / "hdca/portal/embed/tools/cap_et_v3.py", CAPTURE),
     "cvs": (REPOS / "hdca/portal/embed/tools/make_cvs.py", CVS),
 }
 

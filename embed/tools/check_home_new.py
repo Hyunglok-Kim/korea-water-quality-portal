@@ -6,7 +6,8 @@
 
 What it looks at, in each browser:
   the page      one <h1>; the three blocks are there and what they replace is gone; no script error; nothing wider than the window;
-                without scripts the words and still pictures remain and what needs scripts is left out
+                without scripts the words and still pictures remain and what needs scripts is left out;
+                the page's own pictures below the blocks keep their width whatever Webflow's `sizes` value says
   the picture   the satellites behind the first screen: there, loaded, behind everything, not in the way of a click; the page
                 is whole without it; and at every size the words on it can be read (contrast against the brightest of what
                 lies behind each line, measured on a picture of the page with the letters taken out)
@@ -47,7 +48,7 @@ FAILS = 0
 
 # the reel's datasets in the page's order: id, title, link, the card loop's file, the larger loop's file, marked new
 SLIDES = [("hdca", "Hybrid Dual-Channel Algorithm (HDCA)", "/data#hdca", "hdca-v3", "hdca-wide-v1", False),
-          ("et", "Global 30m-ET", "/data#et", "et-v2", "et-wide-v1", False),
+          ("et", "Global 30m-ET", "/data#et", "et-v3", "et-wide-v2", False),
           ("tca", "SMAP Time-Variant Error", "/data#tca", "tca-v2", "tca-wide-v1", False),
           ("cvs", "NASA-GIST Core Validation Site", "/data#cvs", "cvs", "cvs-wide-v1", False),
           ("wq", "Inland Water Quality of South Korea", "/data#wq", "wq-v1", "wq-wide-v1", True)]
@@ -202,6 +203,38 @@ def the_page(br):
     ok("nothing is wider than the window", r["over"] <= 0, r["over"])
     ok("no script error", page.errors == [], page.errors[:3])
     ctx.close()
+
+
+# the page's own pictures (those outside the three blocks that Webflow gives a `sizes` value): each one's file and laid-out width
+OWN = """() => [...document.querySelectorAll('img[sizes]')].filter(i => !i.closest('#hh-hero, #hh-latest, #hh-about, .navbar, .w-nav')).map(i => {
+  i.loading = 'eager'; return { file: decodeURIComponent((i.getAttribute('src') || '').split('/').pop()).replace(/^[0-9a-f]{24}_/, ''), w: i.offsetWidth, sizes: i.getAttribute('sizes') }; })"""
+
+
+def own_pictures(br):
+    """The pictures in the page's own sections, below the blocks. Webflow writes their `sizes` values itself and has
+    written wrong ones (2026-11-21: "31px" for a figure 462 px wide); a picture with no width of its own takes its
+    size from that value and shrinks with it. So: each is laid out as wide whatever `sizes` says."""
+    print("  the page's own pictures")
+    for w, h in ((1440, 900), (820, 1000), (390, 844)):
+        ctx, page = open_page(br, w, h)
+        page.wait_for_timeout(800)
+        page.evaluate(OWN)
+        try:
+            page.wait_for_function("[...document.querySelectorAll('img[sizes]')].filter(i => !i.closest('#hh-hero, #hh-latest, #hh-about, .navbar, .w-nav')).every(i => i.complete && i.naturalWidth > 0)", timeout=30000)
+        except Exception:
+            pass
+        page.wait_for_timeout(700)
+        before = page.evaluate(OWN)
+        page.evaluate("document.querySelectorAll('img[sizes]').forEach(i => { if (!i.closest('#hh-hero, #hh-latest, #hh-about, .navbar, .w-nav')) i.setAttribute('sizes', '1px'); })")
+        page.wait_for_timeout(1500)
+        after = page.evaluate(OWN)
+        moved = [(x["file"], x["w"], y["w"], x["sizes"]) for x, y in zip(before, after) if abs(x["w"] - y["w"]) > 1]
+        ok(f"{w} px wide: each of the page's own pictures keeps its width whatever its sizes value says", len(before) >= 4 and moved == [], (len(before), moved))
+        if w == 1440:
+            by = {x["file"]: x["w"] for x in before}
+            ok("the two figures are their full size (Machine Learning 462 px, Land Surface Models the width of its column)",
+               abs(by.get("main_ML-min.png", 0) - 462) <= 2 and by.get("main_LSM-min.png", 0) >= 560, {k: by.get(k) for k in ("main_ML-min.png", "main_LSM-min.png", "main_satellites-min.png")})
+        ctx.close()
 
 
 def the_reel(br):
@@ -593,6 +626,7 @@ with sync_playwright() as pw:
         print(f"\n== {name}: {URL}")
         br = getattr(pw, name).launch()
         the_page(br)
+        own_pictures(br)
         without_scripts(br)
         the_sky(br)
         the_reel(br)
