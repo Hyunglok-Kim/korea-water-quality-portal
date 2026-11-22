@@ -566,6 +566,15 @@ before. The script that waits in this folder's working tree (it tells each pictu
 part of this publish and still waits for its own word: the Land Surface Models figure, 635 px wide, is still drawn
 from the 500 px file on a plain screen, and from the 1080 px file on a dense one.
 
+**Eight minutes later the short values were back.** Another session published at 14:10:52 UTC (two Projects
+items updated by CSV; the Home page on its canvas at 1439 px and untouched, as that session reports), and the three
+pictures went out with “(max-width: 479px) 60vw, 144px”, “31px” and “(max-width: 479px) 45vw, 108px” again. The
+live page is therefore as it has been since 21 November: nothing moved, and a browser takes the 500 px files on
+every screen. Twice in one evening the values that went out were those of the Designer of the session that
+clicked, and the two sessions' values differed; what in a session's Designer decides them is still not known.
+This session had opened the Designer straight on the Home page by its pageId and stayed in the Design view
+(no CMS view, no Assets panel); the other came to its click from the Assets panel and a CSV import.
+
 ### Changing a block on the site
 
 1. Edit the file; look at it in the preview; run the check on the preview. Keep the file's first comment
