@@ -8,10 +8,17 @@ remade too, because one has to scroll a long way and page through every earlier 
 People and project blocks it is kept in this repository because the tools for previewing and checking the
 lab's Webflow pages are here, not because it is about this dataset.
 
-**Status (2026-11-22): made and checked on a local copy of the live page; not on hydroai.net.** Putting it
-there means publishing the Webflow site, which waits for the lab head's word (`../README.md`). On the preview
-`check_publications.py` passes in Chromium, WebKit and Firefox (261 checks in each, 0 failures), and the page
-was looked at at 2048, 1440 and 390 px.
+**Live on https://hydroai.net/publication since 2026-11-22** (published at 09:50:31 UTC, 18:50 in Korea,
+hydroai.net only), at the lab head's word after seeing the preview (“게시 및 고치고 추천으로 진행”). The page
+holds this file byte for byte, as the first element of its Body: the file of commit `7780c3d`, 46,382
+characters, SHA-1 `af3e7e161c97f017e9ca49291215cc2a84e68b56`. On the live page `check_publications.py` passes
+in Chromium, WebKit and Firefox (259 checks in each, 0 failures), `check_home_new.py https://hydroai.net/`
+passes as it did before the publish (378 checks), and the page was looked at at 2048, 1440 and 390 px. With
+the same publish the second tab's misspelt label was corrected in the Designer (“The page's content” below).
+
+- **Backup in Webflow:** “Before the Publications page's new layout (2026-11-22)” is the site as it was
+  before.
+- **Going back:** delete the Code Embed and publish (“How it went onto the site” below).
 
 | File | What it is |
 |---|---|
@@ -121,30 +128,57 @@ in another place; the page with changed content (a paper without picture, a pict
 a link filled in, a new tab, an emptied one, no quotation …); thirteen window sizes. It exits with the
 number of failures. **Run it on the live page too.**
 
-## How it goes onto the site
+## How it went onto the site (2026-11-22), and how a changed file goes there
 
 In the Webflow Designer, on the Publications page (`data-wf-page` 640cbd423ecaf899c03aa522), at the lab
-head's word, after telling any other session that works on hydroai.net (a publish sends out everything
+head's word, after telling the other sessions that work on hydroai.net (a publish sends out everything
 saved in the Designer, on every page) and saving a backup (Cmd+Shift+S):
 
-1. Push, so that `publications.html` is on the portal's GitHub Pages site (the Designer page fetches it from
-   there).
-2. The first time: **Body** selected in the Navigator, a **Code Embed** added (Cmd+E, “Code Embed”, Enter)
-   and moved to be the **first** element of the page, before the page's Section (on this page the navigation
-   bar comes last in Body). For a change: select that Code Embed and press Enter. Put the file's text in the
-   editor, Save & Close, open it again and compare. (On the Designer's canvas the embed is an empty box and
-   the page looks as it always did.)
-3. Publish with only hydroai.net ticked.
-4. Fetch the live page and see that the file is in it byte for byte; run
-   `check_publications.py https://hydroai.net/publication` and `check_home_new.py https://hydroai.net/` (the
-   home page reads this page); look at it at 2048, 1440 and 390 px.
+1. Pushed, so that the Designer page could fetch `publications.html` (from raw.githubusercontent.com at the
+   commit; the portal's GitHub Pages site serves it too).
+2. **Body** selected in the Navigator, a **Code Embed** added (Cmd+E, “Code Embed”, Enter). It lands last
+   in Body, after the navigation bar, and its editor opens. The file's text was put into the editor (one
+   `view.dispatch`), then Save & Close. (On the Designer's canvas the embed is a grey line that says a
+   script only shows on the published site, and the page looks as it always did.)
+3. The embed was **moved to be the first element of Body**, before the page's Section. On this page the
+   navigation bar comes last in Body, so an embed left after it, as on the People page, would show the
+   block under the “Contact me” block. In the Navigator that is a drag of the embed's row to just under
+   “Body”. **Through the Chrome extension the tool's drag does nothing there** (the row under the pointer
+   is selected, nothing moves): the Navigator follows the mouse on its way. What worked, dispatched from
+   the page on the element under each point (`new MouseEvent(type, {bubbles: true, clientX, clientY,
+   buttons: 1})`): `mousedown` on the row, a `mousemove` every 5 px up to the top edge of the “Section”
+   row (the Navigator then draws the row in its new place), `mouseup` there. Then the canvas was read:
+   `[...contentDocument.body.children]` begins with `div.w-embed.w-script`.
+4. The Designer was loaded again, the embed opened (select it, Enter) and its text compared with the file:
+   equal.
+5. The second tab's label was corrected on the canvas: a double-click on the word, one letter replaced,
+   Escape. The canvas stayed on the first tab (`data-current="Peer-reviewed"`), which is the tab the page
+   opens with.
+6. All seven lists of the CMS were looked through to their ends: no item was queued for publishing. (One
+   People item has read “Changes in draft” since 2025; a site publish leaves such a draft alone.)
+7. `site_snapshot.py fetch` right before the click, Publish with only hydroai.net ticked, `fetch` again and
+   `compare`: of the 43 pages only this one differs, by the embed, the label, and the `sizes` of the six
+   pictures in the page's own journal list (“… (max-width: 991px) 728px, 940px” became “… 727px, 940px”;
+   the block does not use it and nothing looks different). The home page and its pictures' `sizes` are as
+   they were. Through the publish only this page's copy passed through the Designer's measuring frame, and
+   the tab was visible at the click (`../project/README.md`, “Seen on the way”, says why that is noted).
+8. The live page holds the file byte for byte; `check_publications.py https://hydroai.net/publication` and
+   `check_home_new.py https://hydroai.net/` (the home page reads this page) passed; the page was looked at
+   at 2048, 1440 and 390 px.
+
+**A changed file goes there the same way** without steps 2 and 3: push; in the Designer select the Code
+Embed (the first row under Body in the Navigator) and press Enter; replace the whole text, Save & Close,
+open it again and compare; a `site_snapshot.py` copy; publish with only hydroai.net ticked; fetch the live
+page, compare, and run the two checks. `../README.md`, “Changing a block on the site”, has more on each
+step.
 
 The block works wherever it is put on the page (the check tries it last as well), but only before the
-page's section is nothing of the old layout ever drawn first. The embed may hold 50,000 characters; the file
-has about 46,000. If it must grow, the comment at its head can go.
+page's section is nothing of the old layout ever drawn first, and only there does it stand above the
+“Contact me” block. The embed may hold 50,000 characters; the file has about 46,000. If it must grow, the
+comment at its head can go.
 
 **Going back to the page's own layout:** delete the Code Embed and publish. The block changes nothing else
-on the page.
+on the page. The tab's label stays corrected; the backup has the page with the old one.
 
 ## Changing it later
 
@@ -175,14 +209,21 @@ on the page.
 - **Every block is centred** in the page's 1,348 px, as on the rest of the site; check at 2048, 1440 and 390.
 - The script is plain ASCII (characters outside it are written as `\uXXXX`), so that it survives any editor.
 
-## Only noticed, not changed
+## The page's content: what was corrected, and what was only noticed
 
-The block shows the page's words as they are. Seen while it was made, each a matter for the lab head (the
-item-by-item list was given to the lab head and is not kept here):
+**Corrected in the Designer on 2026-11-22 at the lab head's word** (“고치고”), with the publish that put the
+block on the site: the second tab's label, “Under review / Preperation”, is now “Under review /
+Preparation”. The tab's name (`Under-Review`), and with it the list's address `#under-review`, is as it
+was.
 
-- the second tab's label is misspelt (“Preperation”);
-- ten journal papers have no address yet (“TBD”): on the page as it is their button leads to a page that
-  does not exist, the block shows “Link soon”;
+**Kept as proposed, at the lab head's word** (“추천으로 진행”): a paper whose address is not filled in shows
+“Link soon” and no link.
+
+**Only noticed, not changed.** The block shows the page's words as they are. Seen while it was made, each a
+matter for the lab head (the item-by-item list was given to the lab head and is not kept here):
+
+- ten journal papers have no address yet (“TBD”): in the page's own layout their button leads to a page
+  that does not exist, the block shows “Link soon”;
 - a few titles carry a slip (a stray character, a journal's name at the end of a title, a comma at the end),
   one summary breaks off in the middle of a sentence, and a few talks' titles and author lists have
   misspellings;

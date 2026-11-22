@@ -21,9 +21,8 @@ blocks is live since 2026-11-21** (the satellites' picture behind the first scre
 the Korean reworded; the lab head: “우선올려”), **and a third since later that morning** (the lists' pictures
 shown whole, the soil moisture line saying “over dense vegetation”; “짧은 버전. 올려.”). See the two sections
 on the home page below. **The People page is remade since 2026-11-21, and each student's main project has a
-page of its own since the same day** (“The People page's block”, “The project pages' block”). **A block that
-remakes the Publications page was made and checked on 2026-11-22 and is not on the site yet** (“The
-Publications page's block”).
+page of its own since the same day** (“The People page's block”, “The project pages' block”). **The
+Publications page is remade since 2026-11-22** (“The Publications page's block”).
 
 This portal follows the HDCA portal (`~/orca/projects/hdca/portal/`) in structure, look and dashboard
 wiring; read that folder's `CLAUDE.md` for the shared background (the dashboard's 연구자료 mechanism, the
@@ -389,12 +388,14 @@ Things to keep when touching it:
 
 ## The Publications page's block
 
-**Made and checked on 2026-11-22; not on hydroai.net yet** (it goes there with a publish of the site, at the
-lab head's word). The lab head asked for the Publications tab to be remade because one had to scroll a long
-way and page through every earlier entry to reach an older one (“지금 스크롤을 쭉 내려야해서 좀 불편하고, 과거
-게시물을 다 넘겨서 봐야해서 힘들어”). `embed/publications/publications.html` is one Webflow Code Embed for the
-Publications page, to be its first element; like the People block it is kept here because the tools for
-previewing and checking the lab's Webflow pages are here.
+**Live on https://hydroai.net/publication since 2026-11-22** (published at 09:50:31 UTC, hydroai.net only), at
+the lab head's word. The lab head asked for the Publications tab to be remade because one had to scroll a
+long way and page through every earlier entry to reach an older one (“지금 스크롤을 쭉 내려야해서 좀 불편하고, 과거
+게시물을 다 넘겨서 봐야해서 힘들어”) and, after seeing the preview, said to publish it and to correct the second
+tab's misspelt label (“게시 및 고치고 추천으로 진행”). One Webflow Code Embed, the first element of the
+Publications page's Body, holds `embed/publications/publications.html` byte for byte (the file of commit
+`7780c3d`); like the People block it is kept here because the tools for previewing and checking the lab's
+Webflow pages are here.
 
 The block has no content of its own. It reads the three CMS lists in the page's tabs and the quotation above
 them, and shows them its own way while the page's own section is not shown: every journal paper on one page,
@@ -403,7 +404,8 @@ opening full size; the years beside the list, in view while it is read; one sear
 the papers under review with their state as a mark; the talks by year and meeting. The page lists its
 journal papers six at a time, so the block asks for the list's following pages itself. Whatever stops it
 leaves the page as it was. `embed/publications/README.md` has what a visitor gets, how an entry is read, how
-the block goes onto the site and how to go back. `embed/tools/publications_preview.py` (port 8817) serves
+the block went onto the site (the embed is moved to the top of Body there), how a changed file goes there
+and how to go back. `embed/tools/publications_preview.py` (port 8817) serves
 the live page with the file on it; `embed/tools/check_publications.py` checks the preview or the live page
 in three browsers.
 
@@ -417,8 +419,9 @@ Things to keep when touching it:
   otherwise a paper opened by its address slides out of view as pictures arrive above it.
 - **No address the block uses is the id of an element**: the site's own script scrolls to any id a clicked
   link names, under the navigation bar, after the block's own scroll.
-- **Not on the site until `check_publications.py https://hydroai.net/publication` has passed**, and a
-  publish sends out everything saved in the Designer (see the home page's list above).
+- **A change is not done until `check_publications.py https://hydroai.net/publication` has passed**, and a
+  publish sends out everything saved in the Designer, on every page (see the home page's list above):
+  `embed/tools/site_snapshot.py fetch DIR` right before the click and again after it, then `compare`.
 
 ## The project pages' block
 
