@@ -305,7 +305,8 @@ dense screen), it fetches a larger version of the same loop instead (`wide`), al
 | `media/et-wide-v1.*` | 1536 × 864, 13.7 s, 2.0–2.6 MB | `tools/wide_loops.py et_cap`: the loop without France (`et-v2`), kept, no longer played |
 | `media/hdca-wide-v1.*` | 1536 × 864, 10.5 s, 2.4–2.7 MB | `tools/wide_loops.py hdca_cap`, `hdca_compose` |
 | `media/tca-wide-v1.*` | 1536 × 864, 9.5 s, 1.9–2.3 MB | `tools/wide_loops.py tca_cap`, `tca_compose` |
-| `media/cvs-wide-v1.*` | 1280 × 720, 12 s, 1.0–1.4 MB (the drone mosaic is 1 m, no finer) | `tools/wide_loops.py cvs` |
+| `media/cvs-wide-v2.*` | 1280 × 720, 17.75 s, 1.5–1.9 MB (the drone mosaic is 1 m, no finer) | `make_cvs_v2.py` in `hdca-data-portal: embed/tools/` with `CVS_SCALE=1.3333333333`, then that folder's `encode.sh … 29 42 1280 24`; the reel plays this one since 2026-11-22 |
+| `media/cvs-wide-v1.*` | 1280 × 720, 12 s, 1.0–1.4 MB | `tools/wide_loops.py cvs`: the first loop (ten flights in true colour, `cvs`), kept, no longer played |
 
 `tools/wide_loops.py` runs the tools that made the card loops, unchanged, from their own repositories, with
 the frames drawn at 1.6 device pixels per CSS pixel and the chart panels scaled with them; its docstring has
@@ -533,6 +534,37 @@ browser; after the publish `check_home_new.py https://hydroai.net/` passed with 
 Four minutes later the ET portal's session published the Data page's card with the same loop (02:59 UTC).
 Compared again after it: the home page as it was but for the stamp and the bundles' names, and no picture's
 `sizes` value changed, although the Designer had opened on the Home page for half a minute on its way.
+
+### The validation site's entry (live since 2026-11-22): its second loop
+
+The lab head found the validation site's loop thin on 2026-11-22 and asked for time series and other imagery on
+it; after a preview: “올려”. The Data page's card got `cvs-v2` (one flight day through the drone's four sensors,
+then the 47 stations' soil moisture day by day with a chart and the rain, then HLS, Sentinel-1 and NISAR; 17.75 s;
+made and kept in `hdca-data-portal`, commit `97b4b8f`), and the reel's `cvs` entry follows it: `media` is that
+loop, `wide` is `cvs-wide-v2` (the same frames drawn at 1280 × 720), with the card's nine caption times; the range
+in one caption is written with a hyphen here, as in the other entries. Nothing else in `hero.html` changed
+(commit `c06c599`: two lines of the entry, and the entry's two file names in `check_home_new.py`).
+
+**Published at 14:02:30 UTC (23:02 in Korea), hydroai.net only**, together with the Data page's card, by the
+session that made the loop, the other sessions told before the Designer was opened and before the click. The hero
+embed was replaced from raw.githubusercontent.com at the commit and read back equal. Seen after it: the three
+files in the live home page byte for byte; `check_home_new.py https://hydroai.net/` 378 ok, 0 failed (the check
+as committed: 126 in each browser); 49 of the 51 pages the same but for the stamp and the bundles' names, the two
+others being the Data page (the card's picture block) and the home page.
+
+**The same publish carried new `sizes` values for three of the page's own pictures**, the three that had carried
+short values since 2026-11-21 09:29 UTC: `satellite.png` from “(max-width: 479px) 60vw, 144px”, `main_ML-min.png`
+from “31px” and `main_LSM-min.png` from “(max-width: 479px) 45vw, 108px”, all three to “(max-width: 767px) 48vw,
+(max-width: 991px) 356px, 462px”. Those are the values the Designer's canvas carried for them two minutes before
+the click, with the Home page open for the hero embed (it has to be open for that). At the click the hidden
+measuring frame went through its widths in one task (240, 992, 1214, 1315, 1439, 1440, 1500, 1578, 3960, 4464,
+5060, 10000, 768, 991, 480, 512, 767, 240, 479, 240 px), with the tab visible; the tab had been hidden for five
+seconds and was visible again 0.7 s before that. The pictures have widths of their own, so nothing moved: 30, 462 and 635 px at 1440 and
+2048 px before and after, 187 and 294 px for the two figures on a 390 px phone. What changed is the file a browser
+takes: on a dense desktop screen the 1080 px file where it took the 500 px one, on a plain screen the same file as
+before. The script that waits in this folder's working tree (it tells each picture the width it is drawn at) is no
+part of this publish and still waits for its own word: the Land Surface Models figure, 635 px wide, is still drawn
+from the 500 px file on a plain screen, and from the 1080 px file on a dense one.
 
 ### Changing a block on the site
 
