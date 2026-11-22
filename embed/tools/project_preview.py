@@ -134,8 +134,9 @@ def built(p, plist):
     # the list of other projects: this folder's projects first, as the collection would list them. An item of the live
     # list that a project of the folder stands for (the same slug, or the slug named in "replaces") is taken out first,
     # so that an edited project shows once, in its new form.
+    first = max(page.find('<div role="list" class="grid-project w-dyn-items">'), 0)     # a project's own text may link to another project
     for old in {q.get("replaces") or q["slug"] for q in plist} | {q["slug"] for q in plist}:
-        i = page.find('href="/project/%s"' % old)
+        i = page.find('href="/project/%s"' % old, first)
         if i >= 0:
             s = page.rindex('<div role="listitem"', 0, i); page = page[:s] + page[element_end(page, s):]
     lst = one(r'<div role="list" class="grid-project w-dyn-items">', page, "the list of other projects")

@@ -30,6 +30,18 @@ page changed in the eight link addresses and nowhere else, the Projects tab with
 other pages as they were. **Home was not as it had been, for the second time that day**: this publish, like
 the morning's, carried out `sizes` values Webflow had saved for Home's own pictures (“Seen on the way”).
 
+**A third version is on the site since the publish of 19:01:02 UTC that night.** The lab head asked for more
+explanation of the basic concepts, with figures (“학생들 연구프로젝트 좀 더 구체적으로 기본 개념 등 그림 넣으면서 설명 더
+넣어줘”) and, asked whether it should go onto the site, wrote “게시 해”. Each page now has a section “The basics”
+between its first figure and “The challenge”: the concept the project rests on, in general words, with one
+concept drawing. Seen after that publish: `check_project.py` passing on the twelve pages and on two older
+ones in three browsers (675 checks), `check_people.py` passing on the People page (402), the words of the
+twelve live pages equal to their source word for word, the pages looked at 2048, 1440 and 390 px, nine other
+pages the same but for the stamp, and **Home's `sizes` as they were before the click** (“Seen on the way”).
+The request had named the content and not its publication, so the click waited for his word: what was
+already queued in the CMS would have gone out with any other session's publish in the meantime, and the
+other sessions were told so.
+
 The texts and figures are written outside this repository (see “The content” below).
 
 | File | What it is |
@@ -101,11 +113,15 @@ NOTES.md           what each page is, the addresses before and after, what is st
 src_broad_v1/ src_detailed/ dossier/   the earlier versions and their sources: unpublished work, never public
 ```
 
-A page explains a broad idea: the opening line, “The challenge”, “Our focus”, “Why it matters”, 115 to 170
-words, and a facts card whose “Approach” names kinds of tools (land models, artificial intelligence), not a
-method. A figure is drawn for the page from public data (SMAP, GPM IMERG, GRACE, GK2A, Sentinel-2, MODIS,
-ERA5-Land, GLEAM), in one look for all pages, 2000 px wide as WebP (50 to 450 kB), and its caption ends with
-“Figure by the lab from public data: …”. `python tools/build_site.py` (with a Python that has Pillow)
+A page explains a broad idea: the opening line, a facts card whose “Approach” names kinds of tools (land
+models, artificial intelligence), not a method, then “The basics”, “The challenge”, “Our focus” and “Why it
+matters”, 236 to 362 words. “The basics” (since the night of 2026-11-21) explains the concept the project
+rests on in general words, as a textbook would, with one concept drawing: what data assimilation does, where
+the sun's energy goes over a wet and a dry field, how a satellite covers the Earth strip by strip, the water
+budget of the land, and so on. A figure is drawn for the page from public data (SMAP, GPM IMERG, GRACE, GK2A,
+Sentinel-2, MODIS, ERA5-Land, GLEAM), in one look for all pages, 2000 px wide as WebP (45 to 450 kB), and its
+caption ends with “Figure by the lab from public data: …”; a concept drawing's caption ends with “Drawing by
+the lab.”, and a drawing made with invented numbers says so in the picture and in the caption. `python tools/build_site.py` (with a Python that has Pillow)
 rebuilds `site/` after an edit of `src/`, and the preview then shows the edited page on the live template.
 An edit there does not reach the site by itself: bring it into the items as described under “Changing things
 later”, or the two drift apart.
@@ -176,6 +192,30 @@ Seen on the way, and worth knowing:
   pictures' `sizes` on all of them, not only the embeds' text and the pages' words:
   `site_snapshot.py fetch DIR` before the click, again when the new stamp is on the site, then
   `site_snapshot.py compare BEFORE AFTER`.
+- **Where Webflow measures pictures for `sizes`, and a third publish that left Home alone** (the night of
+  2026-11-21). The Designer page holds a second iframe, `#responsive-images-iframe`: 240 px wide by an inline
+  style, placed above the window, `src="/site/empty.html"`. Webflow puts a copy of the page on the canvas
+  into it (pictures as placeholders, each `img` marked `data-w-responsive`) and sets its width, in one task,
+  to 992, 1214, 1315, 1439, 1440, 10000, 768, 991, 480, 767, 240 and 479 px, then back to 240: a measurement
+  at the ends of each breakpoint's range, 240 px standing for phones. That is how a logo 230 px wide on a
+  phone gets “96vw”, and Home's wrong values are what comes out when every step is measured at 240 px (144 is
+  60 % and 108 is 45 % of 240). A passive log through the whole third publish for these pages (a
+  MutationObserver on that iframe's `style` with the old values, a look every 20 ms at which document it
+  holds, and the tab's `visibilityState`) showed only the template's copy in it, from opening the Designer to
+  after “Published”, with the same widths at every pass, the canvas on the template at 1439 px and the tab
+  visible at the click. **That publish (19:01:02 UTC) changed nothing on Home.** It differed from the two
+  that did in two ways that are known: no People item was edited in its form in the CMS view (both earlier
+  sessions did that, one item after another), and the tab was seen to be visible. Neither is shown to be the
+  cause. The tab of the Designer is at times hidden to the browser for seconds while nobody acts through the
+  extension (the extension works in the lab head's own Chrome, and a tab behind another one or a covered
+  window counts as hidden).
+- **The twelve cards' pictures got their smaller files with the next publish.** After the evening's import
+  the twelve thumbnails went out as one file each, without `srcset`; the publish of that night carried them
+  with `srcset` and `sizes` (“223px” and “100vw” on the Projects tab, “(max-width: 767px) 100vw, (max-width:
+  991px) 727px, 940px” in the template's list), as every older card already had, at the same addresses.
+  Probably Webflow had made the smaller versions in the hours between; that was not looked into. What it
+  means for the comparison after a publish: all 33 project pages and the Projects tab were reported as
+  changed, in exactly those pictures, and nothing looks different.
 - **The same happened again in the evening, and the cause is not known.** The evening publish sent out wrong
   `sizes` for the same three pictures of Home (“31px”, “45vw, 108px”, “60vw, 144px”; 108 and 144 are 45 % and
   60 % of 240 px, the Designer's smallest canvas), although Home was never opened in the session that
@@ -202,6 +242,54 @@ Seen on the way, and worth knowing:
 - **An alumnus whose card still has a main project link is named on that project's page** and on its card
   among “More projects”, with where they are now as the line above the name. Whether that is wanted is the
   lab head's to say; taking the link out of the person's item ends it.
+
+## The postdoctoral fellows' pages (2026-11-22)
+
+On 2026-11-22 the lab head asked for a main project for every postdoctoral fellow too (until then only one of the four had
+the link, to a page shared with a student). Three pages were added in the same form, **live since the publish of
+11:29:08 UTC that day**: `soil-moisture-under-the-forest-canopy`, `how-well-does-artificial-intelligence-forecast-rain` and
+`forecasting-flash-droughts-weeks-ahead`. The site now has fifteen main-project pages, and sixteen People items carry the
+line “[Main Project Link]”. Nothing in `project.html` changed. `check_project.py` passed on the three new pages, the shared
+page and two older ones in three browsers (321 checks), `check_people.py` on the People page (402).
+
+What this round added to “How it went onto the site”:
+
+- **New items by CSV.** A file without the `Item ID` column goes straight to the mapping screen (no question about
+  matching items). New items are “Not published · Queued to publish”.
+- **Two publishes for a new item's date.** The first publish leaves the date empty (see “Seen on the way”); a second one
+  right after it, with nothing else queued, fills it. Around that second publish only the new pages differed.
+- **An item that reads “Changes in draft”.** Queueing sends the whole draft out. One People item had carried that mark for
+  over a year: before queueing, every field of its form was compared with the live card (the rich texts by a hash of
+  their text, the photograph by its size, the links, role and address), and nothing visible differed.
+- **One Webflow session per account.** A sign-in on another computer ends the running one: the Designer then leads to the
+  login page, and the CMS lists read “No items” although every item is there. Never import or create in that state; sign
+  in again and keep Webflow closed elsewhere while a session works.
+- **What a publish changed elsewhere:** nothing on Home and the six other top pages; on the Publications page the `sizes`
+  of the six pictures of its own list went from “727px” to “728px” (it had gone the other way with the publish before).
+
+## Pages on published papers (2026-11-22, night)
+
+The lab head then asked that a postdoctoral fellow's paper, once it is published, be explained in more detail, and
+named the fellows with published first-author papers. The rule of the main-project pages (a broad idea only) is for work
+that is not published. A published paper may be explained fully: the question, the method in plain words, the paper's
+own numbers and figures, what the result does not say, the citation, links to the paper, its data and its code.
+
+- One fellow's main-project page was made detailed in place (`soil-moisture-under-the-forest-canopy`).
+- Five pages are new, one per paper: `a-longer-record-of-soil-moisture-from-an-older-radar`,
+  `a-slow-groundwater-response-as-a-sign-of-flash-drought`, `soil-moisture-from-reflected-navigation-signals`,
+  `how-storms-carry-water-and-carbon-out-of-farmland` and `streamflow-where-the-gauges-are-few`.
+  **Live since the publishes of 13:30:43 and 13:31:39 UTC that day.**
+- These five are nobody's "Main project", so the block shows no photograph and name at the top: it reads those from the
+  "Main Project Link" of a People card, and a card has one. The fact "Lead author" in the page's "At a glance" list names
+  the fellow, and the fellow's main-project page leads to the paper pages by link buttons. Nothing in `project.html`
+  changed, and no People item was touched.
+- A page's own text may now link to another project page ("Links", then links to `/project/…`). `project_preview.py`
+  looked for a project's card from the top of the page and failed on such a link; it now looks from the list of other
+  projects on.
+- `check_project.py` passed on the five new pages and the three pages that received link buttons, in three browsers, on
+  the preview and on the live site (411 checks each), `check_people.py` on the People page (402).
+- An item updated by CSV shows the date of that update: the page shared by a student and a fellow went from
+  "November 21, 2026" to "November 22, 2026" when its buttons were added.
 
 ## Changing things later
 
