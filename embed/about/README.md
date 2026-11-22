@@ -11,8 +11,12 @@ vantage points < 이 영상 먼저 오게 해. 그리고 그 위 내용들 아�
 `about.html` is the design: one block for a Webflow **Code Embed** on the About page (`/about`, page id
 `640cbd423ecaf8419d3aa521`), right after the navigation bar, in the place of the page's four old sections.
 
-**Status: made and checked in the local preview; not on the site.** Putting it there is a push, two changes
-in the Webflow Designer and a publish (“How it goes onto the site”), and waits for the lab head's word.
+**Status: live on hydroai.net since 2026-11-22 15:44:35 UTC (00:44 KST on the 23rd)**, at the lab head's
+word (“올려”, then “게시해”). The page holds this file of commit 73070f9 byte for byte as the Code Embed right
+after the navigation bar; the page's three old sections and its instance of the CTA component (“Contact me”)
+were deleted, and the component keeps its other instances. Webflow backup from just before: “Before the About
+page's new layout (2026-11-23)”. Compared with a copy of every page made right before the click, only the
+About page changed.
 
 | File | What it is |
 |---|---|
@@ -106,11 +110,14 @@ globe when it is drawn, and the check fails when the figure in the markup differ
 
 `/about?old` is the page as the site has it, `?keep` the block with the old sections left under it,
 `?nofetch` the page when the Data page cannot be read. On 2026-11-22 the check passed on the preview in the
-three browsers (58 checks each, 0 failed), and the page was looked at at 2048, 1440, 390 and 320 px.
+three browsers (58 checks each, 0 failed), and the page was looked at at 2048, 1440, 390 and 320 px. On the live page,
+right after the publish, it passed in the three browsers too (57 checks each: the embed's size is checked on
+the preview only), 0 failed.
 
-## How it goes onto the site
+## How it went onto the site
 
-Not done. One session in the Designer at a time; tell the other site sessions before and after.
+Done on 2026-11-22 (UTC) as below. One session in the Designer at a time; tell the other site sessions before
+and after.
 
 1. Commit and push `embed/about/`, `embed/media/about/` and the three tools (the globe's files are served
    from GitHub Pages, and the embed's text is taken from the pushed file). Wait for Pages to serve
@@ -120,9 +127,10 @@ Not done. One session in the Designer at a time; tell the other site sessions be
 4. The Designer on the page: `https://hydroai-a33ac7.design.webflow.com/?pageId=640cbd423ecaf8419d3aa521`.
 5. Select the navigation bar in the Navigator, add a Code Embed (it lands right after the bar), put this
    file's text into it, Save & Close, open it again and compare.
-6. Delete the page's four sections under it (`section hero-about-us`, `section course-process`,
-   `section process-tiles`, and the `section` that holds “Contact me”). The last holds an instance of the
-   site's CTA component: delete the instance on this page, not the component, which other pages keep.
+6. Delete the page's four old elements under it, one at a time, reading the selection before each Delete:
+   three Sections (`hero-about-us`, `course-process`, `process-tiles`) and `CTA`, the green row of the
+   site's “Contact me” component. Delete only this page's instance; the component keeps its other instances
+   (seven on 2026-11-22).
 7. Publish to hydroai.net only, at the lab head's word.
 8. `site_snapshot.py fetch` again and `compare`; `check_about.py https://hydroai.net/about`.
 

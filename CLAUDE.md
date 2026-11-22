@@ -467,15 +467,15 @@ Things to keep when touching it:
   small. **The cause is not known** (`embed/project/README.md`, “Seen on the way”, has the record): compare
   after every publish and tell the session that looks after Home at once.
 
-## The About page's block (made, not on the site)
+## The About page's block (live since 2026-11-22 15:44 UTC)
 
-**Not on hydroai.net yet (2026-11-22).** The lab head asked for the About tab (`/about`), grown very old, to
-be remade with the lab's dashboard as the reference, in the manner of the other remade tabs (“지금 홈페이지 About
+**Live on hydroai.net since 2026-11-22 15:44:35 UTC**, the Code Embed holding `embed/about/about.html` of
+commit 73070f9 byte for byte. The lab head asked for the About tab (`/about`), grown very old, to be remade with the lab's dashboard as the reference, in the manner of the other remade tabs (“지금 홈페이지 About
 탭이 매우 오래되었어. 우리 대시보드 참고해서 좀 더 멋지고 고급지게 업데이트 해줘. 다른 세션 참고해.”). `embed/about/about.html` is one
 block for a Code Embed on that page, right after the navigation bar, in the place of the page's four old
 sections (kept in `embed/about/replaced.html`); `embed/about/README.md` has what a visitor gets, what is
 written and what is read, and the steps that put it on the site (a push, two changes in the Designer and a
-publish, which wait for the lab head's word). `embed/tools/about_preview.py` (port 8819) serves the live
+publish). `embed/tools/about_preview.py` (port 8819) serves the live
 page with the file on it and the old sections taken out; `embed/tools/check_about.py` checks the preview or
 the live page in three browsers (58 checks each on 2026-11-22, 0 failed).
 
