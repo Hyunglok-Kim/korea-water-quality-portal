@@ -21,7 +21,9 @@ blocks is live since 2026-11-21** (the satellites' picture behind the first scre
 the Korean reworded; the lab head: “우선올려”), **and a third since later that morning** (the lists' pictures
 shown whole, the soil moisture line saying “over dense vegetation”; “짧은 버전. 올려.”). See the two sections
 on the home page below. **The People page is remade since 2026-11-21, and each student's main project has a
-page of its own since the same day** (“The People page's block”, “The project pages' block”).
+page of its own since the same day** (“The People page's block”, “The project pages' block”). **A block that
+remakes the Publications page was made and checked on 2026-11-22 and is not on the site yet** (“The
+Publications page's block”).
 
 This portal follows the HDCA portal (`~/orca/projects/hdca/portal/`) in structure, look and dashboard
 wiring; read that folder's `CLAUDE.md` for the shared background (the dashboard's 연구자료 mechanism, the
@@ -384,6 +386,39 @@ Things to keep when touching it:
   sends out everything saved in the Designer (see the home page's list above).
 - **This repository is public.** What was corrected in whose text, and other remarks about named people,
   are not written here; the lab head has that list.
+
+## The Publications page's block
+
+**Made and checked on 2026-11-22; not on hydroai.net yet** (it goes there with a publish of the site, at the
+lab head's word). The lab head asked for the Publications tab to be remade because one had to scroll a long
+way and page through every earlier entry to reach an older one (“지금 스크롤을 쭉 내려야해서 좀 불편하고, 과거
+게시물을 다 넘겨서 봐야해서 힘들어”). `embed/publications/publications.html` is one Webflow Code Embed for the
+Publications page, to be its first element; like the People block it is kept here because the tools for
+previewing and checking the lab's Webflow pages are here.
+
+The block has no content of its own. It reads the three CMS lists in the page's tabs and the quotation above
+them, and shows them its own way while the page's own section is not shown: every journal paper on one page,
+year by year, a row each (picture, title, journal, month, link) with the summary folded away and the figure
+opening full size; the years beside the list, in view while it is read; one search over all three lists;
+the papers under review with their state as a mark; the talks by year and meeting. The page lists its
+journal papers six at a time, so the block asks for the list's following pages itself. Whatever stops it
+leaves the page as it was. `embed/publications/README.md` has what a visitor gets, how an entry is read, how
+the block goes onto the site and how to go back. `embed/tools/publications_preview.py` (port 8817) serves
+the live page with the file on it; `embed/tools/check_publications.py` checks the preview or the live page
+in three browsers.
+
+Things to keep when touching it:
+
+- **No content in the block**, and **nothing the page says of an entry is dropped**; the check compares
+  every entry and every word of every summary with the page's own content, over all pages of the list.
+- **The page must show without the block**, so the page's own section stays on the page. The home page's
+  “Recent publications” reads that section.
+- **A row is as tall before its picture arrives as after** (a place of one size for every picture);
+  otherwise a paper opened by its address slides out of view as pictures arrive above it.
+- **No address the block uses is the id of an element**: the site's own script scrolls to any id a clicked
+  link names, under the navigation bar, after the block's own scroll.
+- **Not on the site until `check_publications.py https://hydroai.net/publication` has passed**, and a
+  publish sends out everything saved in the Designer (see the home page's list above).
 
 ## The project pages' block
 

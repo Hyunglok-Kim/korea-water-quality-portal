@@ -1,0 +1,643 @@
+<!--
+  hydroai.net Publications page, shown as one list that can be searched, by one block.
+  A title with the page's quotation, a chip for each of the page's lists and a search field, then the list:
+  the journal papers year by year (a row each: picture, title, journal, month, link; a click opens the summary
+  with the picture larger, a click on the picture shows it full size), the papers under review with their
+  state, and the conference talks by year and meeting. The years stand beside the list, stay in view and lead
+  to their year.
+
+  Where it goes: one Webflow Code Embed on the Publications page, the first element of the page.
+  It has no content of its own. The entries are read from the CMS lists in the page's three tabs, the
+  quotation from the line above the tabs; those stay on the page, are edited in Webflow as before, and are not
+  shown while this block runs. The page lists its journal papers a few at a time ("Next"); the block asks for
+  the following pages itself. Without scripts, in a browser from before 2022, or if nothing can be read from
+  the page, the page shows as it always did.
+
+  To change it:
+    a paper, a talk, their order      the collections and the tabs in Webflow
+    the names of the lists            the tabs' labels in Webflow
+    the quotation                     the line above the tabs in Webflow
+    the small title, the title        the markup below
+    the words on the buttons          T in the script
+  How an entry is read: a link that is "TBD" or "#" is no address yet ("Link soon"); a journal named "-" is
+  left out; a list whose entries carry dates is shown by year (talks also by meeting), any other as it stands
+  with each entry's last line as a mark; "December 1, 2026" is shown as "Dec 2026", the whole date on
+  pointing at it; a line that explains a mark ("* = ...") is shown while an entry carries the mark.
+-->
+<style>
+  /* the page's own section stays on the page (it is edited in Webflow) and is not shown while this block is on */
+  html.hb-js .section.teachers, html.hb-js [data-hb-old] { display: none !important; }
+  html.hb-js { scroll-padding-top: 96px; }
+  html.hb-lock { overflow: hidden; scrollbar-gutter: stable; }
+  .hb { --ink: #1c3533; --ink2: rgba(28, 53, 51, 0.86); --ink3: rgba(28, 53, 51, 0.7); --line: rgba(28, 53, 51, 0.13); --edge: rgba(28, 53, 51, 0.09); --fill: rgba(28, 53, 51, 0.07);
+    --green: #219653; --deep: #14622f; --mint: #75fb92; --card: #fcfbf9; --head: "Plus Jakarta", sans-serif;
+    display: none; box-sizing: border-box; padding: 132px 0 64px; font-family: Satoshi, sans-serif; font-size: 16px; line-height: 1.5; color: var(--ink); text-align: left; }
+  .hb[data-state="on"] { display: block; }
+  .hb *, .hb *::before, .hb *::after { box-sizing: border-box; }
+  .hb [hidden] { display: none !important; }
+  .hb-wrap { max-width: 1348px; margin: 0 auto; padding: 0 24px; }
+  .hb-vh { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .hb a:focus-visible, .hb button:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; border-radius: 6px; }
+  .hb button { font: inherit; }
+
+  /* the top: title and the page's quotation */
+  .hb-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px 48px; }
+  .hb-kicker { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 13px; font-weight: 500; line-height: 1.3; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); }
+  .hb-kicker::before { content: ""; flex: none; width: 26px; height: 2px; border-radius: 2px; background: currentColor; }
+  .hb-title { margin: 12px 0 0; font-family: var(--head); font-size: clamp(40px, 4.3vw, 60px); font-weight: 600; line-height: 1.08; letter-spacing: -0.022em; color: var(--ink); }
+  .hb-motto { max-width: 31em; margin: 0 0 5px; padding: 2px 0 2px 18px; border-left: 3px solid var(--mint); }
+  .hb-motto:empty { display: none; }
+  .hb-say { display: block; font-family: var(--head); font-size: 18.5px; font-style: italic; font-weight: 500; line-height: 1.5; color: var(--ink2); text-wrap: balance; }
+  .hb-by { display: block; margin-top: 6px; font-size: 14.5px; line-height: 1.4; color: var(--ink3); }
+  .hb-by::before { content: "\2014\00a0"; }
+
+  /* the lists' chips and the search field */
+  .hb-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 24px; margin-top: 34px; }
+  .hb-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+  .hb-chip { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 17px 1px; border-radius: 999px; background: var(--fill); color: var(--ink); font-size: 15.5px; font-weight: 500; line-height: 1; white-space: nowrap; text-decoration: none; transition: background-color 0.2s, color 0.2s; }
+  .hb-chip:hover { background: rgba(28, 53, 51, 0.14); }
+  .hb-chip[aria-current="true"] { background: var(--ink); color: #fff; }
+  .hb-n { min-width: 22px; height: 22px; margin-right: -6px; padding: 0 6px; border-radius: 999px; background: rgba(28, 53, 51, 0.12); font-size: 12.5px; font-weight: 700; line-height: 22px; text-align: center; font-variant-numeric: tabular-nums; }
+  .hb-n:empty { display: none; }
+  .hb-chip[aria-current="true"] .hb-n { background: rgba(255, 255, 255, 0.22); }
+  .hb-find { position: relative; flex: 1 1 240px; min-width: 200px; max-width: 348px; }
+  .hb-find input { display: block; width: 100%; height: 44px; margin: 0; padding: 0 46px 1px 44px; border: 0; border-radius: 999px; outline: 0; background: #fff; box-shadow: inset 0 0 0 1px rgba(28, 53, 51, 0.16); font: 400 15.5px/1.2 Satoshi, sans-serif; color: var(--ink); -webkit-appearance: none; appearance: none; transition: box-shadow 0.2s; }
+  .hb-find input::placeholder { color: var(--ink3); opacity: 1; }
+  .hb-find input::-webkit-search-cancel-button, .hb-find input::-webkit-search-decoration { -webkit-appearance: none; display: none; }
+  .hb-find input:focus { box-shadow: inset 0 0 0 2px var(--green); }
+  .hb-find svg { position: absolute; left: 16px; top: 13px; width: 18px; height: 18px; fill: none; stroke: var(--ink3); stroke-width: 1.8; stroke-linecap: round; pointer-events: none; }
+  .hb-key, .hb-clear { position: absolute; right: 10px; top: 10px; height: 24px; min-width: 24px; margin: 0; border: 0; text-align: center; }
+  .hb-key { padding: 0 7px; border-radius: 7px; box-shadow: inset 0 0 0 1px rgba(28, 53, 51, 0.18); font: 500 12.5px/24px Satoshi, sans-serif; color: var(--ink3); pointer-events: none; }
+  .hb-find input:focus ~ .hb-key, .hb-find input:not(:placeholder-shown) ~ .hb-key { display: none; }
+  .hb-clear { padding: 0; border-radius: 50%; background: var(--fill); color: var(--ink); cursor: pointer; transition: background-color 0.2s; }
+  .hb-clear::before { content: "\00d7"; font: 400 18px/23px Arial, sans-serif; }
+  .hb-clear:hover { background: rgba(28, 53, 51, 0.16); }
+
+  /* the years beside the list */
+  .hb-body { display: grid; grid-template-columns: 96px minmax(0, 1fr); column-gap: 28px; align-items: start; margin-top: 30px; }
+  .hb-body.is-flat { grid-template-columns: minmax(0, 1fr); }
+  .hb-body.is-flat .hb-years { display: none; }
+  .hb-years { position: sticky; top: 104px; display: flex; flex-direction: column; max-height: calc(100vh - 128px); margin-top: 5px; border-left: 1px solid var(--line); overflow-y: auto; scrollbar-width: none; }
+  .hb-years::-webkit-scrollbar { display: none; }
+  .hb-year { flex: none; margin-left: -1px; padding: 5px 0 5px 15px; border-left: 2px solid transparent; font-size: 15px; font-weight: 500; line-height: 1.4; font-variant-numeric: tabular-nums; color: var(--ink3); text-decoration: none; transition: color 0.2s, border-color 0.2s; }
+  .hb-year:hover { color: var(--ink); }
+  .hb-year[aria-current="true"] { border-left-color: var(--green); color: var(--ink); font-weight: 700; }
+
+  /* a list: years, in a year one card of rows (the talks of one meeting, a card each) */
+  .hb-status { margin: 0 0 14px; font-size: 14.5px; line-height: 1.4; color: var(--ink3); }
+  .hb-status:empty { display: none; }
+  .hb-status.is-none { margin: 0; padding: 44px 24px; border-radius: 18px; background: var(--card); box-shadow: inset 0 0 0 1px var(--edge); font-family: var(--head); font-size: 19px; font-weight: 600; line-height: 1.4; color: var(--ink); text-align: center; }
+  .hb-also { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; font-family: Satoshi, sans-serif; font-size: 14.5px; font-weight: 400; color: var(--ink3); }
+  .hb-yr, .hb-row { scroll-margin-top: 8px; }
+  .hb-yr + .hb-yr { margin-top: 34px; }
+  .hb-yh { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; font-family: var(--head); font-size: 24px; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .hb-yh::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .hb-meet + .hb-meet { margin-top: 22px; }
+  .hb-mh { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 0 0 9px; padding: 0 2px; font-family: Satoshi, sans-serif; font-size: 12.5px; font-weight: 500; line-height: 1.4; letter-spacing: 0.08em; text-transform: uppercase; color: var(--deep); }
+  .hb-mh time { color: var(--ink3); }
+  .hb-rows { margin: 0; padding: 0; list-style: none; border-radius: 18px; background: var(--card); box-shadow: inset 0 0 0 1px var(--edge); overflow: hidden; }
+  .hb-row { position: relative; margin: 0; box-shadow: 0 -1px 0 var(--line); }
+  .hb-row.is-here { box-shadow: 0 -1px 0 var(--line), inset 0 0 0 2px var(--green); }
+  .hb-t { margin: 0; font-family: var(--head); font-size: 17.5px; font-weight: 600; line-height: 1.4; letter-spacing: -0.005em; color: var(--ink); overflow-wrap: break-word; }
+  .hb-meta { margin: 5px 0 0; font-size: 14.5px; line-height: 1.45; color: var(--ink3); overflow-wrap: break-word; }
+  .hb-meta > :not(:last-child)::after { content: "\00b7"; margin: 0 2px 0 6px; font-weight: 400; color: var(--ink3); }
+  .hb-meta time, .hb-mh time { white-space: nowrap; }
+  .hb-venue { font-weight: 500; color: var(--deep); }
+  .hb-who { color: var(--ink2); }
+  .hb mark { padding: 0 1px; border-radius: 3px; background: rgba(117, 251, 146, 0.6); color: inherit; }
+
+  /* a journal paper: figure, title, journal and month, the link, and folded away the summary */
+  .hb-paper { --fw: 92px; --fh: 62px; display: grid; grid-template: auto 1fr / var(--fw) minmax(0, 1fr) auto 34px; column-gap: 18px; align-items: start; padding: 15px 18px 15px 20px; cursor: pointer; transition: background-color 0.2s, grid-template-columns 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); }
+  .hb-paper.is-plain { cursor: auto; }
+  /* the picture whole, in its own proportions, in a place of one size: a row is as tall before its picture arrives as after */
+  .hb-paper .hb-fig { grid-area: 1 / 1 / span 2 / 2; display: block; width: 100%; height: var(--fh); margin: 1px 0 0; padding: 0; border: 0; border-radius: 8px; background: rgba(28, 53, 51, 0.06); font-size: 0; line-height: 0; text-align: center; cursor: zoom-in; }
+  .hb-paper .hb-fig.is-on { background: none; }
+  .hb-fig img { display: inline-block; vertical-align: middle; width: auto; height: auto; max-width: 100%; max-height: var(--fh); border-radius: 7px; background: #fff; box-shadow: 0 0 0 1px var(--edge); }
+  .hb-fig:not(.is-on) img { visibility: hidden; }
+  .hb-main { min-width: 0; }
+  .hb-paper > .hb-main { grid-area: 1 / 2 / 2 / 3; }
+  .hb-paper .hb-t { transition: color 0.2s; }
+  .hb-out { grid-area: 1 / 3 / 2 / 4; justify-self: end; display: inline-flex; align-items: center; gap: 7px; height: 34px; margin-top: 1px; padding: 0 13px 1px 14px; border-radius: 999px; box-shadow: inset 0 0 0 1px rgba(28, 53, 51, 0.18); color: var(--ink); font-size: 14px; font-weight: 500; line-height: 1; white-space: nowrap; text-decoration: none; cursor: pointer; transition: background-color 0.2s, color 0.2s, box-shadow 0.2s; }
+  .hb-out svg { display: block; flex: none; width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .hb-out.is-none { padding: 0 2px; box-shadow: none; font-weight: 400; color: var(--ink3); cursor: inherit; }
+  .hb-out:empty { display: none; }
+  .hb-chev { grid-area: 1 / 4 / 2 / 5; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; margin: 1px 0 0; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--ink3); cursor: pointer; transition: background-color 0.2s, color 0.2s, transform 0.3s; }
+  .hb-chev::before { content: ""; width: 8px; height: 8px; margin-top: -4px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); }
+  .hb-paper.is-open { --fw: 300px; --fh: 250px; background: #fff; }
+  .hb-paper.is-open .hb-fig { height: auto; min-height: 40px; }
+  .hb-paper.is-open .hb-chev { transform: rotate(180deg); }
+  .hb-paper.is-open a.hb-out { background: rgba(117, 251, 146, 0.34); box-shadow: none; }
+  .hb-more { grid-area: 2 / 2 / 3 / 5; min-width: 0; padding: 12px 0 3px; cursor: auto; animation: hbOpen 0.35s ease both; }
+  .hb-sum { max-width: 78ch; }
+  .hb-sum p, .hb-sum ul, .hb-sum ol { margin: 0 0 9px; font-size: 15.5px; line-height: 1.62; color: var(--ink2); }
+  .hb-sum ul, .hb-sum ol { padding-left: 20px; }
+  .hb-sum a { color: var(--deep); text-decoration: underline; text-decoration-color: rgba(33, 150, 83, 0.5); text-underline-offset: 3px; overflow-wrap: anywhere; }
+  .hb-sum strong, .hb-sum b { font-weight: 700; color: var(--ink); }
+  @media (hover: hover) {
+    .hb-paper:not(.is-open):not(.is-plain):hover { background: rgba(28, 53, 51, 0.035); }
+    .hb-paper:not(.is-plain):hover .hb-t { color: var(--deep); }
+    .hb-paper:not(.is-plain):hover .hb-chev { background: var(--fill); color: var(--ink); }
+    a.hb-out:hover { background: var(--ink); color: #fff; box-shadow: none; }
+    .hb-paper.is-open a.hb-out:hover { background: var(--mint); color: var(--ink); }
+  }
+
+  /* a paper under review, a talk: title, who, where, and the state as a mark */
+  .hb-line { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 20px; align-items: center; padding: 15px 20px 16px; }
+  .hb-line .hb-t { font-size: 16.5px; }
+  .hb-talk { padding: 12px 20px 13px; }
+  .hb-talk .hb-t { font-size: 16px; }
+  .hb-talk .hb-meta { margin-top: 3px; font-size: 14px; }
+  .hb-tag { display: inline-block; height: 28px; padding: 0 12px; border-radius: 999px; font-size: 13.5px; font-weight: 500; line-height: 27px; white-space: nowrap; }
+  .hb-tag::first-letter { text-transform: uppercase; }
+  .hb-tag.is-a { background: rgba(117, 251, 146, 0.4); color: #0f4f25; }
+  .hb-tag.is-b { box-shadow: inset 0 0 0 1px rgba(33, 150, 83, 0.5); color: var(--deep); }
+  .hb-tag.is-c { background: var(--fill); color: var(--ink2); }
+  .hb-note { margin: 14px 2px 0; font-size: 14px; line-height: 1.45; color: var(--ink3); }
+  .hb-wait { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 18px 2px 0; font-size: 14.5px; line-height: 1.45; color: var(--ink3); }
+  .hb-wait::before { content: ""; flex: none; width: 16px; height: 16px; border: 2px solid var(--line); border-top-color: var(--green); border-radius: 50%; animation: hbSpin 0.8s linear infinite; }
+  .hb-wait.is-lost::before { display: none; }
+  .hb-wait button { margin: 0; padding: 0; border: 0; background: none; font-weight: 700; color: var(--deep); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+  /* a figure, full size */
+  .hb-dlg { position: fixed; left: 0; top: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 20px; border: 0; background: none; color: #fff; overflow: hidden; }
+  .hb-dlg[open] { display: flex; align-items: center; justify-content: center; }
+  .hb-dlg::backdrop { background: rgba(13, 27, 27, 0.74); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+  .hb-big { display: flex; flex-direction: column; align-items: center; max-width: 100%; max-height: 100%; margin: 0; animation: hbUp 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .hb-big img { display: block; width: auto; height: auto; max-width: min(100%, 1100px); max-height: calc(100vh - 160px); max-height: calc(100dvh - 160px); object-fit: contain; border-radius: 12px; background: #fff; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4); }
+  .hb-cap { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; max-width: 760px; margin: 14px 0 0; overflow: hidden; font-family: var(--head); font-size: 15px; font-weight: 500; line-height: 1.4; text-align: center; }
+  .hb-bar { display: flex; align-items: center; justify-content: center; gap: 14px; height: 56px; font-size: 14.5px; font-variant-numeric: tabular-nums; }
+  .hb-bar button { width: 40px; height: 40px; margin: 0; padding: 0; border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.14); color: #fff; cursor: pointer; transition: background-color 0.2s; }
+  .hb-bar button:hover { background: rgba(255, 255, 255, 0.28); }
+  .hb-bar [data-step] { font: 400 20px/1 Arial, sans-serif; }
+  .hb-bar .hb-x { margin-left: 10px; font-size: 0; }
+  .hb-x::before { content: "\00d7"; font: 400 26px/1 Arial, sans-serif; }
+  .hb-dlg button:focus-visible { outline-color: var(--mint); }
+
+  /* arriving */
+  @keyframes hbUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes hbOpen { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  @keyframes hbSpin { to { transform: rotate(360deg); } }
+  .hb-anim .hb-head, .hb-anim .hb-tools, .hb-anim .hb-body { animation: hbUp 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .hb-anim .hb-tools { animation-delay: 0.08s; }
+  .hb-anim .hb-body { animation-delay: 0.16s; }
+
+  @media (max-width: 1099px) {
+    .hb-paper.is-open { --fw: 232px; --fh: 210px; }
+  }
+  /* narrower: the years in a row above the list, and they stay in view */
+  @media (max-width: 999px) {
+    .hb-body { display: block; }
+    .hb-years { top: 74px; z-index: 5; flex-direction: row; gap: 4px; max-height: none; margin: 0 -24px 14px; padding: 9px 24px; border: 0; background: var(--beige-background, #f4f1eb); box-shadow: 0 1px 0 var(--line); overflow: auto hidden; }
+    .hb-year { margin: 0; padding: 6px 13px 7px; border: 0; border-radius: 999px; }
+    .hb-year[aria-current="true"] { background: var(--ink); color: #fff; }
+    .hb-yr, .hb-row { scroll-margin-top: 62px; }
+  }
+  @media (max-width: 899px) {
+    .hb { padding-top: 116px; }
+    .hb-head { flex-direction: column; align-items: flex-start; }
+    .hb-motto { margin: 0; }
+    .hb-find { flex: 1 1 100%; max-width: none; }
+  }
+  /* a phone: title, then journal and month beside the link; the figure comes with the summary, as wide as the row */
+  @media (max-width: 699px) {
+    .hb-paper { --fh: 230px; grid-template: none / minmax(0, 1fr) auto 30px; column-gap: 10px; padding: 14px 12px 14px 16px; }
+    .hb-paper > .hb-main { display: contents; }
+    .hb-paper .hb-t { grid-area: 1 / 1 / 2 / 3; font-size: 16px; }
+    .hb-chev { grid-area: 1 / 3 / 2 / 4; width: 30px; height: 30px; margin-top: -3px; }
+    .hb-paper .hb-meta { grid-area: 2 / 1 / 3 / 2; align-self: center; }
+    .hb-out { grid-area: 2 / 2 / 3 / 4; align-self: center; height: 32px; margin-top: 6px; }
+    .hb-out.is-none, .hb-paper:not(.is-open) .hb-fig { display: none; }
+    .hb-paper .hb-fig { grid-area: 3 / 1 / 4 / 4; margin-top: 14px; text-align: left; animation: hbOpen 0.35s ease both; }
+    .hb-more { grid-area: 4 / 1 / 5 / 4; }
+    .hb-paper.is-open { --fh: 230px; }
+    .hb-line { grid-template-columns: minmax(0, 1fr); row-gap: 10px; padding: 14px 16px 15px; }
+    .hb-line .hb-t { font-size: 16px; }
+    .hb-talk { padding: 12px 16px 13px; }
+    .hb-talk .hb-t { font-size: 15.5px; }
+    .hb-tag { justify-self: start; }
+  }
+  @media (max-width: 559px) {
+    .hb { padding-top: 92px; padding-bottom: 48px; }
+    .hb-wrap { padding: 0 16px; }
+    .hb-say { font-size: 17px; }
+    .hb-tools { margin-top: 26px; }
+    .hb-chip { height: 38px; padding: 0 14px 1px; font-size: 15px; }
+    .hb-body { margin-top: 22px; }
+    .hb-years { margin: 0 -16px 12px; padding: 8px 16px; }
+    .hb-yh { font-size: 22px; }
+    .hb-dlg { padding: 10px; }
+  }
+  @media (max-width: 479px) {
+    html.hb-js { scroll-padding-top: 82px; }
+    .hb-years { top: 64px; }
+  }
+  @media (hover: none) {
+    .hb-key { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hb-chev, .hb-paper { transition: none; }
+    .hb-more, .hb-big, .hb-fig { animation: none; }
+  }
+  @media print {
+    .hb-tools, .hb-years, .hb-chev, .hb-wait, .hb-dlg { display: none !important; }
+    .hb-body { display: block; }
+    .hb-list[hidden] { display: block !important; }
+  }
+</style>
+
+<section class="hb" id="hb-pubs" aria-labelledby="hb-title">
+  <div class="hb-wrap">
+    <header class="hb-head">
+      <div>
+        <p class="hb-kicker">HydroAI Lab at GIST</p>
+        <h1 class="hb-title" id="hb-title">Publications</h1>
+      </div>
+      <p class="hb-motto" data-hb="motto"></p>
+    </header>
+    <div class="hb-tools">
+      <nav class="hb-nav" data-hb="nav" aria-label="Lists"></nav>
+      <div class="hb-find" role="search">
+        <label class="hb-vh" for="hb-q">Search the publications</label>
+        <svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="7.6" cy="7.6" r="5.6"/><path d="M11.9 11.9l4.3 4.3"/></svg>
+        <input id="hb-q" type="search" placeholder="Search title, journal, author" autocomplete="off" spellcheck="false" enterkeyhint="search" data-hb="q">
+        <span class="hb-key" aria-hidden="true">/</span>
+        <button type="button" class="hb-clear" data-hb="clear" aria-label="Clear the search" hidden></button>
+      </div>
+    </div>
+    <div class="hb-body" data-hb="body">
+      <nav class="hb-years" data-hb="years" aria-label="Years"></nav>
+      <div>
+        <div class="hb-status" data-hb="status" role="status"></div>
+        <div data-hb="lists"></div>
+      </div>
+    </div>
+  </div>
+  <dialog class="hb-dlg" data-hb="figure" aria-label="Figure">
+    <figure class="hb-big">
+      <img alt="">
+      <figcaption class="hb-cap" data-hb="cap"></figcaption>
+      <div class="hb-bar">
+        <button type="button" data-step="-1" aria-label="Previous figure">&#8592;</button>
+        <span data-hb="n"></span>
+        <button type="button" data-step="1" aria-label="Next figure">&#8594;</button>
+        <button type="button" class="hb-x" data-close autofocus>Close</button>
+      </div>
+    </figure>
+  </dialog>
+</section>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.getElementById('hb-pubs'), html = document.documentElement, here = window.location;
+  if (!root || root.getAttribute('data-state')) return;
+  root.setAttribute('data-state', 'wait');
+  /* a browser from before 2022 (no <dialog>) keeps the page as it was */
+  if (!window.HTMLDialogElement || !window.MutationObserver || !window.fetch || !window.DOMParser) { root.setAttribute('data-state', 'off'); return; }
+  html.classList.add('hb-js');      /* from here the page's own section is not shown; fail() brings it back */
+
+  var T = { paper: 'Paper', scholar: 'Google Scholar', soon: 'Link soon', sum: 'Summary of: ', fig: 'Enlarge the figure of: ', undated: 'Undated',
+    wait: 'Loading the earlier entries\u2026', lost: 'The earlier entries could not be loaded.', again: 'Try again',
+    one: 'result for', many: 'results for', none: 'No results for', here: 'in', also: 'Found in' };
+  var BATCH = 4;      /* how many of a list's following pages are asked for at a time */
+
+  var ZW = /[\u200b-\u200d\ufeff]/g, MONTHS = 'janfebmaraprmayjunjulaugsepoctnovdec';
+  var clean = s => (s || '').replace(ZW, '').replace(/\s+/g, ' ').trim();
+  var slug = s => clean(s).toLowerCase().replace(/[^a-z0-9\u00c0-\uffff]+/g, '-').replace(/^-+|-+$/g, '');
+  var each = (list, fn) => [].forEach.call(list, fn);
+  var part = name => root.querySelector('[data-hb="' + name + '"]');
+  var ok = h => /^https?:\/\/[^\/?#]+\.[a-z]{2,}([\/?#]|$)/i.test(h || '') && !/^https?:\/\/tbd\b/i.test(h);      /* an address, not "TBD" or "#" */
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function fail(e) {
+    html.classList.remove('hb-js'); root.setAttribute('data-state', 'off');
+    if (window.console && console.warn) console.warn('hydroai publications block: the page is shown as it was.', e);
+  }
+
+  /* ---- reading a page: its tabs, and in each tab the list's entries ---- */
+  function when(d) {      /* "December 1, 2026": the year, "Dec 2026" and 2026-12-01; anything else stays as it is written */
+    var m = /^([A-Za-z]{3})[a-z]*\.? (?:(\d{1,2}), )?(\d{4})$/.exec(d.tail), n = m ? MONTHS.indexOf(m[1].toLowerCase()) / 3 : -1;
+    if (n >= 0 && n % 1 === 0) { d.y = m[3]; d.when = m[1] + ' ' + m[3]; d.iso = m[3] + '-' + ('0' + (n + 1)).slice(-2) + (m[2] ? '-' + ('0' + m[2]).slice(-2) : ''); }
+    else { d.y = /^\d{4}$/.test(d.tail) ? d.tail : ''; d.when = d.tail; }
+  }
+  function entry(it) {
+    var h = it.querySelector('h3'), d = { title: clean(h && h.textContent) }, txt = s => clean((it.querySelector(s) || {}).textContent), a, im, n, w;
+    if (!d.title) return null;
+    if (it.querySelector('.publications-card')) {      /* a journal paper */
+      a = it.querySelector('a.w-button[href]') || it.querySelector('a[href]'); im = it.querySelector('img');
+      d.kind = 1; d.venue = txt('h4'); d.tail = txt('.publication_date'); d.href = a ? clean(a.getAttribute('href')) : '';
+      d.rich = it.querySelector('.w-richtext'); d.text = '';
+      if (d.rich) { w = d.rich.ownerDocument.createTreeWalker(d.rich, 4); while (w.nextNode()) d.text += ' ' + w.currentNode.nodeValue; d.text = clean(d.text); }
+      if (im && im.getAttribute('src')) d.img = { src: im.getAttribute('src'), srcset: im.getAttribute('srcset') || '' };
+    } else {      /* a paper under review, a talk: who, where, and the state or the date */
+      n = h.nextElementSibling;
+      d.who = n && !n.querySelector('.text-block-4, .text-block-5') ? clean(n.textContent) : '';
+      d.venue = txt('.text-block-4'); d.tail = txt('.text-block-5');
+    }
+    if (/^[-\u2013\u2014]$/.test(d.venue)) d.venue = '';      /* "-": no journal yet */
+    when(d);
+    return d;
+  }
+  function read(doc, first) {
+    var it = doc.querySelector('.w-tabs .w-dyn-item'), tabs = it && it.closest('.w-tabs');
+    if (!tabs) return null;
+    return [].map.call(tabs.querySelectorAll('.w-tab-link'), a => {
+      var name = a.getAttribute('data-w-tab'), pane = [].find.call(tabs.querySelectorAll('.w-tab-pane'), p => p.getAttribute('data-w-tab') === name) || doc.createElement('div');
+      var next = pane.querySelector('a.w-pagination-next[href]'), prev = pane.querySelector('a.w-pagination-previous[href]');
+      var g = { key: slug(name || a.textContent), label: clean(a.textContent), note: clean((pane.querySelector('.text-block-7') || {}).textContent),
+        items: [].map.call(pane.querySelectorAll('.w-dyn-item'), entry).filter(Boolean), next: next ? next.getAttribute('href') : '' };
+      /* opened on a later page of a list ("?..._page=3"): the list is read from its first page */
+      if (first && prev) { g.items = []; g.next = prev.getAttribute('href').replace(/\d+$/, '1'); }
+      return g;
+    }).filter(g => g.key && (g.items.length || g.next));
+  }
+  /* a summary as the page has it: paragraphs, line breaks, bold, italic, links, lists; empty lines left out */
+  function copy(node, into) {
+    each(node.childNodes, c => {
+      var tag = c.nodeType === 1 ? c.tagName.toUpperCase() : '', e, h;
+      if (c.nodeType === 3) into.appendChild(document.createTextNode(c.nodeValue.replace(ZW, '')));
+      else if (tag === 'BR') into.appendChild(el('br'));
+      else if (/^(P|STRONG|B|EM|I|A|UL|OL|LI|SUB|SUP|H[1-6]|BLOCKQUOTE)$/.test(tag)) {
+        e = el(/^(H\d|BLOCKQUOTE)$/.test(tag) ? 'p' : tag.toLowerCase());
+        if (tag === 'A') { h = c.getAttribute('href'); if (ok(h)) { e.href = h; e.target = '_blank'; e.rel = 'noopener'; } else e = el('span'); }
+        copy(c, e);
+        if (clean(e.textContent)) into.appendChild(e);
+      } else if (tag && !/^(SCRIPT|STYLE|IFRAME|IMG|VIDEO|FIGURE)$/.test(tag)) copy(c, into);
+    });
+    return into;
+  }
+  /* of the sizes Webflow keeps of a picture, the smallest that is still sharp at this width */
+  function best(img, need) {
+    var out = img.src, w = Infinity;
+    img.srcset.split(',').forEach(s => { var m = /^(\S+)\s+(\d+)w$/.exec(s.trim()); if (m && +m[2] >= need && +m[2] < w) { out = m[1]; w = +m[2]; } });
+    return out;
+  }
+
+  function build(sec) {
+    var groups = read(document, true), nav = part('nav'), yearsEl = part('years'), lists = part('lists'), bodyEl = part('body'), q = part('q'), clr = part('clear'), status = part('status');
+    var lb = part('figure'), lbImg = lb.querySelector('img'), byId = Object.create(null), marks = [], state = { g: '', q: '' }, shown = [], at = 0, pend = '', tick = 0;
+    var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!groups || !groups.length) throw new Error('no list of publications on this page');
+    var cur = () => groups.find(g => g.key === state.g) || groups[0];
+
+    /* the quotation above the tabs: its first line, and under it who said it */
+    var tabs = sec.querySelector('.w-tabs'), p = [].find.call(sec.querySelectorAll('p'), x => (tabs.compareDocumentPosition(x) & 2) && clean(x.textContent)), mot = part('motto'), ls;
+    if (p) {
+      p = p.cloneNode(true); each(p.querySelectorAll('br'), b => b.parentNode.replaceChild(document.createTextNode('\n'), b));
+      ls = p.textContent.split('\n').map(clean).filter(Boolean);
+      mot.appendChild(el('span', 'hb-say', ls[0]));
+      if (ls.length > 1) mot.appendChild(el('span', 'hb-by', ls.slice(1).join(' ').replace(/^[-\u2013\u2014]\s*/, '')));
+    }
+
+    /* ---- the rows ---- */
+    function time(d) { var t = el('time', '', d.when); if (d.iso) { t.dateTime = d.iso; t.title = d.tail; } return t; }
+    function bit(into, cls, txt, tag) { var e = el(tag || 'span', cls, txt); marks.push([e, txt]); if (into.firstChild) gap(into); into.appendChild(e); return e; }
+    function gap(into) { into.appendChild(document.createTextNode(' ')); }      /* side by side on the page, a space apart for whoever copies the words or has them read out */
+    function paper(d) {
+      var li = el('li', 'hb-row hb-paper'), main = el('div', 'hb-main'), meta = el('p', 'hb-meta'), f, im, a, b;
+      d.el = li;
+      if (d.img) {
+        f = el('button', 'hb-fig'); f.type = 'button'; f.setAttribute('aria-label', T.fig + d.title);
+        im = d.im = el('img'); im.alt = ''; im.loading = 'lazy'; im.decoding = 'async';
+        d.w = Math.max.apply(null, (d.img.srcset.match(/\d+(?=w(,|$))/g) || [0]).map(Number));
+        im.addEventListener('load', () => {
+          if (!im.naturalWidth || !im.naturalHeight) return;
+          d.r = (im.naturalWidth / im.naturalHeight).toFixed(4); d.w = d.w || im.naturalWidth;
+          f.classList.add('is-on');
+        });
+        im.addEventListener('error', () => { f.hidden = true; d.img = null; if (!d.text) plain(d); });
+        if (d.img.srcset) { im.sizes = '92px'; im.srcset = d.img.srcset; }
+        im.src = d.img.src; f.appendChild(im); li.appendChild(f);
+      }
+      bit(main, 'hb-t', d.title, 'h3');
+      if (d.venue) bit(meta, 'hb-venue', d.venue);
+      if (d.when) { if (meta.firstChild) gap(meta); meta.appendChild(time(d)); }
+      main.appendChild(meta); li.appendChild(main);
+      if (ok(d.href)) {
+        a = el('a', 'hb-out', /scholar\.google\./i.test(d.href) ? T.scholar : T.paper); a.href = d.href; a.target = '_blank'; a.rel = 'noopener';
+        a.insertAdjacentHTML('beforeend', '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 8.5l7-7M3 1.5h5.5V7"/></svg>');
+      } else a = el('span', 'hb-out is-none', d.href ? T.soon : '');
+      li.appendChild(a);
+      /* the title stays text that can be selected and copied; the arrow is the button, and a click anywhere on the row does the same */
+      b = d.btn = el('button', 'hb-chev'); b.type = 'button'; b.setAttribute('aria-label', T.sum + d.title); b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-controls', 'hb-' + d.id + '-more');
+      li.appendChild(b);
+      d.more = el('div', 'hb-more'); d.more.id = 'hb-' + d.id + '-more'; d.more.hidden = true; li.appendChild(d.more);
+      if (!d.text && !d.img) plain(d);
+      return li;
+    }
+    function plain(d) { d.el.classList.add('is-plain'); d.btn.hidden = true; }      /* nothing to open */
+    function line(d, dated) {
+      var li = el('li', 'hb-row hb-line' + (dated ? ' hb-talk' : '')), main = el('div', 'hb-main'), meta = el('p', 'hb-meta');
+      bit(main, 'hb-t', d.title, dated ? 'h4' : 'h2');      /* headings in order: year, meeting, talk; a list without years has none above its entries */
+      if (d.who) bit(meta, 'hb-who', d.who);
+      if (!dated && d.venue) bit(meta, 'hb-venue', d.venue);
+      if (meta.firstChild) main.appendChild(meta);
+      li.appendChild(main);
+      if (!dated && d.tail) bit(li, 'hb-tag ' + (/revis/i.test(d.tail) ? 'is-a' : /review|consider/i.test(d.tail) ? 'is-b' : 'is-c'), d.tail);
+      return li;
+    }
+    /* where a row goes: its year, and in a year of talks its meeting */
+    function home(g, d) {
+      var k = g.dated ? d.y || T.undated : '', yr = g.box[k], mk = d.kind || !g.dated ? '' : d.venue + '|' + d.when, s, h;
+      if (!yr) {
+        yr = g.box[k] = { el: el(g.dated ? 'section' : 'div', 'hb-yr'), meets: {} };
+        if (g.dated) { yr.el.id = 'hb-' + g.key + '-' + slug(k); yr.el.setAttribute('data-y', k); yr.el.appendChild(el('h2', 'hb-yh', k)); }
+        g.el.insertBefore(yr.el, g.foot);
+      }
+      if (!yr.meets[mk]) {
+        s = el('div', 'hb-meet');
+        if (mk) { h = el('h3', 'hb-mh'); if (d.venue) bit(h, '', d.venue); if (d.when) { if (h.firstChild) gap(h); h.appendChild(time(d)); } s.appendChild(h); }
+        s.appendChild(yr.meets[mk] = el('ol', 'hb-rows')); yr.el.appendChild(s);
+      }
+      return yr.meets[mk];
+    }
+    function add(g, items) {
+      if (g.dated == null && items.length) g.dated = items.filter(d => d.y).length * 2 >= items.length;
+      items.forEach(d => {
+        var s = slug(d.title).split('-').slice(0, 8).join('-') || 'entry', id = s, n = 1;
+        while (byId[id] || groups.some(x => x.key === id)) id = s + '-' + (++n);
+        d.id = id; d.g = g; byId[id] = d;
+        d.el = d.kind ? paper(d) : line(d, g.dated);
+        d.el.id = 'hb-' + id;
+        d.hay = [d.title, d.venue, d.who, d.tail, d.text].join(' ').toLowerCase();
+        home(g, d).appendChild(d.el); g.rows.push(d);
+      });
+    }
+    /* a list's following pages, a few at a time, until one has no "Next" */
+    function more(g) {
+      var m = /^(\?[^=&#]+=)(\d+)$/.exec(g.next), jobs = [], n;
+      if (!m) { g.next = ''; g.foot.hidden = true; if (pend) route(); return; }
+      g.foot.className = 'hb-wait'; g.foot.textContent = T.wait; g.foot.hidden = false;
+      for (n = +m[2]; n < +m[2] + BATCH; n++) jobs.push(fetch(here.pathname + m[1] + n, { credentials: 'same-origin' }).then(r => { if (!r.ok) throw new Error(r.status); return r.text(); }));
+      Promise.all(jobs).then(texts => {
+        g.next = '';
+        texts.some(t => {
+          var x = (read(new DOMParser().parseFromString(t, 'text/html')) || []).find(y => y.key === g.key);
+          if (!x || !x.items.length) return true;
+          add(g, x.items); g.next = x.next;
+          return !x.next;
+        });
+        apply(); more(g);
+      }).catch(e => {
+        var b = el('button', '', T.again); b.type = 'button';
+        g.foot.className = 'hb-wait is-lost'; g.foot.textContent = T.lost + ' '; g.foot.appendChild(b);
+        b.addEventListener('click', () => more(g));
+        if (window.console && console.warn) console.warn('hydroai publications block: ' + g.next, e);
+      });
+    }
+
+    /* ---- the lists, the search, the years ---- */
+    function show(key) {
+      state.g = (groups.find(g => g.key === key) || groups[0]).key;
+      each(nav.children, c => c.setAttribute('aria-current', c.getAttribute('data-g') === state.g ? 'true' : 'false'));
+      groups.forEach(g => { g.el.hidden = g.key !== state.g; });
+      report(); years();
+    }
+    function paint(e, txt, re) {
+      if (!re) { if (e.firstElementChild) e.textContent = txt; return; }
+      e.textContent = '';
+      txt.split(re).forEach((s, i) => { if (s) e.appendChild(i % 2 ? el('mark', '', s) : document.createTextNode(s)); });
+    }
+    function apply() {
+      var terms = state.q.toLowerCase().split(' ').filter(Boolean), re = terms.length ? new RegExp('(' + terms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'ig') : null;
+      groups.forEach(g => {
+        g.n = 0;
+        g.rows.forEach(d => { d.el.hidden = !terms.every(t => d.hay.indexOf(t) >= 0); if (!d.el.hidden) g.n++; });
+        each(g.el.querySelectorAll('.hb-yr, .hb-meet'), s => { s.hidden = !s.querySelector('.hb-row:not([hidden])'); });
+        g.count.textContent = re ? g.n : '';
+      });
+      marks.forEach(m => paint(m[0], m[1], re));
+      clr.hidden = !q.value;
+      report(); years();
+    }
+    function report() {
+      var g = cur(), none = !!state.q && !g.n && !g.next, also = groups.filter(x => x.n && x !== g), box;
+      status.className = 'hb-status' + (none ? ' is-none' : '');
+      status.textContent = !state.q ? '' : none ? T.none + ' \u201c' + state.q + '\u201d ' + T.here + ' ' + g.label + '.' : g.n + ' ' + (g.n === 1 ? T.one : T.many) + ' \u201c' + state.q + '\u201d';
+      if (none && also.length) {
+        box = el('div', 'hb-also', T.also);
+        also.forEach(x => { var a = el('a', 'hb-chip', x.label); a.href = '#' + x.key; a.setAttribute('data-g', x.key); a.appendChild(el('span', 'hb-n', x.n)); box.appendChild(a); });
+        status.appendChild(box);
+      }
+    }
+    function years() {
+      var g = cur();
+      yearsEl.textContent = '';
+      if (g.dated) each(g.el.querySelectorAll('.hb-yr'), s => { var a; if (!s.hidden) { a = el('a', 'hb-year', s.getAttribute('data-y')); a.href = '#' + s.id.slice(3); yearsEl.appendChild(a); } });
+      bodyEl.classList.toggle('is-flat', !g.dated);
+      spy();
+    }
+    /* an address stands for the element whose id is "hb-" and the address: no id on the page is an address itself, since the
+       site's own script scrolls to those, under the navigation bar */
+    function spot(a) { return document.getElementById('hb-' + (a ? a.hash.slice(1) : hash())); }
+    /* the year the visitor is reading is marked, and in the row of years on a narrow window kept in view */
+    function spy() {
+      var line = (yearsEl.getBoundingClientRect().bottom < 200 ? yearsEl.getBoundingClientRect().bottom : 104) + 40, on = yearsEl.firstElementChild;
+      tick = 0;
+      each(yearsEl.children, a => { var s = spot(a); if (s && s.getBoundingClientRect().top <= line) on = a; });
+      each(yearsEl.children, a => {
+        if ((a.getAttribute('aria-current') === 'true') === (a === on)) return;
+        a.setAttribute('aria-current', a === on ? 'true' : 'false');
+        if (a === on && yearsEl.scrollWidth > yearsEl.clientWidth) yearsEl.scrollLeft = a.offsetLeft - (yearsEl.clientWidth - a.offsetWidth) / 2;
+      });
+    }
+    function toggle(d, on) {
+      d.open = on = on == null ? !d.open : on;
+      if (on && !d.more.firstChild && d.rich) d.more.appendChild(copy(d.rich, el('div', 'hb-sum')));
+      d.el.classList.toggle('is-open', on); d.btn.setAttribute('aria-expanded', on ? 'true' : 'false'); d.more.hidden = !on;
+      if (on && d.im && d.img && d.img.srcset) d.im.sizes = '(max-width: 699px) 92vw, 300px';
+    }
+    function light(i) {
+      var d = shown[at = (i + shown.length) % shown.length], big = best(d.img, Math.min(window.innerWidth * 0.96, 1100) * (window.devicePixelRatio || 1)), now = d.im.currentSrc || d.img.src, pre;
+      /* its frame is known before the file arrives (never wider than the picture itself), and what the row shows stands in until then */
+      lbImg.style.aspectRatio = d.r || '';
+      lbImg.style.width = d.r ? 'min(calc(100vw - 40px), ' + Math.min(1100, d.w) + 'px, calc((100dvh - 170px) * ' + d.r + '))' : '';
+      lbImg.src = d.r ? now : big;
+      if (d.r && big !== now) { pre = new Image(); pre.onload = () => { if (lb.open && shown[at] === d) lbImg.src = big; }; pre.src = big; }
+      part('cap').textContent = d.title; part('n').textContent = (at + 1) + ' / ' + shown.length;
+      if (!lb.open) { lb.showModal(); html.classList.add('hb-lock'); }
+    }
+    lb.addEventListener('click', e => { var b = e.target.closest('[data-step]'); if (b) light(at + (+b.getAttribute('data-step'))); else if (e.target === lb || e.target.closest('[data-close]')) lb.close(); });
+    lb.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') light(at - 1); else if (e.key === 'ArrowRight') light(at + 1); });
+    lb.addEventListener('close', () => html.classList.remove('hb-lock'));
+
+    /* the address: #conferences shows a list, #<the first words of a title> opens that paper, #conferences-2021 leads to a year */
+    function hash() { try { return decodeURIComponent(here.hash.slice(1)); } catch (e) { return ''; } }
+    function address(h) { try { window.history.replaceState(null, '', h ? '#' + h : here.pathname + here.search); } catch (e) {} }
+    function route() {
+      var h = hash(), d = byId[h], y = h && spot(), g = groups.find(x => x.key === h);
+      pend = '';
+      if (d || (y && y.classList.contains('hb-yr'))) {
+        if (state.q) { q.value = state.q = ''; apply(); }
+        show(d ? d.g.key : y.parentNode.getAttribute('data-g'));
+        if (!d) { y.scrollIntoView(); return; }
+        if (d.btn && !d.btn.hidden) toggle(d, true);
+        d.el.scrollIntoView({ block: d.el.offsetHeight > window.innerHeight * 0.6 ? 'start' : 'center' });
+        d.el.classList.add('is-here'); window.setTimeout(() => d.el.classList.remove('is-here'), 2400);
+      } else {
+        show(g ? g.key : state.g);
+        if (h && !g && groups.some(x => x.next)) pend = h;      /* perhaps an entry of a page that has not arrived yet */
+      }
+    }
+    root.addEventListener('click', e => {
+      var t = e.target, a = t.closest('a[data-g], a.hb-year'), li = t.closest('.hb-paper'), d = li && byId[li.id.slice(3)], s;
+      if (a) {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
+        e.preventDefault();
+        if (a.hasAttribute('data-g')) { show(a.getAttribute('data-g')); address(state.g === groups[0].key ? '' : state.g); }
+        else if ((s = a === yearsEl.firstElementChild ? root.querySelector('.hb-tools') : spot(a))) s.scrollIntoView({ behavior: calm ? 'auto' : 'smooth' });      /* the first year: back to the top of the list, the search field in view */
+      } else if (d && !t.closest('a, .hb-more')) {
+        if (t.closest('.hb-fig')) { shown = cur().rows.filter(x => x.img && !x.el.hidden); light(shown.indexOf(d)); }
+        else if (!d.btn.hidden && !String(window.getSelection())) { toggle(d); address(d.open ? d.id : state.g === groups[0].key ? '' : state.g); }      /* not while words are being selected */
+      }
+    });
+    function find(v) { if (q.value !== v) q.value = v; state.q = clean(v); apply(); }
+    q.addEventListener('input', () => find(q.value));
+    q.addEventListener('keydown', e => { if (e.key === 'Escape' && q.value) { e.preventDefault(); find(''); } });
+    clr.addEventListener('click', () => { find(''); q.focus(); });
+    document.addEventListener('keydown', e => {
+      var f = document.activeElement || {};
+      if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey || lb.open || f.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(f.tagName)) return;
+      e.preventDefault(); q.focus(); q.select();
+    });
+    function seen() { if (!tick) tick = window.requestAnimationFrame(spy); }
+    window.addEventListener('scroll', seen, { passive: true });
+    window.addEventListener('resize', seen);
+    window.addEventListener('hashchange', route);
+
+    /* a chip and a list for each of the page's tabs */
+    groups.forEach(g => {
+      var a = el('a', 'hb-chip', g.label), first = g.items, mark = (/^[^\w\s]/.exec(g.note) || [''])[0];
+      a.href = '#' + g.key; a.setAttribute('data-g', g.key); g.count = el('span', 'hb-n'); a.appendChild(g.count); nav.appendChild(a);
+      g.el = el('div', 'hb-list'); g.el.setAttribute('data-g', g.key); g.box = {}; g.rows = []; g.n = 0;
+      g.foot = el('p', 'hb-wait'); g.foot.hidden = true; g.el.appendChild(g.foot); lists.appendChild(g.el);
+      add(g, first);
+      /* a line that explains a mark ("* = ...") is shown while an entry carries the mark */
+      if (mark && g.rows.some(d => (d.title + (d.who || '')).indexOf(mark) >= 0)) g.el.appendChild(el('p', 'hb-note', g.note));
+    });
+    nav.hidden = groups.length < 2;
+    state.g = groups[0].key;
+    apply();
+    sec.setAttribute('data-hb-old', '');
+    root.setAttribute('data-state', 'on');
+    root.setAttribute('data-lists', groups.length);
+    if (!calm) root.classList.add('hb-anim');
+    route();
+    groups.forEach(g => { if (g.next) more(g); });
+  }
+
+  /* the page's section is read as soon as the browser has all of it, whether this block comes before or after it */
+  var done = false, mo = null;
+  function start() {
+    if (done) return;
+    var c = document.querySelector('.w-tabs .w-dyn-item'), tabs = c && c.closest('.w-tabs');
+    var sec = tabs ? tabs.closest('.section') || tabs.parentNode : document.querySelector('.section.teachers');
+    if (document.readyState === 'loading' && !(sec && sec.nextElementSibling)) return;
+    done = true;
+    if (mo) mo.disconnect();
+    try { if (!sec || !tabs) throw new Error('the Publications tabs are not on this page'); build(sec); } catch (e) { fail(e); }
+  }
+  if (document.body) { mo = new MutationObserver(start); mo.observe(document.body, { childList: true }); }
+  document.addEventListener('DOMContentLoaded', start);
+  start();
+})();
+</script>
