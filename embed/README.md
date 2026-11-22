@@ -553,27 +553,32 @@ as committed: 126 in each browser); 49 of the 51 pages the same but for the stam
 others being the Data page (the card's picture block) and the home page.
 
 **The same publish carried new `sizes` values for three of the page's own pictures**, the three that had carried
-short values since 2026-11-21 09:29 UTC: `satellite.png` from “(max-width: 479px) 60vw, 144px”, `main_ML-min.png`
-from “31px” and `main_LSM-min.png` from “(max-width: 479px) 45vw, 108px”, all three to “(max-width: 767px) 48vw,
-(max-width: 991px) 356px, 462px”. Those are the values the Designer's canvas carried for them two minutes before
+short values since 2026-11-21 09:29 UTC: `satellite.png` from “(max-width: 479px) 60vw, 144px” to “(max-width: 479px) 60vw,
+(max-width: 767px) 48vw, (max-width: 991px) 356px, 462px”, and `main_ML-min.png` from “31px” and `main_LSM-min.png`
+from “(max-width: 479px) 45vw, 108px” to “(max-width: 767px) 48vw, (max-width: 991px) 356px, 462px”. Those are the values the Designer's canvas carried for them two minutes before
 the click, with the Home page open for the hero embed (it has to be open for that). At the click the hidden
 measuring frame went through its widths in one task (240, 992, 1214, 1315, 1439, 1440, 1500, 1578, 3960, 4464,
 5060, 10000, 768, 991, 480, 512, 767, 240, 479, 240 px), with the tab visible; the tab had been hidden for five
 seconds and was visible again 0.7 s before that. The pictures have widths of their own, so nothing moved: 30, 462 and 635 px at 1440 and
-2048 px before and after, 187 and 294 px for the two figures on a 390 px phone. What changed is the file a browser
-takes: on a dense desktop screen the 1080 px file where it took the 500 px one, on a plain screen the same file as
-before. The script that waits in this folder's working tree (it tells each picture the width it is drawn at) is no
-part of this publish and still waits for its own word: the Land Surface Models figure, 635 px wide, is still drawn
-from the 500 px file on a plain screen, and from the 1080 px file on a dense one.
+2048 px before and after, 187 and 294 px for the two figures on a 390 px phone. What changed while
+those values were live was the file a browser took (Chromium): on a desktop screen at 2x the 1080 px files where it
+had taken the 500 px ones, on a plain screen the same 500 px files, and on a 390 px phone at 3x the Machine Learning
+figure's 800 px file where it had taken the 500 px one. The script that waits in this folder's working tree (it tells
+each picture the width it is drawn at) is no part of this publish and still waits for its own word.
 
 **Eight minutes later the short values were back.** Another session published at 14:10:52 UTC (two Projects
 items updated by CSV; the Home page on its canvas at 1439 px and untouched, as that session reports), and the three
 pictures went out with “(max-width: 479px) 60vw, 144px”, “31px” and “(max-width: 479px) 45vw, 108px” again. The
-live page is therefore as it has been since 21 November: nothing moved, and a browser takes the 500 px files on
-every screen. Twice in one evening the values that went out were those of the Designer of the session that
-clicked, and the two sessions' values differed; what in a session's Designer decides them is still not known.
-This session had opened the Designer straight on the Home page by its pageId and stayed in the Design view
-(no CMS view, no Assets panel); the other came to its click from the Assets panel and a CSV import.
+live page is therefore as it has been since 21 November: nothing moved, and on a desktop screen, plain or dense, a
+browser takes the 500 px files again. Only this session's canvas was read before a click (its values went out with
+its publish); the other session's canvas was not read, so which values a publish sends out, and why, is still not
+known. This session had opened the Designer straight on the Home page by its pageId and stayed in the Design view
+(no CMS view, no Assets panel); the other came to its click from the Assets panel and a CSV import, and reports the
+short values going out the same way with its publishes of 12:53:38, 13:30:43 and 13:31:39 UTC.
+
+The hero block's own comment (lines 22 and 23 of `home/hero.html`) still says the larger loops are “made by
+tools/wide_loops.py”; `cvs-wide-v2` is not (the table above says how it was made). Reword it with the next change
+to the hero block: the comment is inside the embed, so it goes out only with a publish.
 
 ### Changing a block on the site
 

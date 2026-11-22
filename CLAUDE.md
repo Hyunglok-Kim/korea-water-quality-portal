@@ -299,8 +299,10 @@ carried `sizes="31px"` for the first: it was 31 px wide on the live page for an 
 `embed/tools/home_new_preview.py` (port 8814) serves the live page with this folder's three files in the
 place of its three embeds, so a change is seen on the page as it is, and `embed/tools/check_home_new.py`
 checks the preview or the live page in three browsers. The reel uses the cards'
-768 px loops and, on large or dense screens, larger versions of all five kept in `embed/media/*-wide-v1.*`,
-made by `embed/tools/wide_loops.py` from the other portals' own tools (their previews must be running).
+768 px loops and, on large or dense screens, larger versions kept in `embed/media/*-wide-v*.*` (each entry's `wide`
+in `REEL.slides`), made by `embed/tools/wide_loops.py` from the other portals' own tools (their previews must be
+running), except `cvs-wide-v2`, which hdca-data-portal's `make_cvs_v2.py` draws itself (`embed/README.md`, “The
+loops, in two sizes”).
 `embed/README.md` has the behaviour, the words' origins, how the blocks went onto the site, the steps for
 changing one there, and how to go back.
 

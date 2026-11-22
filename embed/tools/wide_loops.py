@@ -3,7 +3,7 @@
 
 The loops on the hydroai.net/data cards are 768 px wide. The home page's first screen shows them up to about
 700 CSS px wide, which on a dense screen is 1,400 to 1,750 screen pixels, so it has a second, larger set
-(`embed/media/*-wide-v1.*`). This runs the tools that made the card loops, as they are in their own
+(`embed/media/*-wide-v*.*`). This runs the tools that made the card loops, as they are in their own
 repositories, with one thing changed: the pixel density of the frames (SCALE, default 1.6: 1536 x 864 for a
 960 x 540 view), and with it the size of the chart panel that two of them draw over the map. Camera, stages
 and frame counts are the tools' own, so a wide loop has its card loop's timeline and the card's captions fit it.
@@ -15,7 +15,7 @@ and frame counts are the tools' own, so a wide loop has its card loop's timeline
     hdca_compose    hdca/portal/embed/tools/compose_hdca_amazon.py
     et_cap          hdca/portal/embed/tools/cap_et.py                              the ET preview on the PUBLIC copy of the tiles (port 8791)
     et_cap_v3       hdca/portal/embed/tools/cap_et_v3.py  (the loop with France)   the ET preview with both regions' public tiles
-    cvs             hdca/portal/embed/tools/make_cvs.py  (1280 x 720: the drone mosaic is 1 m, no finer)
+    cvs             hdca/portal/embed/tools/make_cvs.py  (1280 x 720: the drone mosaic is 1 m, no finer; the first loop, no longer played)
 
     W=frames                                                   # any scratch folder
     # water quality (this repository's own tool takes the density itself)
@@ -35,9 +35,13 @@ and frame counts are the tools' own, so a wide loop has its card loop's timeline
     # ET with France (et-v3, 2026-11-21): the preview must serve the public tiles of both regions; the tool checks that it does
     python embed/tools/wide_loops.py et_cap_v3 "http://127.0.0.1:8853/?data=/data/prithvi-openet-tiles-1/&intro=0" $W/et3
     embed/tools/encode.sh $W/et3 et-wide-v2 embed/media 31 44 1536 24
-    # the validation site
+    # the validation site, first loop (cvs-wide-v1, no longer played)
     CVS_FPS=15 CVS_HOLD=10 CVS_FADE=8 python embed/tools/wide_loops.py cvs ~/orca/projects/hampyeong-cal-val $W/cvs
     embed/tools/encode.sh $W/cvs cvs-wide-v1 embed/media 29 42 1280 15
+    # the validation site, second loop (cvs-wide-v2, the reel's since 2026-11-22): HDCA's own tool takes the size itself,
+    # not through this file
+    CVS_SCALE=1.3333333333 python ~/orca/projects/hdca/portal/embed/tools/make_cvs_v2.py ~/orca/projects/hampyeong-cal-val $W/cvs2w
+    embed/tools/encode.sh $W/cvs2w cvs-wide-v2 embed/media 29 42 1280 24
 
 Add `test` after a capture's arguments for a handful of frames. The rules those loops keep are their own
 repositories' (hdca-data-portal: embed/tools/README.md): only what is published is drawn, the ET loop from the
