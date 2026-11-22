@@ -467,6 +467,35 @@ Things to keep when touching it:
   small. **The cause is not known** (`embed/project/README.md`, “Seen on the way”, has the record): compare
   after every publish and tell the session that looks after Home at once.
 
+## The About page's block (made, not on the site)
+
+**Not on hydroai.net yet (2026-11-22).** The lab head asked for the About tab (`/about`), grown very old, to
+be remade with the lab's dashboard as the reference, in the manner of the other remade tabs (“지금 홈페이지 About
+탭이 매우 오래되었어. 우리 대시보드 참고해서 좀 더 멋지고 고급지게 업데이트 해줘. 다른 세션 참고해.”). `embed/about/about.html` is one
+block for a Code Embed on that page, right after the navigation bar, in the place of the page's four old
+sections (kept in `embed/about/replaced.html`); `embed/about/README.md` has what a visitor gets, what is
+written and what is read, and the steps that put it on the site (a push, two changes in the Designer and a
+publish, which wait for the lab head's word). `embed/tools/about_preview.py` (port 8819) serves the live
+page with the file on it and the old sections taken out; `embed/tools/check_about.py` checks the preview or
+the live page in three browsers (58 checks each on 2026-11-22, 0 failed).
+
+Unlike the People, Projects and Publications blocks this one holds the page's words: the About page has no
+collection behind it. The one thing that would go stale is read from the site, with the markup as the
+fallback: the rows of open datasets (`/data`, its cards). The dark panel holds a globe with the satellites
+the lab follows (`embed/media/about/orbit-v1.js` and its files, made after the dashboard's satellite page:
+positions by SGP4 in the visitor's browser from `orbit-tle.json`, which `embed/tools/about_tle.py` writes);
+the block asks for it when the panel comes near, and shows a picture in its place until then and whenever it
+cannot be drawn. On seeing the first preview the lab head had the photograph at the top and the four counts
+(journal papers, conference presentations, projects, datasets) taken off (“맨 위 사진이랑 저널 페이퍼 등 숫자 나온 것
+지워”): they are not to come back. Then he had the panel with the globe put first, as the top of the page
+(its headline is the page's `<h1>`), and what stood above it moved under it and made smaller.
+
+Things to keep when touching it: only what a visitor may know (the dashboard also holds people's details,
+funding, unpublished work and the addresses of machines: none of it in the block or in this public
+repository); the page whole without scripts and when nothing can be read; the globe's panel first; no
+photograph of the lab at the top and no counts; a change is not done until `check_about.py https://hydroai.net/about` has
+passed, and `site_snapshot.py` is run before and after the publish.
+
 ## Rules that must survive any redesign
 
 - **Say what kind of layer each parameter is.** SS, Chl-a and TP are optical retrievals; TN is a

@@ -1,0 +1,402 @@
+<!--
+  hydroai.net About page (/about), written anew as one block.
+  What the lab is, in the order the lab head set (2026-11-22): first the dark panel with the globe (the
+  satellites the lab follows, where they are now, beside its drones and its ground network), which is the
+  page's title too; then, smaller, the lab in a statement and two paragraphs and its two lines of research;
+  how it works, in four steps, and with what; its open datasets; whom it works with and what it teaches;
+  where it is and how to join.
+
+  Where it goes: one Webflow Code Embed on the About page, right after the navigation bar. The page's four
+  old sections are taken off the page when it goes on (they are kept in embed/about/replaced.html).
+  Unlike the People, Projects and Publications blocks this one holds its own words: the About page has no
+  collection behind it. The page is whole without scripts. With scripts, what would go stale is read from the
+  site when the page opens: the datasets (from /data). No photograph at the top and no counts of papers,
+  talks, projects or datasets: the lab head had them taken off (2026-11-22).
+
+  To change it:
+    the words                         the markup below
+    the datasets                      nothing: the Data page's cards. The list in the markup is the same
+                                      fallback
+    the field site's figures          the three .ha-view lines; they repeat the Data page's card for the site,
+                                      and the check compares them with it
+    the globe                         embed/media/about/ (orbit-v1.js and its files); the satellites are its
+                                      roster. Without it the panel shows a picture (data-pic of .ha-stage)
+-->
+<style>
+  .ha { --ink: #1c3533; --ink2: rgba(28, 53, 51, 0.86); --ink3: rgba(28, 53, 51, 0.66); --line: rgba(28, 53, 51, 0.13); --edge: rgba(28, 53, 51, 0.1); --fill: rgba(28, 53, 51, 0.07);
+    --green: #219653; --deep: #14622f; --mint: #75fb92; --card: #fcfbf9; --head: "Plus Jakarta", sans-serif;
+    box-sizing: border-box; padding: 100px 0 96px; font-family: Satoshi, sans-serif; font-size: 16px; line-height: 1.5; color: var(--ink); text-align: left; }
+  .ha *, .ha *::before, .ha *::after { box-sizing: border-box; }
+  .ha-wrap { max-width: 1348px; margin: 0 auto; padding: 0 24px; }
+  .ha :where(p, h1, h2, h3, ul, ol, dl, dd, figure) { margin: 0; padding: 0; }
+  .ha :where(ul, ol) { list-style: none; }
+  .ha :where(a) { color: inherit; text-decoration: none; }
+  .ha a:focus-visible, .ha button:focus-visible { outline: 3px solid var(--green); outline-offset: 3px; border-radius: 6px; }
+  .ha-dark a:focus-visible { outline-color: var(--mint); }
+
+  /* the small title over a part */
+  .ha-kicker { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; line-height: 1.3; letter-spacing: 0.14em; text-transform: uppercase; color: var(--green); }
+  .ha-kicker::before { content: ""; flex: none; width: 26px; height: 2px; border-radius: 2px; background: currentColor; }
+
+  /* the lab in a statement and two paragraphs */
+  .ha-mission { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); column-gap: clamp(36px, 5vw, 80px); align-items: start; margin-top: 84px; }
+  .ha-big { margin-top: 12px; font-family: var(--head); font-size: clamp(27px, 2.7vw, 39px); font-weight: 600; line-height: 1.18; letter-spacing: -0.02em; color: var(--ink); text-wrap: balance; }
+  .ha-big em { font-style: normal; color: var(--green); }
+  .ha-prose p { font-size: 17px; line-height: 1.62; color: var(--ink2); text-wrap: pretty; }
+  .ha-prose p + p { margin-top: 13px; }
+  .ha-prose .ha-by { margin-top: 18px; padding-top: 15px; border-top: 1px solid var(--line); font-size: 15.5px; color: var(--ink3); }
+  .ha-by .ha-link { display: block; width: fit-content; margin-top: 8px; }
+  .ha-link { font-weight: 700; white-space: nowrap; color: var(--deep); }
+  .ha-link span { display: inline-block; transition: transform 0.2s; }
+  .ha-link:hover span { transform: translateX(3px); }
+  /* a section and its heading */
+  .ha-sec { margin-top: 104px; }
+  .ha-h2 { margin-top: 12px; max-width: 21em; font-family: var(--head); font-size: clamp(27px, 2.55vw, 37px); font-weight: 600; line-height: 1.2; letter-spacing: -0.018em; color: var(--ink); text-wrap: balance; }
+  .ha-sub { max-width: 44em; margin-top: 14px; font-size: 17.5px; line-height: 1.6; color: var(--ink2); text-wrap: pretty; }
+
+  /* the two lines of research */
+  .ha-research { margin-top: 52px; }
+  .ha-axes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
+  .ha-axis { position: relative; padding: 24px 28px 24px 32px; border-radius: 18px; background: var(--card); box-shadow: inset 0 0 0 1px var(--edge); }
+  .ha-axis::before { content: ""; position: absolute; left: 0; top: 26px; bottom: 26px; width: 3px; border-radius: 0 3px 3px 0; background: var(--mint); }
+  .ha-axis small { display: block; font-size: 12px; font-weight: 500; line-height: 1.3; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); }
+  .ha-axis b { display: block; margin-top: 7px; font-family: var(--head); font-size: clamp(19px, 1.55vw, 22px); font-weight: 600; line-height: 1.25; letter-spacing: -0.012em; color: var(--ink); }
+  .ha-axis span { display: block; margin-top: 8px; font-size: 15.5px; line-height: 1.58; color: var(--ink2); text-wrap: pretty; }
+  .ha-after { max-width: 62em; margin-top: 18px; font-size: 15.5px; line-height: 1.6; color: var(--ink3); }
+
+  /* where the measurements come from: the globe, the drones, the ground */
+  .ha-dark { position: relative; isolation: isolate; border-radius: 26px; color: #fff; background: radial-gradient(64% 90% at 100% 0%, rgba(117, 251, 146, 0.1) 0%, rgba(117, 251, 146, 0) 62%), linear-gradient(135deg, #1c3533 0%, #152a29 55%, #102020 100%); }
+  .ha-dark .ha-kicker { color: var(--mint); }
+  .ha-dark .ha-h2 { color: #fff; }
+  .ha-dark h1.ha-h2 { font-size: clamp(29px, 2.9vw, 42px); line-height: 1.16; letter-spacing: -0.022em; }
+  .ha-orbit { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr); column-gap: clamp(36px, 4.6vw, 72px); align-items: center; padding: clamp(40px, 4.6vw, 68px); }
+  .ha-orbit-p { margin-top: 16px; font-size: 17.5px; line-height: 1.62; color: rgba(255, 255, 255, 0.8); text-wrap: pretty; }
+  .ha-views { margin-top: 26px; border-top: 1px solid rgba(255, 255, 255, 0.14); }
+  .ha-view { display: grid; grid-template-columns: 92px minmax(0, 1fr); column-gap: 20px; padding: 18px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.14); }
+  .ha-view small { padding-top: 5px; font-size: 12.5px; font-weight: 500; line-height: 1.3; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mint); }
+  .ha-view b { display: block; font-family: var(--head); font-size: 21px; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; color: #fff; }
+  .ha-view div > span { display: block; margin-top: 5px; font-size: 15.5px; line-height: 1.55; color: rgba(255, 255, 255, 0.76); }
+  .ha-btn { display: inline-flex; align-items: center; gap: 9px; height: 50px; margin-top: 28px; padding: 0 22px 1px; border-radius: 12px; background: var(--mint); color: var(--ink); font-family: var(--head); font-size: 16px; font-weight: 600; line-height: 1; white-space: nowrap; transition: background-color 0.2s, transform 0.2s; }
+  .ha-btn:hover { background: #93fcaa; transform: translateY(-1px); }
+  .ha-btn-b { background: none; color: #fff; box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.4); }
+  .ha-btn-b:hover { background: rgba(255, 255, 255, 0.07); box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.85); }
+  .ha-stage { position: relative; justify-self: end; width: 100%; max-width: 620px; min-width: 0; }
+  .ha-stage-pic { display: block; width: 100%; height: auto; max-width: none; aspect-ratio: 1; object-fit: cover; object-position: 64% 40%; border-radius: 50%; opacity: 0.9; }
+  .ha-stage[data-orbit="wait"] { padding: var(--ha-above, 0px) 0 var(--ha-below, 78px); }
+  .ha-stage[data-orbit="wait"]::before { content: ""; display: block; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 38% 32%, #20403b 0%, #132826 58%, #0c1b1a 100%); }
+  .ha-stage[data-orbit="on"] .ha-stage-pic { display: none; }
+
+  /* how the lab works: four steps, and with what */
+  .ha-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 28px; margin-top: 40px; counter-reset: s; }
+  .ha-step { position: relative; padding-top: 30px; border-top: 1px solid var(--line); }
+  .ha-step::before { content: ""; position: absolute; left: 0; top: -5px; width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 5px #f4f1eb; }
+  .ha-n { display: block; font-family: var(--head); font-size: 15px; font-weight: 600; line-height: 1; letter-spacing: 0.06em; color: var(--green); }
+  .ha-step b { display: block; margin-top: 12px; font-family: var(--head); font-size: 25px; font-weight: 600; line-height: 1.2; letter-spacing: -0.014em; color: var(--ink); }
+  .ha-step p { margin-top: 10px; font-size: 16px; line-height: 1.6; color: var(--ink2); text-wrap: pretty; }
+  .ha-kit { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 28px; margin-top: 44px; padding: 26px 30px; border-radius: 18px; background: var(--card); box-shadow: inset 0 0 0 1px var(--edge); }
+  .ha-kit dt { font-size: 12.5px; font-weight: 500; line-height: 1.3; letter-spacing: 0.12em; text-transform: uppercase; color: var(--deep); }
+  .ha-kit dd { margin-top: 7px; font-size: 15.5px; line-height: 1.55; color: var(--ink2); text-wrap: pretty; }
+
+  /* the open datasets */
+  .ha-data { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); column-gap: clamp(36px, 5vw, 80px); align-items: start; }
+  .ha-data .ha-link { display: inline-block; margin-top: 22px; }
+  .ha-sets { border-top: 1px solid var(--line); }
+  .ha-set { display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; column-gap: 20px; align-items: center; padding: 14px 6px 14px 0; border-bottom: 1px solid var(--line); transition: padding 0.25s; }
+  .ha-set:hover { padding-left: 8px; padding-right: 0; }
+  .ha-set-pic { position: relative; display: block; aspect-ratio: 16 / 9; border-radius: 9px; overflow: hidden; background: #dfe5df; }
+  .ha-set-pic img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; }
+  .ha-set small { display: block; font-size: 12.5px; font-weight: 500; line-height: 1.3; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); }
+  .ha-set b { display: block; margin-top: 4px; font-family: var(--head); font-size: 19px; font-weight: 600; line-height: 1.3; letter-spacing: -0.008em; color: var(--ink); }
+  .ha-set > span:last-child { font-size: 18px; color: var(--green); transition: transform 0.2s; }
+  .ha-set:hover > span:last-child { transform: translateX(3px); }
+
+  /* whom the lab works with, what it teaches */
+  .ha-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .ha-card { display: flex; flex-direction: column; padding: 36px 38px 32px; border-radius: 22px; background: var(--card); box-shadow: inset 0 0 0 1px var(--edge); }
+  .ha-card h3 { margin-top: 12px; font-family: var(--head); font-size: clamp(22px, 1.9vw, 27px); font-weight: 600; line-height: 1.24; letter-spacing: -0.014em; color: var(--ink); text-wrap: balance; }
+  .ha-card p:not(.ha-kicker) { margin-top: 12px; font-size: 16.5px; line-height: 1.62; color: var(--ink2); text-wrap: pretty; }
+  .ha-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .ha-tags li { padding: 6px 13px; border-radius: 999px; background: var(--fill); font-size: 14px; font-weight: 500; line-height: 1.35; color: var(--ink); }
+  .ha-go { display: flex; flex-wrap: wrap; gap: 8px 26px; margin-top: auto; padding-top: 24px; }
+
+  /* where the lab is, and joining it */
+  .ha-end { display: grid; grid-template-columns: minmax(0, 0.74fr) minmax(0, 1fr); gap: 20px; }
+  .ha-find address { margin-top: 14px; font-size: 17px; font-style: normal; line-height: 1.6; color: var(--ink2); }
+  .ha-find address b { display: block; font-family: var(--head); font-size: 21px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; color: var(--ink); }
+  .ha-join { display: flex; flex-direction: column; justify-content: center; padding: clamp(34px, 3.6vw, 52px); }
+  .ha-tag { display: inline-flex; align-self: flex-start; align-items: center; gap: 8px; padding: 6px 13px 6px 11px; border-radius: 999px; background: rgba(117, 251, 146, 0.14); color: var(--mint); font-size: 12px; font-weight: 600; line-height: 1.3; letter-spacing: 0.1em; text-transform: uppercase; }
+  .ha-tag::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--mint); }
+  .ha-join h2 { margin-top: 16px; font-family: var(--head); font-size: clamp(27px, 2.4vw, 34px); font-weight: 600; line-height: 1.22; letter-spacing: -0.014em; color: #fff; }
+  .ha-join p:not(.ha-tag) { max-width: 36em; margin-top: 12px; font-size: 17px; line-height: 1.6; color: rgba(255, 255, 255, 0.8); }
+  .ha-join-go { display: flex; flex-wrap: wrap; gap: 12px; }
+  .ha-join-go .ha-btn { margin-top: 26px; }
+
+  /* arriving */
+  .ha.ha-anim .ha-rise { opacity: 0; transform: translateY(18px); }
+  .ha.ha-anim .ha-rise.is-in { opacity: 1; transform: none; transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+
+  @media (max-width: 1099px) {
+    .ha-mission { grid-template-columns: minmax(0, 1fr); row-gap: 22px; }
+    .ha-prose { max-width: 48em; }
+    .ha-orbit { grid-template-columns: minmax(0, 1fr); row-gap: 40px; }
+    .ha-stage { justify-self: center; grid-row: 1; }
+    .ha-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 40px; }
+    .ha-end { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 899px) {
+    .ha { padding: 92px 0 72px; }
+    .ha-data { grid-template-columns: minmax(0, 1fr); row-gap: 28px; }
+    .ha-mission { margin-top: 64px; }
+    .ha-research { margin-top: 44px; }
+    .ha-sec { margin-top: 76px; }
+    .ha-axes, .ha-two, .ha-kit { grid-template-columns: minmax(0, 1fr); }
+    .ha-kit { row-gap: 20px; }
+  }
+  @media (max-width: 559px) {
+    .ha { padding: 82px 0 56px; }
+    .ha-wrap { padding: 0 16px; }
+    .ha-mission { margin-top: 48px; }
+    .ha-prose p { font-size: 16.5px; }
+    .ha-card, .ha-dark { border-radius: 18px; }
+    .ha-sec { margin-top: 60px; }
+    .ha-axis { padding: 22px 20px 22px 24px; }
+    .ha-sub, .ha-orbit-p { font-size: 16px; }
+    .ha-orbit { padding: 30px 20px 32px; }
+    .ha-view { grid-template-columns: minmax(0, 1fr); row-gap: 4px; }
+    .ha-steps { grid-template-columns: minmax(0, 1fr); row-gap: 32px; }
+    .ha-kit { padding: 22px 20px; }
+    .ha-set { grid-template-columns: 84px minmax(0, 1fr) auto; column-gap: 14px; }
+    .ha-set b { font-size: 17px; }
+    .ha-card { padding: 28px 22px 26px; }
+    .ha-join { padding: 30px 22px 32px; }
+    .ha-btn { height: 48px; padding: 0 18px 1px; font-size: 15.5px; }
+    .ha-join-go .ha-btn { flex: 1 1 auto; justify-content: center; }
+  }
+  @media (max-width: 379px) {
+    .ha-set { grid-template-columns: 64px minmax(0, 1fr) auto; column-gap: 12px; }
+    .ha-set small { letter-spacing: 0.06em; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ha-btn, .ha-set, .ha-link span { transition: none; }
+  }
+</style>
+
+<section class="ha" id="hb-about">
+  <div class="ha-wrap">
+    <div class="ha-dark ha-orbit" id="ha-orbit">
+      <div>
+        <p class="ha-kicker">Three vantage points</p>
+        <h1 class="ha-h2">One water cycle, seen from orbit, from the air and from the ground</h1>
+        <p class="ha-orbit-p">Most of our work starts with a measurement. Satellites cover the globe every few days, drones map a field at one meter, and sensors in the soil report every five minutes. We work where the three meet.</p>
+        <ul class="ha-views">
+          <li class="ha-view"><small>Orbit</small><div><b><span id="ha-sats">33</span> satellites</b><span>The Earth-observing missions we follow: microwave radiometers and radars for soil moisture and floods, optical and thermal imagers for vegetation and water, and missions that measure rain, rivers and groundwater.<span id="ha-now" hidden> The globe shows where each of them is now.</span></span></div></li>
+          <li class="ha-view"><small>Air</small><div><b>1 m maps</b><span>Drone flights over our field site every one to two weeks in season: true color, NDVI, thermal, LiDAR and an L-band radiometer.</span></div></li>
+          <li class="ha-view"><small>Ground</small><div><b>47 stations, 82 sensors</b><span>Soil moisture and temperature every 5 minutes since June 2025, in one 1 km grid cell at Hampyeong: South Korea&rsquo;s first Core Validation Site, built to check the soil moisture maps of NASA SMAP and NASA-ISRO NISAR.</span></div></li>
+        </ul>
+        <a class="ha-btn" href="/data#cvs">Explore the field site <span aria-hidden="true">&rarr;</span></a>
+      </div>
+      <div class="ha-stage" id="ha-stage" data-pic="https://hyunglok-kim.github.io/korea-water-quality-portal/embed/media/home-sky-v1.jpg">
+        <noscript><img class="ha-stage-pic" width="1500" height="1125" alt="" src="https://hyunglok-kim.github.io/korea-water-quality-portal/embed/media/home-sky-v1.jpg"></noscript>
+      </div>
+    </div>
+
+    <div class="ha-mission">
+      <div>
+        <p class="ha-kicker">About HydroAI</p>
+        <h2 class="ha-big">AI for observing, understanding and predicting the <em>Earth system</em></h2>
+      </div>
+      <div class="ha-prose">
+        <p>The Hydrological Remote Sensing and Artificial Intelligence Laboratory (HydroAI) combines microwave UAV and satellite observations, numerical models, and state-of-the-art machine learning and foundation model techniques to address environmental change, natural hazards, and water resource challenges driven by climate change and human activities.</p>
+        <p>We ask how the water held in soil and vegetation, falling as rain and carried by rivers, responds as the climate changes, from a single field to the whole globe, and we turn the answers into datasets and forecasts.</p>
+        <p class="ha-by">The lab is led by Prof. Hyunglok Kim, who joined GIST&rsquo;s Department of Environment and Energy Engineering in 2023. <a class="ha-link" href="/people">Meet the people <span aria-hidden="true">&rarr;</span></a></p>
+      </div>
+    </div>
+
+    <div class="ha-research">
+      <p class="ha-kicker">Research along two main axes</p>
+      <ul class="ha-axes">
+        <li class="ha-axis ha-rise"><small>Axis 1</small><b>Domain-informed AI modeling</b><span>The physics of hydrology and remote sensing, brought together with deep learning, data assimilation and foundation models, to predict droughts, floods, wildfires, dust storms and changes in water resources quickly and accurately.</span></li>
+        <li class="ha-axis ha-rise"><small>Axis 2</small><b>Earth foundation models</b><span>Next-generation AI models, built on satellite big data and large-scale pretraining, that generalize across environmental problems: beyond task-specific models, toward AI that understands the Earth.</span></li>
+      </ul>
+      <p class="ha-after">This work underpins climate change response, disaster management and data-driven environmental policy, and it advances AI methodology itself, especially the use of foundation models in science. <a class="ha-link" href="/projects">See our current projects <span aria-hidden="true">&rarr;</span></a></p>
+    </div>
+
+    <div class="ha-sec">
+      <p class="ha-kicker">How we work</p>
+      <h2 class="ha-h2">From a measurement to something others can use</h2>
+      <ol class="ha-steps">
+        <li class="ha-step ha-rise"><span class="ha-n">01</span><b>Observe</b><p>Satellite records, drone flights and our own ground network. Where the record we need does not exist yet, we build it, and we check it against the ground.</p></li>
+        <li class="ha-step ha-rise"><span class="ha-n">02</span><b>Model</b><p>Land surface models simulate how water and energy move between soil, vegetation and the atmosphere. Data assimilation brings the simulation and the observations together.</p></li>
+        <li class="ha-step ha-rise"><span class="ha-n">03</span><b>Learn</b><p>Deep learning and foundation models, trained on years of satellite and model data, learn what the equations leave out, and we ask each model how uncertain it is.</p></li>
+        <li class="ha-step ha-rise"><span class="ha-n">04</span><b>Share</b><p>Papers, open datasets with a portal of their own, code, and the courses we teach at GIST.</p></li>
+      </ol>
+      <dl class="ha-kit ha-rise">
+        <div><dt>Computing</dt><dd>GPU servers with 12 NVIDIA GPUs (RTX PRO 6000 Blackwell and L40) and a 192-core server with 1.2 TB of memory.</dd></div>
+        <div><dt>Data</dt><dd>Several hundred terabytes of storage for satellite records, reanalyses and model runs.</dd></div>
+        <div><dt>Field</dt><dd>Survey drones with LiDAR, multispectral and thermal cameras, L-band radiometers, and a soil sensor network.</dd></div>
+      </dl>
+    </div>
+
+    <div class="ha-sec ha-data">
+      <div>
+        <p class="ha-kicker">Open data</p>
+        <h2 class="ha-h2">What we make, we share</h2>
+        <p class="ha-sub">Each dataset has a portal where anyone can explore the maps and the time series in a browser.</p>
+        <a class="ha-link" href="/data">All datasets <span aria-hidden="true">&rarr;</span></a>
+      </div>
+      <ul class="ha-sets ha-rise" id="ha-sets">
+        <li><a class="ha-set" href="/data#cvs"><span class="ha-set-pic"><img loading="lazy" alt="" src="https://hyunglok-kim.github.io/hdca-data-portal/embed/media/cvs-v2.jpg"></span><span><small>Cal/val site</small><b>NASA-GIST Core Validation Site</b></span><span aria-hidden="true">&rarr;</span></a></li>
+        <li><a class="ha-set" href="/data#et"><span class="ha-set-pic"><img loading="lazy" alt="" src="https://hyunglok-kim.github.io/hdca-data-portal/embed/media/et-v3.jpg"></span><span><small>Evapotranspiration</small><b>Global 30m-ET</b></span><span aria-hidden="true">&rarr;</span></a></li>
+        <li><a class="ha-set" href="/data#hdca"><span class="ha-set-pic"><img loading="lazy" alt="" src="https://hyunglok-kim.github.io/hdca-data-portal/embed/media/hdca-v3.jpg"></span><span><small>Soil moisture</small><b>Hybrid Dual-Channel Algorithm (HDCA)</b></span><span aria-hidden="true">&rarr;</span></a></li>
+        <li><a class="ha-set" href="/data#tca"><span class="ha-set-pic"><img loading="lazy" alt="" src="https://hyunglok-kim.github.io/smap-tca-error-portal/embed/media/tca-v2.jpg"></span><span><small>Soil moisture error</small><b>SMAP Time-Variant Error</b></span><span aria-hidden="true">&rarr;</span></a></li>
+        <li><a class="ha-set" href="/data#wq"><span class="ha-set-pic"><img loading="lazy" alt="" src="https://hyunglok-kim.github.io/korea-water-quality-portal/embed/media/wq-v1.jpg"></span><span><small>Water quality</small><b>Inland Water Quality of South Korea</b></span><span aria-hidden="true">&rarr;</span></a></li>
+      </ul>
+    </div>
+
+    <div class="ha-sec ha-two">
+      <div class="ha-card ha-rise">
+        <p class="ha-kicker">Working with others</p>
+        <h3>A validation site built with NASA scientists, and a workshop with NASA and MIT</h3>
+        <p>Scientists from NASA&rsquo;s Jet Propulsion Laboratory and Goddard Space Flight Center came to GIST in October 2024 to work with us on building the Core Validation Site. A year later the lab hosted the GIST-NASA-MIT Workshop on Remote Sensing and AI for Hydrology and Climate Applications. Visits in both directions connect us with colleagues at the institutions below.</p>
+        <ul class="ha-tags"><li>NASA JPL</li><li>NASA GSFC</li><li>MIT</li><li>USDA</li><li>University of Virginia</li><li>TU Dresden</li></ul>
+        <div class="ha-go"><a class="ha-link" href="/events">News and events <span aria-hidden="true">&rarr;</span></a></div>
+      </div>
+      <div class="ha-card ha-rise">
+        <p class="ha-kicker">Teaching and training</p>
+        <h3>Courses at GIST, a weekly journal club, and students on the conference stage</h3>
+        <p>We teach deep learning for environmental big data, microwave remote sensing with AI, and statistics for environmental and energy sciences. The lab meets every week for a journal club. Undergraduates join through Open Lab days and a four-week internship, and graduate students present their work every year at meetings such as AGU, EGU, AOGS and KWRA.</p>
+        <div class="ha-go"><a class="ha-link" href="/teaching">Courses <span aria-hidden="true">&rarr;</span></a><a class="ha-link" href="/opportunities">Opportunities <span aria-hidden="true">&rarr;</span></a></div>
+      </div>
+    </div>
+
+    <div class="ha-sec ha-end">
+      <div class="ha-card ha-find ha-rise">
+        <p class="ha-kicker">Find us</p>
+        <address><b>Room 310, S6, GIST</b>Department of Environment and Energy Engineering<br>Gwangju Institute of Science and Technology<br>123 Cheomdan-gwagiro, Buk-gu, Gwangju 61005, Korea</address>
+        <div class="ha-go"><a class="ha-link" href="mailto:hyunglokkim@gist.ac.kr">hyunglokkim@gist.ac.kr</a><a class="ha-link" href="/contact">Contact <span aria-hidden="true">&rarr;</span></a></div>
+      </div>
+      <div class="ha-dark ha-join ha-rise">
+        <p class="ha-tag">Now hiring</p>
+        <h2>Join HydroAI</h2>
+        <p>We welcome postdoctoral researchers, graduate students and undergraduates who are passionate about applying AI and machine learning to hydrology, remote sensing and climate.</p>
+        <div class="ha-join-go">
+          <a class="ha-btn" href="/opportunities">See all opportunities <span aria-hidden="true">&rarr;</span></a>
+          <a class="ha-btn ha-btn-b" href="/contact">Contact</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.getElementById('hb-about');
+  if (!root || root.getAttribute('data-ready')) return;
+  root.setAttribute('data-ready', '1');
+  var calm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var IO = 'IntersectionObserver' in window;
+  function $(s, e) { return (e || root).querySelector(s); }
+  function all(s, e) { return [].slice.call((e || root).querySelectorAll(s)); }
+  function near(el, margin, fn) {          /* once, when el comes within `margin` of the window */
+    if (!IO) { fn(); return; }
+    var io = new IntersectionObserver(function (es) {
+      if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); fn(); }
+    }, { rootMargin: margin });
+    io.observe(el);
+  }
+
+  /* the parts rise as they come into view (not for a visitor who asked for reduced motion) */
+  if (!calm && IO) {
+    root.classList.add('ha-anim');
+    var rise = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); rise.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px' });
+    all('.ha-rise').forEach(function (e) { rise.observe(e); });
+  }
+
+  /* another page of the site, read as a document */
+  function page(path) {
+    return fetch(path, { credentials: 'omit' }).then(function (r) {
+      if (!r.ok) throw new Error(path + ' ' + r.status);
+      return r.text();
+    }).then(function (t) { return new DOMParser().parseFromString(t, 'text/html'); });
+  }
+
+  /* the datasets: the Data page's cards (name, kind, picture, address) */
+  var sets = $('#ha-sets');
+  if (sets) near(sets, '900px 0px', function () {
+    page('/data').then(function (doc) {
+      var cards = [].slice.call(doc.querySelectorAll('a.hd-card[href^="#"]')), rows = [];
+      cards.forEach(function (c) {
+        var h = c.querySelector('h3'), tags = c.querySelectorAll('.hd-tag'), v = c.querySelector('video[poster]');
+        var hash = c.getAttribute('href'), name = h ? h.textContent.replace(/\s+/g, ' ').trim() : '';
+        if (!name || !/^#[\w-]+$/.test(hash)) return;
+        var pic = v ? v.getAttribute('poster') : '';
+        rows.push({ href: '/data' + hash, name: name, kind: tags.length ? tags[tags.length - 1].textContent.trim() : '', pic: /^https:\/\/[\w.-]+\//.test(pic) ? pic : '' });
+      });
+      if (!rows.length) return;
+      var old = {};
+      all('.ha-set', sets).forEach(function (a) { old[a.getAttribute('href')] = a.parentNode; });
+      rows.forEach(function (r, i) {
+        var li = old[r.href];
+        if (!li) {                         /* a dataset the markup does not know yet */
+          li = sets.children[0].cloneNode(true);
+          li.firstChild.setAttribute('href', r.href);
+        }
+        delete old[r.href];
+        var a = li.firstChild, box = a.querySelector('.ha-set-pic');
+        a.querySelector('small').textContent = r.kind;
+        a.querySelector('b').textContent = r.name;
+        var im = box.querySelector('img');
+        if (r.pic && !im) { im = document.createElement('img'); im.alt = ''; im.loading = 'lazy'; box.appendChild(im); }
+        if (im && r.pic && im.getAttribute('src') !== r.pic) im.src = r.pic;
+        if (im && !r.pic) box.removeChild(im);
+        if (sets.children[i] !== li) sets.insertBefore(li, sets.children[i] || null);
+      });
+      Object.keys(old).forEach(function (k) { sets.removeChild(old[k]); });   /* one that is no longer on the Data page */
+      root.setAttribute('data-live', 'sets');
+    }).catch(function () {});
+  });
+
+  /* the globe: the panel is the top of the page, so its files are asked for at once. A plain disc stands in
+     its place meanwhile, and the picture is fetched only if the globe cannot be drawn */
+  var stage = $('#ha-stage'), pic = stage && stage.getAttribute('data-pic');
+  function still() {
+    stage.setAttribute('data-orbit', 'off');
+    if ($('.ha-stage-pic', stage)) return;
+    var im = document.createElement('img');
+    im.className = 'ha-stage-pic'; im.alt = ''; im.width = 1500; im.height = 1125; im.src = pic;
+    stage.appendChild(im);
+  }
+  function room() {                        /* the room the globe takes besides its square, kept while it loads so that
+                                              nothing moves when it arrives (orbit-v1.js: below 560 px the clock stands
+                                              above the square; the chips and the source line are under it) */
+    var w = stage.getBoundingClientRect().width;
+    stage.style.setProperty('--ha-above', (w >= 560 ? 0 : w >= 296 ? 44 : 84) + 'px');
+    stage.style.setProperty('--ha-below', (w >= 560 ? 78 : w >= 300 ? 138 : 190) + 'px');
+  }
+  if (stage && pic) {
+    room();
+    stage.setAttribute('data-orbit', 'wait');
+    if (!window.Promise) still();
+    else near(stage, '500px 0px', function () {
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = pic.replace(/[^/]+$/, '') + 'about/orbit-v1.js';
+      s.onerror = still;
+      s.onload = function () {
+        try {
+          Promise.resolve(window.HydroOrbit.mount(stage, {})).then(function () {
+            if (stage.getAttribute('data-orbit') !== 'on') return still();
+            var n = (window.HydroOrbit._state() || {}).total;
+            if (n > 0) $('#ha-sats').textContent = String(n);
+            $('#ha-now').hidden = false;
+          }).catch(still);
+        } catch (e) { still(); }
+      };
+      document.head.appendChild(s);
+    });
+  }
+})();
+</script>
