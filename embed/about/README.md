@@ -104,7 +104,9 @@ drawn (`"off"`). A visitor without scripts gets the picture from the `<noscript>
   say so. At the satellite, what the instrument does now is drawn (the spinning beam, the scan line, the fan
   beams); a picked satellite's card names its swath and the colours, and CYGNSS's shows four delay-Doppler
   maps. `SPEC` and `FIELDS` at the top of `orbit-v1.js` hold it all. The ground is a 0.25° grid kept in the
-  browser (about 7 MB); drawing it costs about 2 ms a redraw in Chromium.
+  browser (about 7 MB); drawing it costs about 2 ms a redraw in Chromium. Live since 2026-11-23 05:11:59 UTC
+  (commit 7112dc0, at the lab head's word “올려”); `check_about.py` on the live page right after: 0 failed in the
+  three browsers.
 - **The colours** of the four families were checked for colour-blind separation on the dark panel; every
   satellite also has its name beside it and the chips name the families, so colour is never the only sign.
 - The head of `orbit-v1.js` says how it is built; `HydroOrbit._state()` is what the check reads.
