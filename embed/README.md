@@ -305,7 +305,8 @@ dense screen), it fetches a larger version of the same loop instead (`wide`), al
 | `media/et-wide-v1.*` | 1536 × 864, 13.7 s, 2.0–2.6 MB | `tools/wide_loops.py et_cap`: the loop without France (`et-v2`), kept, no longer played |
 | `media/hdca-wide-v1.*` | 1536 × 864, 10.5 s, 2.4–2.7 MB | `tools/wide_loops.py hdca_cap`, `hdca_compose` |
 | `media/tca-wide-v1.*` | 1536 × 864, 9.5 s, 1.9–2.3 MB | `tools/wide_loops.py tca_cap`, `tca_compose` |
-| `media/cvs-wide-v2.*` | 1280 × 720, 17.75 s, 1.5–1.9 MB (the drone mosaic is 1 m, no finer) | `make_cvs_v2.py` in `hdca-data-portal: embed/tools/` with `CVS_SCALE=1.3333333333`, then that folder's `encode.sh … 29 42 1280 24`; the reel plays this one since 2026-11-22 |
+| `media/cvs-wide-v3.*` | 1280 × 720, 17.75 s, 1.5–1.9 MB | the same, with the Copernicus notice over the Sentinel-1 part (`make_cvs_v2.py` as it is now); the reel plays this one since 2026-11-23 05:24:25 UTC |
+| `media/cvs-wide-v2.*` | 1280 × 720, 17.75 s, 1.5–1.9 MB (the drone mosaic is 1 m, no finer) | `make_cvs_v2.py` in `hdca-data-portal: embed/tools/` with `CVS_SCALE=1.3333333333` and `CVS_NOTICE=0`, then that folder's `encode.sh … 29 42 1280 24`; played from 2026-11-22 14:02:30 UTC until cvs-wide-v3, kept |
 | `media/cvs-wide-v1.*` | 1280 × 720, 12 s, 1.0–1.4 MB | `tools/wide_loops.py cvs`: the first loop (ten flights in true colour, `cvs`), kept, no longer played |
 
 `tools/wide_loops.py` runs the tools that made the card loops, unchanged, from their own repositories, with
@@ -579,6 +580,21 @@ short values going out the same way with its publishes of 12:53:38, 13:30:43 and
 The hero block's own comment (lines 22 and 23 of `home/hero.html`) still says the larger loops are “made by
 tools/wide_loops.py”; `cvs-wide-v2` is not (the table above says how it was made). Reword it with the next change
 to the hero block: the comment is inside the embed, so it goes out only with a publish.
+
+### The validation site's entry, third loop (live since 2026-11-23 05:24:25 UTC): the Copernicus notice
+
+The loop's Sentinel-1 scene is modified Copernicus Sentinel data, and the Copernicus licence asks for “Contains
+modified Copernicus Sentinel data 2026” wherever it is shown to the public; a read-only audit on 2026-11-23 found it
+nowhere. The lab head chose to have it in the picture, small, at the top right beside the 1 km cell, from the scene's
+wipe (14.1 s) to the end of the loop: `cvs-v3` on the Data card and `cvs-wide-v3` here, otherwise frame for frame and
+caption for caption the loops before. Only the entry's file names changed (`hero.html`, one line; the entry's two names
+in `check_home_new.py`), and the change went out with the Data card's at his “올려”. The Hampyeong portal's Sentinel-1
+and HLS layers carry the same notice in their map attribution since the same day.
+
+Seen after it: both blocks byte for byte on the live pages, 49 of the 51 pages of `site_snapshot.py` unchanged but for
+the stamp and the bundles' names. This publish, too, sent the long `sizes` values for the page's three pictures
+(as at 14:02:30 on 2026-11-22; the short ones had been back since 14:10:52): this session had opened the Designer on
+the Data page and then on Home, in the Design view only. Nothing moved; the record stands as above.
 
 ### Changing a block on the site
 

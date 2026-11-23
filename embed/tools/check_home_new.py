@@ -50,7 +50,7 @@ FAILS = 0
 SLIDES = [("hdca", "Hybrid Dual-Channel Algorithm (HDCA)", "/data#hdca", "hdca-v3", "hdca-wide-v1", False),
           ("et", "Global 30m-ET", "/data#et", "et-v3", "et-wide-v2", False),
           ("tca", "SMAP Time-Variant Error", "/data#tca", "tca-v2", "tca-wide-v1", False),
-          ("cvs", "NASA-GIST Core Validation Site", "/data#cvs", "cvs-v2", "cvs-wide-v2", False),
+          ("cvs", "NASA-GIST Core Validation Site", "/data#cvs", "cvs-v3", "cvs-wide-v3", False),
           ("wq", "Inland Water Quality of South Korea", "/data#wq", "wq-v1", "wq-wide-v1", True)]
 IDS = [x[0] for x in SLIDES]
 FIRST_CAPS = {"Soil moisture, 2015-2025 mean", "Into the Amazon basin", "Amazon basin: wet and dry seasons, 2015-2025"}     # the first dataset's
