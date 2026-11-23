@@ -93,6 +93,18 @@ drawn (`"off"`). A visitor without scripts gets the picture from the `<noscript>
 - **The satellites** are the roster at the top of `orbit-v1.js` (33 on 2026-11-22, the dashboard's list with
   the mission links that had died replaced). `../tools/about_tle.py` reads the catalogue numbers from it and
   writes `orbit-tle.json` anew; run it before a push when the file is older than a few days.
+- **The swaths** (asked for by the lab head on 2026-11-23: “위성이 지나갈 때 실제로 overpass swath가 그 위성
+  모양으로, 그리고 어떤 unique한 자료 색으로 지나가게 … 실제 자료가 아니더라도 그 느낌이 나게”): each instrument
+  leaves its swath on the ground behind it, in its own shape (SMAP's 1000 km conical scan, ASCAT's two strips,
+  a radar's strip to one side, SWOT's two narrow strips, ICESat-2's beams, CYGNSS's four specular-point tracks)
+  and in the colours of what it measures (GPM rain, SMOS soil moisture and salinity, AMSR2 water vapour, MODIS
+  ET and land temperature, Sentinel-1 speckle, ocean colour ...), fading over the twelve minutes of path. The
+  fields are **illustrative, not data**: noise shaped by latitude, season, deserts, coasts and the Sun, the
+  same field for every satellite that measures the same thing; the source line under the globe and the card
+  say so. At the satellite, what the instrument does now is drawn (the spinning beam, the scan line, the fan
+  beams); a picked satellite's card names its swath and the colours, and CYGNSS's shows four delay-Doppler
+  maps. `SPEC` and `FIELDS` at the top of `orbit-v1.js` hold it all. The ground is a 0.25° grid kept in the
+  browser (about 7 MB); drawing it costs about 2 ms a redraw in Chromium.
 - **The colours** of the four families were checked for colour-blind separation on the dark panel; every
   satellite also has its name beside it and the chips name the families, so colour is never the only sign.
 - The head of `orbit-v1.js` says how it is built; `HydroOrbit._state()` is what the check reads.

@@ -89,6 +89,73 @@
      The rest follow in the order of the list above. */
   var PRIORITY = ["smap", "nisar", "s1a", "s1c", "s1d", "l8", "l9", "s2a", "s2b", "s2c", "gpm", "swot", "gracefo1", "gracefo2"];
 
+  /* What each instrument sees, painted on the ground behind it as it flies: the shape of its swath and a
+     made-up field in the colours of what it measures. The fields are illustrative, not data: noise shaped
+     by latitude, season, deserts, coasts and the Sun, the same field for every satellite that measures the
+     same thing. Distances in km; across the track, + is to the right of the direction of flight.
+
+       band   [near, far] across the track        two    the band and its mirror on the left (ASCAT, SWOT)
+       west   the band is turned to the west       beams  single lines across the track (ICESat-2)
+       spec   specular points of reflected GPS     none   nothing on the ground (the second GRACE-FO)
+       inner  a narrower band inside (GPM's radar) day    only where the Sun is up (reflected sunlight)
+       land, sea   what is shown there (a field below, or a choice of two); nothing: only the swath's outline
+       look   what is drawn at the satellite: cone, arc, hex, line, whisk, side, fan, gpm, swot, twin, laser, spec
+       show   the fields the card's legend names */
+  var FIELDS = {
+    sm: { name: "Soil moisture", lo: "dry", hi: "wet", a: 0.88, stops: ["#7a4a1c", "#b98a4e", "#e2d3a0", "#86c9b4", "#2f93c0", "#2353a6"] },
+    frozen: { name: "Frozen ground", lo: "", hi: "", a: 0.8, stops: ["#bcd9f5", "#eaf5ff"] },
+    sss: { name: "Sea surface salinity", lo: "32 psu", hi: "38 psu", a: 0.85, stops: ["#2b3990", "#2f7fc1", "#5fc3c8", "#e7e58f", "#f39a46", "#c7362f"] },
+    ascat: { name: "Soil moisture (degree of saturation)", lo: "0%", hi: "100%", a: 0.86, stops: ["#f4e9a0", "#b6e3a1", "#4fb7b3", "#2b7bba", "#283593"] },
+    wind: { name: "Ocean wind speed", lo: "calm", hi: "gale", a: 0.78, stops: ["#3b2c7e", "#5e3c99", "#8d4fb3", "#c873c4", "#f2b5e1"] },
+    tpw: { name: "Water vapour", lo: "dry air", hi: "moist air", a: 0.8, stops: ["#46327e", "#365c8d", "#277f8e", "#1fa187", "#4ac16d", "#a0da39", "#fde725"] },
+    sst: { name: "Sea surface temperature", lo: "cold", hi: "warm", a: 0.8, stops: ["#313695", "#4575b4", "#74add1", "#e0f3f8", "#fee090", "#f46d43", "#a50026"] },
+    snow: { name: "Snow", lo: "thin", hi: "deep", a: 0.9, stops: ["#9fc2e6", "#d6e9fb", "#ffffff"] },
+    sar: { name: "Radar backscatter (flooded: dark blue)", lo: "low", hi: "high", a: 0.92, stops: [[0, "#0a2552"], [0.07, "#123a78"], [0.08, "#2e2e2e"], [1, "#f4f4f4"]] },
+    sarsea: { name: "", lo: "", hi: "", a: 0.75, stops: ["#151d26", "#3a4652", "#77828e"] },
+    nisar: { name: "L-band radar (HH, HV, HH/HV)", lo: "forest", hi: "fields", a: 0.92, stops: ["#1d6b33", "#38b056", "#a2d880", "#e8b3dc", "#c843b0", "#6e1f86"] },
+    xsar: { name: "X-band radar backscatter", lo: "low", hi: "high", a: 0.92, stops: [[0, "#081a3a"], [0.07, "#0e2c5c"], [0.08, "#161616"], [1, "#ffffff"]] },
+    et: { name: "Evapotranspiration", lo: "low", hi: "high", a: 0.86, stops: ["#efe2a8", "#c8e08a", "#78c25a", "#2f9e55", "#0f7462", "#0b4f6c"] },
+    lst: { name: "Land surface temperature", lo: "cold", hi: "hot", a: 0.86, stops: ["#3a2a7a", "#6a1f84", "#b02f7a", "#e3555a", "#f88f3e", "#fcd25a", "#fff6c0"] },
+    fcc: { name: "False colour (vegetation red)", lo: "water", hi: "dense crops", a: 0.92, stops: [[0, "#0d1b2a"], [0.1, "#173352"], [0.11, "#6f97a6"], [0.35, "#a8a49a"], [0.6, "#b5675f"], [0.85, "#d42a24"], [1, "#ff4a3a"]] },
+    ndvi: { name: "Vegetation (NDVI)", lo: "bare", hi: "green", a: 0.9, stops: ["#8c5a2b", "#c9a465", "#ece0a8", "#a9d46b", "#4fae4a", "#13702f"] },
+    chl: { name: "Chlorophyll (ocean colour)", lo: "clear", hi: "blooming", a: 0.86, stops: ["#2a1a6e", "#2457b3", "#1e9bb0", "#47c48b", "#b8e04a", "#f2c12e", "#e8622c"] },
+    sgli: { name: "Leaf area", lo: "sparse", hi: "dense", a: 0.86, stops: ["#5b5a2c", "#6f8f34", "#8fbf45", "#bde46a", "#e6f7a8"] },
+    rain: { name: "Rain rate", lo: "light", hi: "heavy", a: 0.94, stops: ["#7fd3f7", "#2a9df4", "#2fbf4a", "#f7e03b", "#f79a2e", "#e8352b", "#c2187a"] },
+    ssha: { name: "Sea surface height", lo: "low", hi: "high", a: 0.9, stops: ["#1b3f8c", "#3f7cc4", "#9cc6e6", "#f2f2f2", "#f2a98a", "#d9583b", "#9e1b1b"] },
+    tws: { name: "Water storage change", lo: "losing", hi: "gaining", a: 0.62, stops: ["#8c510a", "#d8b365", "#f2ecd6", "#7cc8bd", "#01665e"] },
+    elev: { name: "Surface height (photons)", lo: "low", hi: "high", a: 0.95, stops: ["#1f7a3d", "#3fd36b", "#9dffb3", "#effff2"] },
+    cygland: { name: "Reflected signal over land", lo: "dry", hi: "wet", a: 0.95, stops: ["#2b4aa0", "#2f8fd8", "#5fd0b0", "#e8e35a", "#f58a2e", "#e0362e"] },
+    cygwind: { name: "Ocean wind speed", lo: "calm", hi: "storm", a: 0.9, stops: ["#d6ecff", "#a5cdf2", "#6fa3e3", "#4e6fd0", "#5b3fb3"] }
+  };
+
+  var SAR1 = { band: [240, 490], look: "side", land: "sar", sea: "sarsea", desc: "250 km, right of the track", show: ["sar"] };
+  var ASCAT = { band: [336, 886], two: true, look: "fan", land: "ascat", sea: "wind", desc: "2 × 550 km, six fan beams", show: ["ascat", "wind"] };
+  var LANDSAT = { band: [-92, 92], look: "line", land: "fcc", day: true, desc: "185 km, by day", show: ["fcc"] };
+  var S2 = { band: [-145, 145], look: "line", land: "ndvi", day: true, desc: "290 km, by day", show: ["ndvi"] };
+  var S3 = { band: [-270, 1000], west: true, look: "line", sea: "chl", day: true, desc: "1270 km, tilted west; by day", show: ["chl"] };
+  var CYG = { spec: 4, look: "spec", land: "cygland", sea: "cygwind", desc: "4 specular points, 25 km tracks", show: ["cygland", "cygwind"], ddm: true };
+  var GRACE = { band: [-300, 300], look: "twin", land: "tws", desc: "None: the twins, 220 km apart, sense mass", show: ["tws"] };
+  var SPEC = {
+    smap: { band: [-500, 500], look: "cone", r: 500, land: "smft", desc: "1000 km, conical scan", show: ["sm", "frozen"] },
+    smos: { band: [-500, 500], look: "hex", r: 520, land: "sm", sea: "sss", desc: "About 1000 km, hexagonal view", show: ["sm", "sss"] },
+    metopb: ASCAT, metopc: ASCAT,
+    gcomw1: { band: [-725, 725], look: "arc", r: 725, land: "sm", sea: "tpw", desc: "1450 km, conical scan", show: ["sm", "tpw"] },
+    gosatgw: { band: [-765, 765], look: "arc", r: 765, land: "smsnow", sea: "sst", desc: "1530 km, conical scan", show: ["sst", "snow"] },
+    s1a: SAR1, s1c: SAR1, s1d: SAR1,
+    nisar: { band: [-460, -218], look: "side", land: "nisar", sea: "sarsea", desc: "242 km, left of the track", show: ["nisar"] },
+    k5: { band: [250, 350], look: "side", land: "xsar", sea: "sarsea", desc: "100 km, right of the track", show: ["xsar"] },
+    terra: { band: [-1165, 1165], look: "whisk", land: "et", day: true, desc: "2330 km, scanning mirror; by day", show: ["et"] },
+    aqua: { band: [-1165, 1165], look: "whisk", land: "lstsnow", desc: "2330 km, scanning mirror", show: ["lst", "snow"] },
+    l8: LANDSAT, l9: LANDSAT, s2a: S2, s2b: S2, s2c: S2, s3a: S3, s3b: S3,
+    gcomc: { band: [-575, 575], look: "line", land: "sglisnow", day: true, desc: "1150 km, by day", show: ["sgli", "snow"] },
+    gpm: { band: [-442, 442], inner: [-122, 122], look: "gpm", r: 442, land: "rain", sea: "rain", desc: "885 km; radar 245 km inside", show: ["rain"] },
+    swot: { band: [10, 60], two: true, look: "swot", sea: "ssha", desc: "2 × 50 km, 20 km gap", show: ["ssha"] },
+    gracefo1: GRACE,
+    gracefo2: { none: true, look: "none", desc: GRACE.desc, show: ["tws"] },
+    icesat2: { beams: [-46, -40, -3, 3, 40, 46], look: "laser", land: "elev", sea: "elev", desc: "6 beams in 3 pairs (drawn wider)", show: ["elev"] },
+    cygfm01: CYG, cygfm02: CYG, cygfm03: CYG, cygfm04: CYG, cygfm05: CYG, cygfm07: CYG, cygfm08: CYG
+  };
+
   /* Where the browser asks when the file is old: two group files, and one request each for the satellites
      that are in neither (the dashboard's plan). CelesTrak renews its files about every two hours. */
   var CELESTRAK = "https://celestrak.org/NORAD/elements/gp.php?";
@@ -164,6 +231,17 @@
     ".ho-root .ho-x{position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;color:rgba(255,255,255,.72);transition:background-color .15s,color .15s}",
     "@media (hover:hover){.ho-root .ho-x:hover{background:rgba(255,255,255,.12);color:#fff}}",
 
+    ".ho-root .ho-legend{margin:11px 0 0;padding:10px 0 0;border-top:1px solid rgba(255,255,255,.12)}",
+    ".ho-root .ho-lgh{margin:0 0 7px;padding:0;font:500 12px/1.3 Satoshi,sans-serif;color:rgba(255,255,255,.6)}",
+    ".ho-root .ho-lg{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:3px 7px;margin:0 0 7px}",
+    ".ho-root .ho-lg:last-child{margin-bottom:0}",
+    ".ho-root .ho-lgname{grid-column:1/-1;margin:0;font:500 13px/1.3 Satoshi,sans-serif;color:rgba(255,255,255,.92)}",
+    ".ho-root .ho-end{font:400 11.5px/1.2 Satoshi,sans-serif;color:rgba(255,255,255,.6);white-space:nowrap}",
+    ".ho-root .ho-bar{display:block;height:7px;border-radius:4px}",
+    ".ho-root .ho-plain{grid-template-columns:auto 44px}",
+    ".ho-root .ho-plain .ho-lgname{grid-column:auto}",
+    ".ho-root .ho-ddms{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin:0 0 10px}",
+    ".ho-root .ho-ddm{display:block;width:100%;height:auto;max-width:none;margin:0;border-radius:4px;background:#000;image-rendering:auto}",
     ".ho-root .ho-source{margin:12px 0 0;padding:0;max-width:none;font:400 12.5px/1.45 Satoshi,sans-serif;color:rgba(255,255,255,.56);text-align:center}",
     "@media (prefers-reduced-motion:reduce){.ho-root .ho-box{animation:none}.ho-root *{transition:none!important}}"
   ].join("\n");
@@ -198,6 +276,75 @@
   function clamp(x, a, b) { return x < a ? a : x > b ? b : x; }
   function ease(p) { return p <= 0 ? 0 : p >= 1 ? 1 : p * p * (3 - 2 * p); }
   function pad2(n) { return (n < 10 ? "0" : "") + n; }
+  function sq(x) { return x * x; }
+  function sstep(a, b, x) { x = clamp((x - a) / (b - a), 0, 1); return x * x * (3 - 2 * x); }
+  function frac(x) { return x - Math.floor(x); }
+
+  /* Noise for the illustrative fields: value noise on the unit sphere (no seam at the date line), a few
+     octaves of it, and a hash for speckle. */
+  function hsh(i, j, k, s) {
+    var n = Math.imul(i, 73856093) ^ Math.imul(j, 19349663) ^ Math.imul(k, 83492791) ^ Math.imul(s, 1103515245);
+    n = Math.imul(n ^ (n >>> 15), -2048144777);
+    n = Math.imul(n ^ (n >>> 13), -1028477379);
+    n ^= n >>> 16;
+    return (n >>> 0) / 4294967295;
+  }
+  function vnoise(x, y, z, s) {
+    var i = Math.floor(x), j = Math.floor(y), k = Math.floor(z);
+    var u = x - i, v = y - j, w = z - k;
+    u = u * u * (3 - 2 * u); v = v * v * (3 - 2 * v); w = w * w * (3 - 2 * w);
+    var a = hsh(i, j, k, s), b = hsh(i + 1, j, k, s), c = hsh(i, j + 1, k, s), d = hsh(i + 1, j + 1, k, s);
+    var e = hsh(i, j, k + 1, s), f = hsh(i + 1, j, k + 1, s), g = hsh(i, j + 1, k + 1, s), q = hsh(i + 1, j + 1, k + 1, s);
+    a += (b - a) * u; c += (d - c) * u; e += (f - e) * u; g += (q - g) * u;
+    a += (c - a) * v; e += (g - e) * v;
+    return a + (e - a) * w;
+  }
+  function fbm(x, y, z, f, s, n) {               // 0..1, .5 on average; spread out again with stretch()
+    var sum = 0, amp = 1, norm = 0, o;
+    for (o = 0; o < n; o++) {
+      sum += amp * vnoise(x * f + 17.3 * o, y * f - 9.1 * o, z * f + 5.7 * o, s + o);
+      norm += amp; amp *= 0.5; f *= 2.07;
+    }
+    return sum / norm;
+  }
+  function stretch(v, k) { return clamp(0.5 + (v - 0.5) * k, 0, 1); }
+  function inBox(la, lo, b) {                    // [lat0, lat1, lon0, lon1, weight], soft at the edges
+    return sstep(b[0] - 3, b[0] + 3, la) * (1 - sstep(b[1] - 3, b[1] + 3, la)) *
+      sstep(b[2] - 3, b[2] + 3, lo) * (1 - sstep(b[3] - 3, b[3] + 3, lo)) * b[4];
+  }
+  function anyBox(la, lo, list) {
+    var m = 0, i;
+    for (i = 0; i < list.length; i++) m = Math.max(m, inBox(la, lo, list[i]));
+    return m;
+  }
+  var DESERTS = [[15, 33, -17, 35, 1], [13, 32, 35, 60, 1], [24, 38, 55, 75, 0.6], [36, 48, 55, 112, 0.6],
+    [-32, -18, 115, 142, 0.85], [24, 38, -118, -103, 0.7], [-28, -17, 12, 25, 0.6], [-30, -18, -72, -67, 0.6]];
+  var HIGHLANDS = [[27, 38, 76, 103, 1], [44, 48, 5, 16, 0.8], [36, 58, -125, -104, 0.8], [-55, -28, -74, -67, 0.8]];
+  var EDDIES = [[25, 42, 122, 165, 1], [28, 46, -80, -40, 1], [-62, -38, -180, 180, 0.8], [-45, -33, 15, 40, 1]];
+
+  /* A colour ramp of 256 steps from stops ("#rrggbb", or [place 0..1, "#rrggbb"]), as 0xBBGGRR for ImageData. */
+  function ramp(stops) {
+    var pts = stops.map(function (s, i) {
+      return typeof s === "string" ? [i / (stops.length - 1), s] : s;
+    }), out = new Uint32Array(256), i, k, p, a, b, f;
+    for (i = 0; i < 256; i++) {
+      p = i / 255;
+      for (k = 0; k < pts.length - 2 && p > pts[k + 1][0]; k++) { /* find the stretch */ }
+      a = pts[k]; b = pts[k + 1];
+      f = clamp((p - a[0]) / Math.max(b[0] - a[0], 1e-6), 0, 1);
+      var ca = parseInt(a[1].slice(1), 16), cb = parseInt(b[1].slice(1), 16);
+      var r = Math.round(((ca >> 16) & 255) * (1 - f) + ((cb >> 16) & 255) * f);
+      var g = Math.round(((ca >> 8) & 255) * (1 - f) + ((cb >> 8) & 255) * f);
+      var bl = Math.round((ca & 255) * (1 - f) + (cb & 255) * f);
+      out[i] = (bl << 16) | (g << 8) | r;
+    }
+    return out;
+  }
+  function gradientCss(stops) {
+    return "linear-gradient(90deg," + stops.map(function (s, i) {
+      return typeof s === "string" ? s + " " + Math.round(i / (stops.length - 1) * 100) + "%" : s[1] + " " + Math.round(s[0] * 100) + "%";
+    }).join(",") + ")";
+  }
   function dateText(ms) {
     var d = new Date(ms);
     return d.getUTCDate() + " " + MONTHS[d.getUTCMonth()] + " " + d.getUTCFullYear();
@@ -420,6 +567,15 @@
     facts.appendChild(h("dt", "", "Instrument")); facts.appendChild(cInst);
     facts.appendChild(h("dt", "", "Used for")); facts.appendChild(cUse);
     facts.appendChild(h("dt", "", "Altitude now")); facts.appendChild(cAlt);
+    var cSw = h("dd");
+    facts.appendChild(h("dt", "", "Swath")); facts.appendChild(cSw);
+    var cLeg = h("div", "ho-legend"), cDdms = h("div", "ho-ddms"), ddmCv = [], ddmAt = 0, ddmFor = null;
+    for (var di = 0; di < 4; di++) {
+      var dc = h("canvas", "ho-ddm");
+      dc.width = 64; dc.height = 48;
+      dc.setAttribute("aria-hidden", "true");
+      ddmCv.push(dc); cDdms.appendChild(dc);
+    }
     var cFar = h("div", "ho-far", "Out of view: over the far side of the globe.");
     cFar.hidden = true;
     var cLink = h("a", "ho-link");
@@ -429,7 +585,7 @@
     var cClose = h("button", "ho-x");
     cClose.type = "button"; cClose.hidden = true; cClose.setAttribute("aria-label", "Close");
     cClose.appendChild(icon(12, "M3 3l8 8M11 3l-8 8"));
-    box.appendChild(cFam); box.appendChild(cName); box.appendChild(cAgency); box.appendChild(facts);
+    box.appendChild(cFam); box.appendChild(cName); box.appendChild(cAgency); box.appendChild(facts); box.appendChild(cLeg);
     box.appendChild(cFar); box.appendChild(cLink); box.appendChild(cClose);
     card.appendChild(box);
 
@@ -457,7 +613,7 @@
         " Earth-observing satellites. Use the arrow keys to step through them.");
       var at = elementsAt();
       sourceLine.textContent = "Positions computed in your browser with SGP4 from CelesTrak orbital elements" +
-        (isFinite(at) ? " of " + dateText(at) + "." : ".");
+        (isFinite(at) ? " of " + dateText(at) + "." : ".") + " The swaths' colours are illustrative, not data.";
     }
 
     /* ----- drawing surfaces ----- */
@@ -547,6 +703,483 @@
       return { lat: dec / DEG, lon: wrap180((ra - sat.gstime(new Date(ms))) / DEG) };
     }
 
+    /* ----- swaths: what each instrument sees, left on the ground behind it ----- */
+
+    /* The ground is a grid of quarter-degree cells (28 km at the equator), like a gridded product. A cell
+       keeps when it was seen, by which satellite, which field and its value; it fades over the twelve
+       minutes of path drawn behind a satellite. Rows across each track are laid every ROW ms of flight;
+       a field is worked out once for a cell and a pass. */
+    var GW = 1440, GH = 720, NC = GW * GH, RE = 6371, CELL = TAU * RE / GW;
+    var ROW = 2000, FADE = SPAN, FADE_S = FADE / 1000, T0 = Date.now();
+    var cT = new Float32Array(NC), cS = new Uint8Array(NC), cD = new Uint8Array(NC), cV = new Uint8Array(NC);
+    cT.fill(-1e9);
+    var fieldIds = Object.keys(FIELDS), FID = {}, LUT = new Uint32Array((fieldIds.length + 2) * 256), LA = new Float32Array(fieldIds.length + 2);
+    fieldIds.forEach(function (id, i) {
+      var f = FIELDS[id];
+      FID[id] = i + 2;                             // 0: the faint inside of a swath with nothing to show, 1: its edge
+      LUT.set(ramp(f.stops), (i + 2) * 256);
+      LA[i + 2] = f.a;
+    });
+    var FADEL = new Float32Array(256);
+    for (var fi = 0; fi < 256; fi++) FADEL[fi] = fi < 26 ? 1 : Math.pow(1 - (fi - 26) / 230, 1.35);
+    var LM = landMask(land), COAST = coastness(LM);
+
+    function landMask(geo) {
+      var m = new Uint8Array(NC), c = D.createElement("canvas");
+      c.width = GW; c.height = GH;
+      var x = c.getContext("2d");
+      if (!x) return m;
+      var pr = d3.geoEquirectangular().scale(GW / TAU).translate([GW / 2, GH / 2]).precision(0.2);
+      x.beginPath(); d3.geoPath(pr, x)(geo);
+      x.fillStyle = "#000"; x.fill();
+      var px4 = x.getImageData(0, 0, GW, GH).data, i;
+      for (i = 0; i < NC; i++) m[i] = px4[i * 4 + 3] > 127 ? 1 : 0;
+      return m;
+    }
+    /* How much land there is within a few degrees, on a one-degree grid: coasts for the ocean fields. */
+    function coastness(lm) {
+      var w = 360, hh = 180, a = new Float32Array(w * hh), b = new Float32Array(w * hh), i, j, k, d, s;
+      for (j = 0; j < GH; j++) for (i = 0; i < GW; i++) if (lm[j * GW + i]) a[(j >> 2) * w + (i >> 2)] += 1 / 16;
+      for (k = 0; k < 2; k++) {
+        for (j = 0; j < hh; j++) for (i = 0; i < w; i++) {
+          for (s = 0, d = -4; d <= 4; d++) s += a[j * w + (i + d + w) % w];
+          b[j * w + i] = s / 9;
+        }
+        for (j = 0; j < hh; j++) for (i = 0; i < w; i++) {
+          for (s = 0, d = -4; d <= 4; d++) s += b[clamp(j + d, 0, hh - 1) * w + i];
+          a[j * w + i] = s / 9;
+        }
+      }
+      return a;
+    }
+
+    /* the fields: 0..1 at a cell (la, lo in degrees, x y z its unit vector); dec is the Sun's latitude */
+    var dec = 0, sunX = 1, sunY = 0, sunZ = 0;
+    function wetness(la, lo, x, y, z) {
+      var base = stretch(fbm(x, y, z, 7, 11, 4), 2.6);
+      var c = 0.3 + 0.38 * Math.exp(-sq(la / 11)) + 0.14 * Math.exp(-sq((Math.abs(la) - 55) / 14)) - 0.42 * anyBox(la, lo, DESERTS);
+      return clamp(c + (base - 0.5) * 0.55, 0.02, 1);
+    }
+    function warmth(la) { return Math.pow(Math.max(Math.cos((la - dec * 0.8) * DEG), 0), 1.4); }
+    function snowAt(la, lo, x, y, z, shift) {     // how much snow (0 none); shift > 0 reaches further from the pole (frozen ground)
+      var jit = (fbm(x, y, z, 5, 21, 2) - 0.5) * 18, edgeN = 58 + dec * 0.45 - shift + jit, edgeS = -(58 - dec * 0.45) + shift + jit;
+      var s = Math.max(sstep(edgeN, edgeN + 6, la), 1 - sstep(edgeS - 6, edgeS, la));
+      if (la > 60 && lo > -73 && lo < -12) s = 1;                        // Greenland
+      var hi = anyBox(la, lo, HIGHLANDS);
+      if (hi > 0) {
+        var winter = la > 0 ? clamp(-dec / 15, 0, 1) : clamp(dec / 15, 0, 1);
+        s = Math.max(s, hi * winter * sstep(0.45, 0.6, fbm(x, y, z, 14, 23, 3)) + (shift ? hi * winter * 0.3 : 0));
+      }
+      return s;
+    }
+    function speck(ci, si, tS) { return hsh(ci, si, Math.floor(tS / 900), 7); }
+    function value(f, ci, la, lo, x, y, z, tS, si, inner, day) {
+      var v, a, w, n;
+      switch (f) {
+        case "sm": return wetness(la, lo, x, y, z);
+        case "frozen": return 0.4 + 0.6 * hsh(ci, 1, 2, 3);
+        case "snow": return clamp(snowAt(la, lo, x, y, z, 0) * (0.6 + 0.4 * fbm(x, y, z, 12, 25, 2)), 0, 1);
+        case "sss":
+          v = 34.9 + 1.7 * Math.exp(-sq((Math.abs(la) - 24) / 10)) - 0.9 * Math.exp(-sq((la - 7) / 6)) - 1.8 * sstep(42, 68, Math.abs(la)) +
+            0.5 * inBox(la, lo, [-40, 60, -75, 15, 1]) + 2.2 * inBox(la, lo, [30, 45, -5, 36, 1]) + 1.2 * inBox(la, lo, [12, 30, 32, 58, 1]) -
+            2.6 * inBox(la, lo, [5, 23, 80, 98, 1]) - 1.4 * coastAt(la, lo) + (fbm(x, y, z, 9, 31, 3) - 0.5) * 2.2;
+          return clamp((v - 32) / 6, 0, 1);
+        case "ascat": return clamp(wetness(la, lo, x, y, z) * 1.15 + (fbm(x, y, z, 20, 33, 2) - 0.5) * 0.3, 0, 1);
+        case "wind": case "cygwind":
+          v = 0.22 + 0.42 * Math.exp(-sq((Math.abs(la) - 52) / 11)) + 0.18 * Math.exp(-sq((Math.abs(la) - 14) / 7)) +
+            (stretch(fbm(x, y, z, 6, 51, 3), 2.4) - 0.5) * 0.5;
+          return clamp(f === "cygwind" ? v + (speck(ci, si, tS) - 0.5) * 0.18 : v, 0, 1);
+        case "tpw": return clamp(0.1 + 0.8 * Math.exp(-sq((la - dec * 0.5) / 20)) + (stretch(fbm(x, y, z, 5, 61, 4), 2.6) - 0.5) * 0.5, 0, 1);
+        case "sst": return clamp(Math.pow(Math.max(Math.cos((la - dec * 0.4) * DEG), 0), 2.2) * 1.02 - 0.04 + (stretch(fbm(x, y, z, 6, 71, 3), 2.2) - 0.5) * 0.2, 0, 1);
+        case "et": return clamp(wetness(la, lo, x, y, z) * 1.3 * warmth(la) - 0.06 + (fbm(x, y, z, 16, 73, 2) - 0.5) * 0.25, 0, 1);
+        case "lst":
+          v = 0.12 + 0.6 * warmth(la) + 0.3 * anyBox(la, lo, DESERTS) - (day ? 0 : 0.24) + (fbm(x, y, z, 10, 75, 3) - 0.5) * 0.3;
+          return clamp(v, 0, 1);
+        case "fcc":
+          if (fbm(x, y, z, 30, 81, 2) > 0.72) return 0.04;                  // a lake
+          return clamp(0.12 + wetness(la, lo, x, y, z) * warmth(la) * 0.95 + (speck(ci, si, 0) - 0.5) * 0.18, 0.12, 1);
+        case "ndvi": case "sgli":
+          return clamp(wetness(la, lo, x, y, z) * 1.2 * warmth(la) - 0.05 + (fbm(x, y, z, 22, 83, 2) - 0.5) * 0.3, 0, 1);
+        case "chl":
+          v = 0.2 + 0.6 * coastAt(la, lo) + 0.32 * sstep(35, 58, Math.abs(la)) + 0.3 * inBox(la, lo, [-4, 4, -150, -80, 1]) +
+            0.25 * inBox(la, lo, [-30, -5, -20, 15, 0.8]) - 0.12 * Math.exp(-sq((Math.abs(la) - 25) / 9)) +
+            (stretch(fbm(x, y, z, 14, 91, 4), 2.8) - 0.5) * 0.4;
+          return clamp(v, 0, 1);
+        case "rain":
+          w = 0.5 * Math.exp(-sq((la - 6 - dec * 0.3) / 9)) + 0.4 * Math.exp(-sq((Math.abs(la) - 47) / 11)) + 0.08;
+          w *= 1 - 0.85 * anyBox(la, lo, DESERTS);
+          n = stretch(fbm(x + tS / 3600 * 0.02, y - tS / 3600 * 0.012, z, 9, 41, 4), 2.6);
+          a = 0.9 - 0.5 * w;
+          if (n < a) return -1;
+          v = (n - a) / (1 - a) * (0.6 + 0.4 * fbm(x, y, z, 45, 43, 2) * 1.4);
+          return clamp(inner ? Math.pow(v, 0.7) * 1.1 : v * 0.85, 0.02, 1);
+        case "ssha":
+          a = 0.35 + 0.65 * anyBox(la, lo, EDDIES);
+          return clamp(0.5 + (stretch(fbm(x, y, z, 16, 101, 3), 3.2) - 0.5) * a * 1.3, 0, 1);
+        case "tws": return stretch(fbm(x, y, z, 2.4, 111, 2), 4);
+        case "sar": case "xsar":
+          if (fbm(x, y, z, 26, 121, 2) > 0.73 || (coastAt(la, lo) > 0.55 && fbm(x, y, z, 40, 125, 2) > 0.66)) return 0.03 + 0.03 * speck(ci, si, tS);
+          v = 0.5 * stretch(fbm(x, y, z, 30, 123, 2), 2.2) + 0.5 * speck(ci, si, tS);
+          return clamp(f === "xsar" ? 0.1 + v * 0.95 : 0.15 + v * 0.75, 0.09, 1);
+        case "sarsea": return clamp(0.2 + 0.45 * fbm(x * 3, y, z, 30, 127, 2) + (speck(ci, si, tS) - 0.5) * 0.5, 0, 1);
+        case "nisar": return clamp(stretch(fbm(x, y, z, 24, 131, 3), 2.5) * 0.85 + (speck(ci, si, tS) - 0.5) * 0.35 + (1 - wetness(la, lo, x, y, z)) * 0.15, 0, 1);
+        case "elev": return clamp(0.2 + stretch(fbm(x, y, z, 8, 141, 4), 2.4) * 0.6 + snowAt(la, lo, x, y, z, 0) * 0.3, 0, 1);
+        case "cygland":
+          return clamp(wetness(la, lo, x, y, z) * 0.95 + 0.25 * coastAt(la, lo) + (speck(ci, si, tS) - 0.5) * 0.3 - 0.08, 0, 1);
+      }
+      return -1;
+    }
+    function coastAt(la, lo) {
+      var i = clamp(Math.floor(lo + 180), 0, 359), j = clamp(Math.floor(90 - la), 0, 179);
+      return clamp(COAST[j * 360 + i] * 2.2, 0, 1);
+    }
+    /* which field a satellite shows at a cell, or "" for the faint inside of the swath */
+    function pick(sp, onLand, la, lo, x, y, z, day) {
+      var f = onLand ? sp.land : sp.sea;
+      if (!f || (sp.day && !day)) return "";
+      if (f === "smft") return snowAt(la, lo, x, y, z, 5) > 0.5 ? "frozen" : "sm";
+      if (f === "smsnow") return snowAt(la, lo, x, y, z, 0) > 0.5 ? "snow" : "sm";
+      if (f === "lstsnow") return snowAt(la, lo, x, y, z, 0) > 0.5 ? "snow" : "lst";
+      if (f === "sglisnow") return snowAt(la, lo, x, y, z, 0) > 0.5 ? "snow" : "sgli";
+      return f;
+    }
+
+    function stampCell(ci, si, sp, tS, edge, inner) {
+      var age = tS - cT[ci], ds = 0, v = 0;
+      if (age < 0) return;                                                  // laying rows backward: what is newer stays
+      if (cS[ci] === si + 1 && age >= 0 && age < 40) {                    // this pass has it already
+        cT[ci] = tS;
+        if (edge && cD[ci] < 2) cD[ci] = 1;
+        return;
+      }
+      if (edge) ds = 1;
+      else {
+        var la = 90 - (Math.floor(ci / GW) + 0.5) * 0.25, lo = -180 + (ci % GW + 0.5) * 0.25;
+        var cl = Math.cos(la * DEG), x = cl * Math.cos(lo * DEG), y = cl * Math.sin(lo * DEG), z = Math.sin(la * DEG);
+        var day = x * sunX + y * sunY + z * sunZ > 0.03;
+        var f = pick(sp, LM[ci] === 1, la, lo, x, y, z, day);
+        if (f) {
+          v = value(f, ci, la, lo, x, y, z, tS, si, inner, day);
+          if (v >= 0) { ds = FID[f]; v = Math.round(v * 255); } else v = 0;
+        }
+      }
+      if (ds < 2 && cD[ci] > 1 && age >= 0 && age < FADE_S * 0.5) return;  // an outline never covers what another has just seen
+      cT[ci] = tS; cS[ci] = si + 1; cD[ci] = ds; cV[ci] = v;
+    }
+
+    /* where a satellite is at time t, from its grid of points, without moving it */
+    var P = [0, 0, 0], FW = [0, 0, 0], RT = [0, 0, 0], QA = [0, 0, 0], QB = [0, 0, 0];
+    var qx = 0, qy = 0, qz = 0;
+    function at(s, t, o) {
+      var g = s.grid;
+      if (!g) return false;
+      var q = t / STEP, i = Math.floor(q), f = q - i, k = (i - g.i0) * 3, v = g.v;
+      if (i < g.i0 || i + 1 >= g.i0 + g.n) return false;
+      var x = v[k] + (v[k + 3] - v[k]) * f, y = v[k + 1] + (v[k + 4] - v[k + 1]) * f, z = v[k + 2] + (v[k + 5] - v[k + 2]) * f;
+      var n = Math.sqrt(x * x + y * y + z * z);
+      if (!(n > 0)) return false;
+      o[0] = x / n; o[1] = y / n; o[2] = z / n;
+      return true;
+    }
+    /* the point under the satellite (P), the way it flies (FW) and its right (RT), all unit vectors */
+    function axes(s, t) {
+      if (!at(s, t, P)) return false;
+      var a = at(s, t - 4000, QA), b = at(s, t + 4000, QB);
+      if (!a && !b) return false;
+      if (!a) { QA[0] = P[0]; QA[1] = P[1]; QA[2] = P[2]; }
+      if (!b) { QB[0] = P[0]; QB[1] = P[1]; QB[2] = P[2]; }
+      var dx = QB[0] - QA[0], dy = QB[1] - QA[1], dz = QB[2] - QA[2], dp = dx * P[0] + dy * P[1] + dz * P[2];
+      dx -= dp * P[0]; dy -= dp * P[1]; dz -= dp * P[2];
+      var n = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      if (!(n > 0)) return false;
+      FW[0] = dx / n; FW[1] = dy / n; FW[2] = dz / n;
+      RT[0] = FW[1] * P[2] - FW[2] * P[1]; RT[1] = FW[2] * P[0] - FW[0] * P[2]; RT[2] = FW[0] * P[1] - FW[1] * P[0];
+      return true;
+    }
+    /* the point `a` km ahead and `c` km to the right of the one under the satellite (qx, qy, qz) */
+    function offset(a, c) {
+      var d = Math.sqrt(a * a + c * c);
+      if (d < 1e-6) { qx = P[0]; qy = P[1]; qz = P[2]; return; }
+      var th = d / RE, cs = Math.cos(th), sn = Math.sin(th) / d;
+      qx = P[0] * cs + (FW[0] * a + RT[0] * c) * sn;
+      qy = P[1] * cs + (FW[1] * a + RT[1] * c) * sn;
+      qz = P[2] * cs + (FW[2] * a + RT[2] * c) * sn;
+    }
+    function cellOf(x, y, z) {
+      var la = Math.asin(clamp(z, -1, 1)), lo = Math.atan2(y, x);
+      var i = Math.floor((lo + Math.PI) / TAU * GW), j = Math.floor((Math.PI / 2 - la) / Math.PI * GH);
+      return clamp(j, 0, GH - 1) * GW + clamp(i, 0, GW - 1);
+    }
+    /* CYGNSS: where specular point k of satellite si is, km ahead and to the right; the GPS satellites
+       move too, so the points wander slowly round the one they belong to */
+    function specular(si, k, t) {
+      var ph = hsh(si, k, 7, 3) * TAU + t / (2.4e6 + 0.9e6 * k) * TAU * (k % 2 ? 1 : -1);
+      var r = 170 + 560 * hsh(si, k, 9, 5);
+      QA[0] = 0.45 * r * Math.sin(ph); QA[1] = r * Math.cos(ph);
+    }
+
+    function stampRow(s, si, sp, t) {
+      if (!sp || sp.none || !axes(s, t)) return;
+      var tS = (t - T0) / 1000, k, n, c, c0, c1, b;
+      if (sp.spec) {
+        for (k = 0; k < sp.spec; k++) {
+          specular(si, k, t);
+          offset(QA[0], QA[1]);
+          stampCell(cellOf(qx, qy, qz), si, sp, tS, false, false);
+        }
+        return;
+      }
+      if (sp.beams) {
+        for (k = 0; k < sp.beams.length; k++) { offset(0, sp.beams[k]); stampCell(cellOf(qx, qy, qz), si, sp, tS, false, false); }
+        return;
+      }
+      var step = CELL * 0.62 * Math.max(Math.sqrt(1 - P[2] * P[2]), 0.12);
+      var lo = sp.band[0], hi = sp.band[1];
+      if (sp.west) {                               // the right of the track is west when the track runs south
+        var east = (-P[1] * RT[0] + P[0] * RT[1]);
+        if (east > 0) { lo = -sp.band[1]; hi = -sp.band[0]; }
+      }
+      for (b = 0; b < (sp.two ? 2 : 1); b++) {
+        c0 = b ? -hi : lo; c1 = b ? -lo : hi;
+        n = Math.max(1, Math.ceil((c1 - c0) / step));
+        for (k = 0; k <= n; k++) {
+          c = c0 + (c1 - c0) * k / n;
+          offset(0, c);
+          stampCell(cellOf(qx, qy, qz), si, sp, tS, (k === 0 || k === n) && n > 3,
+                    !!(sp.inner && c >= sp.inner[0] && c <= sp.inner[1]));
+        }
+        if (sp.inner) {
+          offset(0, sp.inner[0]); stampCell(cellOf(qx, qy, qz), si, sp, tS, true, false);
+          offset(0, sp.inner[1]); stampCell(cellOf(qx, qy, qz), si, sp, tS, true, false);
+        }
+      }
+    }
+    function stampRows(t) {
+      for (var i = 0; i < sats.length; i++) if (sats[i].rec && sats[i].grid) stampRow(sats[i], i, SPEC[sats[i].key], t);
+    }
+    function sunVector(t) {
+      var su = sunAt(t), la = su.lat * DEG, lo = su.lon * DEG;
+      dec = su.lat; sunX = Math.cos(la) * Math.cos(lo); sunY = Math.cos(la) * Math.sin(lo); sunZ = Math.sin(la);
+    }
+
+    /* Rows are laid up to stampK (time stampK * ROW). On a start, a jump or a run back, the twelve minutes
+       behind the clock are laid again, newest first, a few ms a frame, so the swaths grow back behind the
+       satellites. */
+    var stampK = NaN, fill = null, fillMs = 0, cells = 0;
+    function clearAfter(tS) {
+      for (var i = 0; i < NC; i++) if (cT[i] > tS) cT[i] = -1e9;
+    }
+    function stampTo(t) {
+      var k = Math.floor(t / ROW), j, c0;
+      sunVector(t);
+      if (stampK !== stampK || k < stampK - 1 || k - stampK > FADE / ROW) {
+        if (stampK === stampK && k < stampK) {
+          if (simAnim) return;                     // on the way back to the present: what lies ahead of the clock is hidden
+          clearAfter((t - T0) / 1000);
+        }
+        stampK = k; fill = { k: k, lo: Math.ceil((t - FADE) / ROW) };
+      } else if (k > stampK) {
+        for (j = stampK + 1; j <= k; j++) stampRows(j * ROW);
+        stampK = k;
+      }
+      if (fill) {
+        c0 = perf();
+        while (fill.k >= fill.lo && perf() - c0 < 6) { stampRows(fill.k * ROW); fill.k--; }
+        fillMs += perf() - c0;
+        if (fill.k < fill.lo) fill = null;
+        ovForce = true; dirty = true;
+      }
+    }
+
+    /* The cells on the globe: a square of up to 640 px over the disc, each pixel looking up its cell
+       through a map that is made again only when the globe turns or changes size. */
+    var dCv = D.createElement("canvas"), dctx = dCv.getContext("2d"), dKey = "", dRes = 0;
+    var dImg = null, dBuf = null, dMap = null, dLimb = null, dataMs = 0;
+    var satA = new Float32Array(sats.length), famC = new Uint32Array(sats.length);
+    sats.forEach(function (s, i) {
+      var c = parseInt(s.fam.color.slice(1), 16);
+      famC[i] = ((c & 255) << 16) | (c & 0xff00) | ((c >> 16) & 255);
+    });
+    function dataMap() {
+      var res = Math.max(32, Math.min(Math.round(2 * R * dpr), 640));
+      var key = res + "|" + rot[0].toFixed(2) + "," + rot[1].toFixed(2);
+      if (key === dKey) return;
+      dKey = key;
+      if (res !== dRes) {
+        dRes = res; dCv.width = dCv.height = res;
+        dImg = dctx.createImageData(res, res);
+        dBuf = new Uint32Array(dImg.data.buffer);
+        dMap = new Int32Array(res * res); dLimb = new Float32Array(res * res);
+      }
+      var i, j, p = 0, u, w, d, x, y, z, ci, cj, inv = 2 / res;
+      for (j = 0; j < res; j++) {
+        w = 1 - (j + 0.5) * inv;
+        for (i = 0; i < res; i++, p++) {
+          u = (i + 0.5) * inv - 1;
+          d = 1 - u * u - w * w;
+          if (d <= 0) { dMap[p] = -1; continue; }
+          d = Math.sqrt(d);
+          x = m00 * d + m10 * u + m20 * w; y = m01 * d + m11 * u + m21 * w; z = m02 * d + m22 * w;
+          ci = Math.floor((Math.atan2(y, x) + Math.PI) / TAU * GW);
+          cj = Math.floor((Math.PI / 2 - Math.asin(z > 1 ? 1 : z < -1 ? -1 : z)) / Math.PI * GH);
+          dMap[p] = (cj < GH ? cj : GH - 1) * GW + (ci < GW ? ci : GW - 1);
+          dLimb[p] = d < 0.2 ? d * 5 : 1;
+        }
+      }
+    }
+    function drawData(c, t) {
+      if (!dctx) return;
+      var c0 = perf();
+      dataMap();
+      var nowS = (t - T0) / 1000, inv = 255 / FADE_S, n = dRes * dRes, buf = dBuf, p, ci, age, a, si, ds, col, i, s;
+      for (i = 0; i < sats.length; i++) { s = sats[i]; satA[i] = s.fam.a * (s === focus ? 1 : 1 - 0.55 * dim); }
+      cells = 0;
+      for (p = 0; p < n; p++) {
+        ci = dMap[p];
+        if (ci < 0) { buf[p] = 0; continue; }
+        age = nowS - cT[ci];
+        if (age < 0 || age >= FADE_S) { buf[p] = 0; continue; }
+        si = cS[ci] - 1; ds = cD[ci];
+        a = FADEL[(age * inv) | 0] * satA[si] * dLimb[p];
+        if (ds > 1) { col = LUT[(ds << 8) | cV[ci]]; a *= LA[ds]; }
+        else { col = famC[si]; a *= ds ? 0.5 : 0.1; }
+        if (a < 0.004) { buf[p] = 0; continue; }
+        buf[p] = ((((a * 255) | 0) << 24) | col) >>> 0;
+        cells++;
+      }
+      dctx.putImageData(dImg, 0, 0);
+      c.drawImage(dCv, cx - R, cy - R, 2 * R, 2 * R);
+      a = perf() - c0;
+      dataMs = dataMs ? dataMs * 0.9 + a * 0.1 : a;
+    }
+
+    /* ----- what each instrument is doing now, drawn at the satellite every frame ----- */
+
+    var on = false;
+    function trace(pts) {                          // [a0, c0, a1, c1, ...] in km round the satellite: a line through the visible part
+      on = false;
+      for (var i = 0; i < pts.length; i += 2) {
+        offset(pts[i], pts[i + 1]); pj(qx, qy, qz);
+        if (pd > 0) { if (on) ctx.lineTo(px, py); else ctx.moveTo(px, py); on = true; } else on = false;
+      }
+    }
+    function arcPts(a0, r, from, to, n) {           // a circle round a point a0 km ahead, angles from the way it flies
+      var pts = [], i, th;
+      for (i = 0; i <= n; i++) { th = (from + (to - from) * i / n) * DEG; pts.push(a0 + r * Math.cos(th), r * Math.sin(th)); }
+      return pts;
+    }
+    function dotAt(a, c, rad, fill) {
+      offset(a, c); pj(qx, qy, qz);
+      if (pd <= 0) return false;
+      ctx.beginPath(); ctx.arc(px, py, rad, 0, TAU); ctx.fillStyle = fill; ctx.fill();
+      return true;
+    }
+    function horseshoe(x, y, k) {                  // a delay-Doppler map in small: the peak and its two arms
+      ctx.beginPath();
+      for (var u = -1; u <= 1.001; u += 0.25) { var xx = x + u * 7 * k, yy = y - 2 * k + u * u * 8 * k; if (u === -1) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy); }
+      ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y - 2 * k, 1.8 * k, 0, TAU); ctx.fill();
+    }
+    function drawLooks(now) {
+      var i, s, sp, k, hi, col, glow, ph, j, sx, sy, o, tw;
+      var spin = reduced ? 0.15 : now;
+      ctx.lineCap = "round"; ctx.lineJoin = "round";
+      for (i = byPri.length - 1; i >= 0; i--) {
+        s = byPri[i]; sp = SPEC[s.key];
+        if (!sp || sp.look === "none" || !s.ok || s.fam.a < 0.01 || s.depth < -0.25 || !axes(s, simT)) continue;
+        hi = s === focus;
+        k = s.fam.a * (hi ? 1 : 1 - 0.65 * dim);
+        if (k < 0.02) continue;
+        col = rgba(s.fam.rgb, (hi ? 0.95 : 0.6) * k);
+        glow = "rgba(255,255,255," + ((hi ? 0.95 : 0.75) * k).toFixed(3) + ")";
+        ctx.lineWidth = hi ? 1.6 : 1.1; ctx.strokeStyle = col;
+        switch (sp.look) {
+          case "cone":                             // SMAP: the whole circle, and the beam going round it
+            ctx.beginPath(); trace(arcPts(0, sp.r, 0, 360, 48)); ctx.stroke();
+            ph = (spin / 4100) * 360;
+            ctx.lineWidth = hi ? 2.6 : 2; ctx.strokeStyle = glow;
+            ctx.beginPath(); trace(arcPts(0, sp.r, ph - 40, ph, 8)); ctx.stroke();
+            dotAt(sp.r * Math.cos(ph * DEG), sp.r * Math.sin(ph * DEG), hi ? 3 : 2.4, glow);
+            break;
+          case "arc": case "gpm":                  // AMSR, GMI: the forward arc, swept over and over
+            ctx.beginPath(); trace(arcPts(0, sp.r, -72, 72, 24)); ctx.stroke();
+            ph = -72 + 144 * frac(spin / 1900);
+            dotAt(sp.r * Math.cos(ph * DEG), sp.r * Math.sin(ph * DEG), hi ? 2.8 : 2.2, glow);
+            if (sp.look === "gpm") {               // the radar's line across the track
+              ctx.lineWidth = hi ? 2.4 : 1.8; ctx.strokeStyle = glow;
+              ctx.beginPath(); trace([0, sp.inner[0], 0, sp.inner[1]]); ctx.stroke();
+            }
+            break;
+          case "hex":                              // SMOS: the hexagon of its two-dimensional view
+            ctx.beginPath(); trace(arcPts(160, sp.r, 30, 390, 6));
+            ctx.fillStyle = rgba(s.fam.rgb, 0.1 * k); ctx.fill(); ctx.stroke();
+            ctx.lineWidth = 0.8; ctx.strokeStyle = rgba(s.fam.rgb, 0.35 * k);
+            ctx.beginPath(); trace(arcPts(160, sp.r * 0.55, 30, 390, 6)); ctx.stroke();
+            break;
+          case "line": case "whisk":               // a line across the swath; MODIS's mirror sweeps along it
+            ctx.lineWidth = hi ? 2 : 1.5; ctx.strokeStyle = col;
+            var b0 = sp.band[0], b1 = sp.band[1];
+            if (sp.west && (-P[1] * RT[0] + P[0] * RT[1]) > 0) { b0 = -sp.band[1]; b1 = -sp.band[0]; }
+            ctx.beginPath(); trace([0, b0, 0, (b0 + b1) / 2, 0, b1]); ctx.stroke();
+            if (sp.look === "whisk") { ph = frac(spin / 700); dotAt(0, b0 + (b1 - b0) * ph, hi ? 2.6 : 2, glow); }
+            break;
+          case "side":                             // a radar: the line of sight off to the side, and the strip it lights
+            ctx.lineWidth = 0.8; ctx.strokeStyle = rgba(s.fam.rgb, 0.4 * k);
+            ctx.beginPath(); trace([0, 0, 0, sp.band[0]]); ctx.stroke();
+            ph = reduced ? 1 : 0.55 + 0.45 * Math.abs(Math.sin(now / 260));
+            ctx.lineWidth = hi ? 3 : 2.4; ctx.strokeStyle = "rgba(255,255,255," + (ph * k * (hi ? 0.95 : 0.8)).toFixed(3) + ")";
+            ctx.beginPath(); trace([0, sp.band[0], 0, sp.band[1]]); ctx.stroke();
+            break;
+          case "fan":                              // ASCAT: three beams on either side, fore, mid and aft
+            ctx.lineWidth = hi ? 1.8 : 1.3; ctx.strokeStyle = col;
+            for (j = 0; j < 6; j++) {
+              o = [45, 90, 135][j % 3] * DEG; tw = j < 3 ? 1 : -1;
+              ctx.beginPath();
+              trace([sp.band[0] * Math.cos(o) * 1.2, tw * sp.band[0] * Math.sin(o), sp.band[1] * Math.cos(o) * 1.05, tw * sp.band[1] * Math.sin(o)]);
+              ctx.stroke();
+            }
+            break;
+          case "swot":                             // two narrow strips and the gap between them
+            ctx.lineWidth = hi ? 3.2 : 2.6; ctx.strokeStyle = glow;
+            ctx.beginPath(); trace([-45, 35, 45, 35]); ctx.stroke();
+            ctx.beginPath(); trace([-45, -35, 45, -35]); ctx.stroke();
+            break;
+          case "twin":                             // GRACE-FO: the microwave and laser link to its twin
+            var t2 = byKey.gracefo2;
+            if (t2 && t2.ok && t2.vis && s.vis) {
+              ctx.save();
+              ctx.setLineDash([3, 4]); ctx.lineDashOffset = reduced ? 0 : -(now / 40) % 7;
+              ctx.lineWidth = hi ? 1.8 : 1.4; ctx.strokeStyle = glow;
+              ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(t2.x, t2.y); ctx.stroke();
+              ctx.restore();
+            }
+            break;
+          case "laser":                            // ICESat-2: six green spots of its laser
+            ctx.fillStyle = "rgba(120,255,150," + (0.95 * k).toFixed(3) + ")";
+            for (j = 0; j < sp.beams.length; j++) dotAt(0, sp.beams[j], hi ? 1.9 : 1.5, ctx.fillStyle);
+            break;
+          case "spec":                             // CYGNSS: its four specular points, and their maps when it is picked
+            sx = s.x; sy = s.y;
+            for (j = 0; j < sp.spec; j++) {
+              specular(sats.indexOf(s), j, simT);
+              offset(QA[0], QA[1]); pj(qx, qy, qz);
+              if (pd <= 0) continue;
+              if (s.vis) {
+                ctx.lineWidth = 0.7; ctx.strokeStyle = rgba(s.fam.rgb, (hi ? 0.6 : 0.28) * k);
+                ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(px, py); ctx.stroke();
+              }
+              if (hi) {
+                ctx.lineWidth = 1.3; ctx.strokeStyle = "rgba(255,240,170,.95)"; ctx.fillStyle = "rgba(255,255,255,.95)";
+                horseshoe(px, py, 1);
+              } else {
+                ctx.beginPath(); ctx.arc(px, py, 1.8, 0, TAU); ctx.fillStyle = glow; ctx.fill();
+              }
+            }
+            break;
+        }
+      }
+    }
+
     /* ----- the clock ----- */
 
     var speed = reduced ? 1 : FAST, simT = Date.now(), simAnim = null, last = perf(), clockShown = "";
@@ -606,6 +1239,7 @@
       cInst.textContent = s.inst;
       cUse.textContent = s.use;
       cLink.href = s.url;
+      legend(s);
       cLink.setAttribute("aria-label", s.name + " mission page (opens in a new tab)");
       altShown = ""; altAt = 0; farShown = false; cFar.hidden = true;
       showAltitude(perf());
@@ -614,6 +1248,53 @@
       box.hidden = false;
       measure();
       seat();
+    }
+    /* The card's account of the swath: its shape, and the colours left on the ground (with CYGNSS, the
+       four delay-Doppler maps it makes, one for each specular point). */
+    function legend(s) {
+      var sp = SPEC[s.key] || {};
+      cSw.textContent = sp.desc || "";
+      while (cLeg.firstChild) cLeg.removeChild(cLeg.firstChild);
+      cLeg.hidden = !sp.show;
+      if (!sp.show) return;
+      if (sp.ddm) {
+        cLeg.appendChild(h("p", "ho-lgh", "Its four delay-Doppler maps (illustrative)"));
+        cLeg.appendChild(cDdms);
+        ddmAt = 0; ddmFor = null;
+      }
+      cLeg.appendChild(h("p", "ho-lgh", "On the ground behind it (illustrative)"));
+      sp.show.forEach(function (id) {
+        var f = FIELDS[id], row = h("div", "ho-lg"), bar = h("span", "ho-bar");
+        bar.style.background = gradientCss(f.stops);
+        row.appendChild(h("span", "ho-lgname", f.name));
+        if (f.lo || f.hi) { row.appendChild(h("span", "ho-end", f.lo)); row.appendChild(bar); row.appendChild(h("span", "ho-end", f.hi)); }
+        else { row.className = "ho-lg ho-plain"; row.appendChild(bar); }
+        cLeg.appendChild(row);
+      });
+    }
+    var DDMLUT = ramp(["#000004", "#2c0b57", "#7b1d6e", "#c43c4e", "#f1731d", "#fbbf2b", "#fcffa4"]);
+    function drawDdms(now) {
+      var sp = SPEC[shown.key];
+      if (!sp || !sp.ddm || (now - ddmAt < 240 && ddmFor === shown) || (reduced && ddmFor === shown)) return;
+      ddmAt = now; ddmFor = shown;
+      var si = sats.indexOf(shown), slot = Math.floor(simT / 60000);
+      ddmCv.forEach(function (dc, k) {
+        var x2 = dc.getContext("2d");
+        if (!x2) return;
+        var w2 = dc.width, h2 = dc.height, img = x2.createImageData(w2, h2), b = new Uint32Array(img.data.buffer), r, q, dl, dp, arm, pw;
+        var gain = 0.55 + 0.45 * hsh(si, k, slot, 9), coh = hsh(si, k, slot, 11);
+        for (r = 0; r < h2; r++) {
+          dl = r / (h2 - 1) * 1.3 - 0.25;          // delay: later downward
+          for (q = 0; q < w2; q++) {
+            dp = q / (w2 - 1) * 2 - 1;              // Doppler
+            arm = dl - 0.8 * dp * dp;
+            pw = Math.exp(-arm * arm / 0.007) * Math.exp(-Math.max(dl, 0) * 1.5) * (dl > -0.05 ? 1 : 0.15) * gain +
+              coh * 0.9 * Math.exp(-(dp * dp / 0.012 + dl * dl / 0.004)) + Math.random() * 0.13;
+            b[r * w2 + q] = (0xff000000 | DDMLUT[clamp((pw * 235) | 0, 0, 255)]) >>> 0;
+          }
+        }
+        x2.putImageData(img, 0, 0);
+      });
     }
     function showAltitude(now) {
       if (!shown || now - altAt < 400) return;
@@ -771,6 +1452,7 @@
     function drawOverlay(t) {
       var c = octx, i, j, b, n, s, g, v, k, isF, any, ax, ay, bx, by, av;
       c.clearRect(0, 0, size, size);
+      drawData(c, t);
 
       var sun = sunAt(t);
       c.save();
@@ -960,6 +1642,7 @@
         s.ok = true; s.x = px; s.y = py; s.depth = pd; s.vis = pd > 0;
         if (s.vis && s.fam.on) drawn++;
       }
+      stampTo(simT);
 
       /* what the pointer is on */
       var turning = ptr && ptr.mode === "turn";
@@ -1002,6 +1685,8 @@
         ctx.beginPath(); ctx.arc(siteX, siteY, 3.7, 0, TAU); ctx.fillStyle = MINT; ctx.fill();
         ctx.globalAlpha = 1;
       }
+
+      drawLooks(now);
 
       /* each satellite: the bit of path flown since the paths were last drawn, then its dot */
       var iH = Math.floor(simT / STEP), j, g, fa;
@@ -1064,7 +1749,7 @@
       }
       ctx.globalAlpha = 1;
 
-      if (shown) { showAltitude(now); seat(); }
+      if (shown) { showAltitude(now); seat(); drawDdms(now); }
       a = perf() - c0;
       cost = cost ? cost * 0.94 + a * 0.06 : a;
     }
@@ -1289,6 +1974,7 @@
           rot: [rot[0], rot[1]], turned: away, running: running, reduced: reduced, wide: wide,
           size: size, dpr: dpr, frames: frames, frameMs: cost,
           elements: { source: source, at: elementsAt(), fileAt: fileAt },
+          swaths: { cells: cells, filling: !!fill, fillMs: fillMs, dataMs: dataMs, res: dRes },
           sun: sunAt(simT),
           sats: sats.filter(function (s) { return s.rec; }).map(function (s) {
             return { key: s.key, name: s.name, family: s.fam.id, visible: s.vis && s.fam.on, x: s.x, y: s.y,
